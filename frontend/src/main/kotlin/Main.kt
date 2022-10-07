@@ -5,11 +5,10 @@ import javafx.stage.Stage
 
 class Main: Application() {
     override fun start(stage: Stage) {
-        val borderPane = BorderPane()
-        borderPane.center = "To-Do App"
+        val pane = Pane()
 
         // set the scene
-        val scene = Scene(borderPane, 800.0, 600.0)
+        val scene = Scene(pane, 800.0, 600.0)
 
         // set the stage
         stage.title = "To-Do App"

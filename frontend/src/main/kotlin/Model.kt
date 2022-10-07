@@ -3,7 +3,7 @@ class Model {
 
     fun addView(view: IView) {
         views.add(view)
-        views.updateView()
+        view.updateView()
     }
 
     private fun notifyObservers() {
