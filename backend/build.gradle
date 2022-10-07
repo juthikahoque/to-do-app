@@ -33,7 +33,7 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-    mainClass.set("ApplicationKt")
+    mainClass.set("backend.ApplicationKt")
 }
 
 dependencies {
@@ -46,6 +46,7 @@ dependencies {
     implementation('ch.qos.logback:logback-classic:1.4.1')
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
 //    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    
 }
 
 test {
