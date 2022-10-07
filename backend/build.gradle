@@ -33,7 +33,7 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-    mainClass.set("backend.ApplicationKt")
+    mainClass.set("ApplicationKt")
 }
 
 dependencies {
