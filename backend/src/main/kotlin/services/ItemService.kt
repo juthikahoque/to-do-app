@@ -20,6 +20,10 @@ class ItemService {
         return items.find { it.id == id }
     }
 
+    fun getAllItems(boardId: UUID) : List<Item> {
+        return items.filter { it.boardId == boardId }
+    }
+
     fun updateItem(id: UUID, updatedItem: Item) {
         items.find { it.id == id }?.boardId = updatedItem.boardId
         items.find { it.id == id }?.dueDate = updatedItem.dueDate
