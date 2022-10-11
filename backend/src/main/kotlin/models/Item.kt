@@ -12,8 +12,4 @@ data class Item(
     var priority: Int,
 ) {
     val id: UUID = UUID.randomUUID()
-
-    fun addTag(label: Label) {
-        labels.add(label)
-    }
 }

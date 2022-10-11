@@ -25,11 +25,13 @@ class ItemService {
     }
 
     fun updateItem(id: UUID, updatedItem: Item) {
-        items.find { it.id == id }?.boardId = updatedItem.boardId
-        items.find { it.id == id }?.dueDate = updatedItem.dueDate
-        items.find { it.id == id }?.text = updatedItem.text
-        items.find { it.id == id }?.priority = updatedItem.priority
-        items.find { it.id == id }?.labels = updatedItem.labels
+        val item = items.find { it.id == id }
+        if (item == null) return
+        
+        item.boardId = updatedItem.boardId
+        item.dueDate = updatedItem.dueDate
+        item.text = updatedItem.text
+        item.priority = updatedItem.priority
+        item.labels = updatedItem.labels
     }
-
 }

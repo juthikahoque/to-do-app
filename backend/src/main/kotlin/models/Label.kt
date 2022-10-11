@@ -1,5 +1,6 @@
 package models
 
-data class Label(
-    val text: String,
-)
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Label(val value: String)
