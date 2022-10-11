@@ -8,7 +8,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.http.*
 
-class FBoardService(client: HttpClient) {
+class BoardService(client: HttpClient) {
     val client = client
     val boards = mutableSetOf(Board("hello"), Board("world"))
 

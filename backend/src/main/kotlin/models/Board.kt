@@ -7,21 +7,22 @@ import kotlinx.serialization.encoding.*
 
 @Serializable
 data class Board(
-    val name: String
+    val name: String,
+    val users: MutableSet<@Serializable(with = UUIDSerializer::class) UUID>,
+    val id: @Serializable(with = UUIDSerializer::class) UUID,
+    val labels: MutableSet<Label>
 ) {
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID = UUID.randomUUID()
+    constructor(name: String) : this(name, mutableSetOf(), UUID.randomUUID(), mutableSetOf())
 }
 
-
-object UUIDSerializer : KSerializer<UUID> {
+private object UUIDSerializer : KSerializer<UUID> {
     override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): UUID {
-            return UUID.fromString(decoder.decodeString())
+        return UUID.fromString(decoder.decodeString())
     }
 
     override fun serialize(encoder: Encoder, value: UUID) {
-            encoder.encodeString(value.toString())
+        encoder.encodeString(value.toString())
     }
 }
