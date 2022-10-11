@@ -1,4 +1,3 @@
-
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -11,7 +10,7 @@ class Main {
         }
         defaultRequest {
             url("localhost:8080")
-            
+
         }
     }
 }

@@ -4,6 +4,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.6.20'
     id 'org.openjfx.javafxplugin' version '0.0.12'
     id 'org.beryx.jlink' version '2.24.1'
+    id 'io.ktor.plugin' version '2.1.2'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.20'
 }
 
 group 'net.codebot'
@@ -13,20 +15,16 @@ repositories {
     mavenCentral()
 }
 
-ext {
-    junitVersion = '5.8.2'
-}
-
 sourceCompatibility = '17'
 targetCompatibility = '17'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
-
-application {
-    mainClass = 'Main'
-}
+//
+//application {
+//    mainClass = 'Main'
+//}
 
 [compileKotlin, compileTestKotlin].forEach {
     it.kotlinOptions {
@@ -34,14 +32,21 @@ application {
     }
 }
 
-javafx {
-    version = '17.0.2'
-    modules = ['javafx.controls', 'javafx.fxml']
+application {
+    mainClass.set("ApplicationKt")
 }
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+    implementation('ch.qos.logback:logback-classic:1.4.1')
+    testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
+//    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    
 }
 
 test {

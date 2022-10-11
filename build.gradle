@@ -1,9 +1,12 @@
 allprojects {
     buildscript {
+<<<<<<< HEAD
         ext.kotlin_version = '1.2.21'
         ext.kotlinx_html_version = '0.6.8'
         ext.frontend_plugin_version = '0.0.27'
         ext.serialization_version = '0.4.1'
+=======
+>>>>>>> 31-implement-crud-on-boards-locally
         ext.junitVersion = '5.8.2'
         ext.ktor_version = '2.1.2'
 
@@ -17,5 +20,8 @@ allprojects {
 
     repositories {
         mavenCentral()
+    }
+
+    dependencies {
     }
 }
