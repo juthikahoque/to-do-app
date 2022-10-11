@@ -5,7 +5,11 @@ import models.*
 
 class BoardService() {
 
-    val boards = mutableSetOf(Board("hello"), Board("world"))
+    // temp boards
+    val boards = mutableSetOf(
+        Board("hello"),
+        Board("world"),
+    )
 
     fun addBoard(board: Board): Board {
         // assert board
@@ -18,20 +22,17 @@ class BoardService() {
     }
 
     fun getBoard(id: UUID): Board {
-        return boards.first({ it.id == id })
+        return boards.first { it.id == id }
     }
 
     fun updateBoard(new: Board): Board? {
-        val board = boards.firstOrNull() { it.id == new.id }
-        if (board == null) {
-            return null
-        }
+        val board = boards.firstOrNull() { it.id == new.id } ?: return null
         boards.remove(board)
         boards.add(new)
         return new
     }
 
-    fun deleteBoard(id: UUID) {
-        boards.removeIf({it.id == id})
+    fun deleteBoard(id: UUID): Boolean {
+        return boards.removeIf { it.id == id }
     }
 }
