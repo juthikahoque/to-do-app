@@ -21,10 +21,6 @@ targetCompatibility = '17'
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
-//
-//application {
-//    mainClass = 'Main'
-//}
 
 [compileKotlin, compileTestKotlin].forEach {
     it.kotlinOptions {
@@ -45,8 +41,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation('ch.qos.logback:logback-classic:1.4.1')
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
-//    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    
 }
 
 test {
