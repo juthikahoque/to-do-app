@@ -33,14 +33,10 @@ class Main: Application() {
             }
             defaultRequest {
                 url("http://127.0.0.1:8080")
-    
+
             }
         }
 
         val boardS = BoardService(client)
-
-        val x = boardS.getBoards()
-
-        print(x)
     }
 }

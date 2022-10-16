@@ -75,4 +75,4 @@ outTmp/
 /kotlin-native/dist
 kotlin-ide/
 .vscode
-**/bin/**
+**/bin

@@ -10,18 +10,11 @@ import io.ktor.http.*
 
 class BoardService(client: HttpClient) {
     val client = client
-    val boards = mutableSetOf(Board("hello"), Board("world"))
-
     suspend fun addBoard(board: Board): Board? {
         val result = client.post("board") {
             setBody(board)
         }
-        if (result.status == HttpStatusCode.OK) {
-            // assert board
-            boards.add(board)
-            return board
-        }
-        return null
+        return result.body()
     }
 
     suspend fun getBoards(): List<Board> {
@@ -41,23 +34,12 @@ class BoardService(client: HttpClient) {
         val result = client.put("board") {
             setBody(new)
         }
-        if (result.status == HttpStatusCode.OK) {
-            // assert board
-            val removed = boards.removeIf { it.id == new.id }
-            if (removed) {
-                boards.add(new)
-                return result.body()
-            }
-        }
-        return null
+        return result.body()
     }
 
     suspend fun deleteBoard(id: UUID) {
         val result = client.delete("board") {
             url(id.toString())
-        }
-        if (result.status == HttpStatusCode.NoContent) {
-            boards.removeIf {it.id == id}
         }
     }
 }
