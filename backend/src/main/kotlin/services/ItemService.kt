@@ -24,6 +24,10 @@ class ItemService {
         return items.filter { it.boardId == boardId }
     }
 
+    fun getAllItems(): List<Item> {
+        return items.toList()
+    }
+
     fun updateItem(new: Item): Item? {
         val item = items.find { it.id == new.id } ?: return null
         items.remove(item)

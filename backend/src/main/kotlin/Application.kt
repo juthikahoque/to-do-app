@@ -29,7 +29,7 @@ fun Application.configureSerialization() {
 
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            call.respond(HttpStatusCode.InternalServerError, "Unexpected")
+            call.respond(HttpStatusCode.InternalServerError, cause.message?:"Unexpected")
         }
     }
 }

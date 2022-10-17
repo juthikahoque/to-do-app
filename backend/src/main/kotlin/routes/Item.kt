@@ -13,6 +13,10 @@ import services.*
 val itemService = ItemService()
 
 fun Route.itemRouting() {
+    route("/items") {
+
+    }
+
     route("/board/{bid?}/items") {
         get {
             val boardId = UUID.fromString(call.parameters["bid"])
