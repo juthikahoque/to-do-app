@@ -1,11 +1,12 @@
 import javafx.application.Platform
+import models.Board
 
 class Model {
     private val views: ArrayList<IView> = ArrayList()
-    private val boards: ArrayList<String> = ArrayList()
+    private val boards: ArrayList<Board> = ArrayList()
     init {
-        boards.add("All")
-        boards.add("Personal")
+        boards.add(Board("All"))
+        boards.add(Board("Personal"))
     }
     fun addView(view: IView) {
         views.add(view)
@@ -18,16 +19,16 @@ class Model {
         }
     }
 
-    fun addBoard(boardName:String){
-        boards.add(boardName)
+    fun addBoard(board: Board){
+        boards.add(board)
         notifyObservers()
     }
 
-    fun getBoards(): ArrayList<String>{
+    fun getBoards(): ArrayList<Board>{
         return boards
     }
 
     fun logout(){
-        Platform.exit()
+        println("Logged out!")
     }
 }
