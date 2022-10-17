@@ -3,13 +3,10 @@ package services
 import java.util.UUID
 import models.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.http.*
 
-class BoardService(client: HttpClient) {
-    val client = client
+class BoardService(private val client: HttpClient) {
     suspend fun addBoard(board: Board): Board? {
         val result = client.post("board") {
             setBody(board)

@@ -11,7 +11,16 @@ import kotlinx.coroutines.*
 
 class Main: Application() {
     override fun start(stage: Stage) {
-        val pane = Pane()
+        val pane = BorderPane()
+
+        val model = Model()
+
+        val sidebarController = SidebarController(model)
+        val sidebar = SidebarView(model, sidebarController)
+
+        pane.apply {
+            left = sidebar
+        }
 
         // set the scene
         val scene = Scene(pane, 800.0, 600.0)
