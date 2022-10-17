@@ -4,13 +4,14 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.text.*
+import models.Board
 
 /* The view for the sidebar which includes
     - The current user's username
     - A scrollable list of boards available to the user
     - Buttons that allow for new boards to be created and the user to logout
  */
-class SidebarView(private val model:Model, private  val controller: SidebarController): BorderPane(), IView{
+class SidebarView(private val model:Model): BorderPane(), IView{
 
 
     private val username = HBox(Label("Current User").apply {
@@ -19,7 +20,9 @@ class SidebarView(private val model:Model, private  val controller: SidebarContr
     })
 
     private val group = ToggleGroup().apply {
-        controller.setToggleGroupProperties(this)
+        selectedToggleProperty().addListener { _, oldValue, newValue ->
+            if (newValue == null) oldValue.isSelected = true
+        }
     }
 
     //List of available boards
@@ -33,7 +36,7 @@ class SidebarView(private val model:Model, private  val controller: SidebarContr
         textFill = Color.LIGHTGREEN
         font = Font(Font.getDefault().name, 15.0)
         this.addEventHandler(MouseEvent.MOUSE_CLICKED){
-            controller.addNewBoard()
+            model.addBoard(Board("New Board"))
         }
     }
 
@@ -43,7 +46,7 @@ class SidebarView(private val model:Model, private  val controller: SidebarContr
         textFill = Color.INDIANRED
         font = Font(Font.getDefault().name, 15.0)
         this.addEventHandler(MouseEvent.MOUSE_CLICKED){
-            controller.logout()
+            model.logout()
         }
     }
 
@@ -54,13 +57,19 @@ class SidebarView(private val model:Model, private  val controller: SidebarContr
         //append new added boards to board area
         val currBoards = model.getBoards()
         for (i in boardArea.children.size until currBoards.size){
-            boardArea.children.add(ToggleButton(currBoards[i]).apply {
+            boardArea.children.add(ToggleButton(currBoards[i].name).apply {
                 textFill = Color.WHITE
                 //TODO: Add styles in CSS sheet with additional hover properties
                 style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
                 toggleGroup = group
                 font = Font(Font.getDefault().name, 15.0)
-                controller.setBoardButtonProperties(this)
+                selectedProperty().addListener { _, _, newValue ->
+                    style = if(isSelected){
+                        "-fx-background: rgb(169, 169, 169);\n -fx-background-color: rgb(169, 169, 169)"                    //TODO: update views to show items in the selected board
+                    } else {
+                        "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
+                    }
+                }
 
                 //first board ("all") is selected by default
                 if(i == 0) { isSelected = true }
