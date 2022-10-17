@@ -15,7 +15,7 @@ data class Board(
     constructor(name: String) : this(name, mutableSetOf(), UUID.randomUUID(), mutableSetOf())
 }
 
-private object UUIDSerializer : KSerializer<UUID> {
+internal object UUIDSerializer : KSerializer<UUID> {
     override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): UUID {

@@ -31,6 +31,7 @@ fun Route.boardRouting() {
         }
         put {
             val board = call.receive<Board>()
+            boardService.updateBoard(board)
             call.response.status(HttpStatusCode.OK)
             call.respond(board.id)
         }
