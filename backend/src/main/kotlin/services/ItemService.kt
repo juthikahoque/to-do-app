@@ -8,7 +8,7 @@ class ItemService {
 
     var items: MutableSet<Item> = mutableSetOf()
 
-    fun createItem(item: Item) {
+    fun addItem(item: Item) {
         items.add(item)
     }
 
@@ -16,22 +16,22 @@ class ItemService {
         items.removeIf { it.id == id }
     }
 
-    fun getItem(id: UUID): Item? {
-        return items.find { it.id == id }
+    fun getItem(id: UUID): Item {
+        return items.first { it.id == id }
     }
 
     fun getAllItems(boardId: UUID) : List<Item> {
         return items.filter { it.boardId == boardId }
     }
 
-    fun updateItem(id: UUID, updatedItem: Item) {
-        val item = items.find { it.id == id }
-        if (item == null) return
-        
-        item.boardId = updatedItem.boardId
-        item.dueDate = updatedItem.dueDate
-        item.text = updatedItem.text
-        item.priority = updatedItem.priority
-        item.labels = updatedItem.labels
+    fun getAllItems(): List<Item> {
+        return items.toList()
+    }
+
+    fun updateItem(new: Item): Item? {
+        val item = items.find { it.id == new.id } ?: return null
+        items.remove(item)
+        items.add(new)
+        return new
     }
 }
