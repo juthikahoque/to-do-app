@@ -15,8 +15,7 @@ class Main: Application() {
 
         val model = Model()
 
-        val sidebarController = SidebarController(model)
-        val sidebar = SidebarView(model, sidebarController)
+        val sidebar = SidebarView(model)
 
         pane.apply {
             left = sidebar

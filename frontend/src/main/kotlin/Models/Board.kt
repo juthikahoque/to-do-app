@@ -1,7 +1,7 @@
 package models
 
-import kotlinx.serialization.Serializable
-import java.util.*
+import java.util.UUID
+import kotlinx.serialization.*
 
 @Serializable
 data class Board(
