@@ -5,10 +5,12 @@ import models.*
 import io.ktor.client.request.*
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.http.*
 
 class BoardService(private val client: HttpClient) {
     suspend fun addBoard(board: Board): Board? {
         val result = client.post("board") {
+            contentType(ContentType.Application.Json)
             setBody(board)
         }
         return result.body()
@@ -29,6 +31,7 @@ class BoardService(private val client: HttpClient) {
 
     suspend fun updateBoard(new: Board): Board? {
         val result = client.put("board") {
+            contentType(ContentType.Application.Json)
             setBody(new)
         }
         return result.body()
