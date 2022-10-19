@@ -12,8 +12,8 @@ class ItemService {
         items.add(item)
     }
 
-    fun deleteItem(id: UUID) {
-        items.removeIf { it.id == id }
+    fun deleteItem(id: UUID): Boolean {
+        return items.removeIf { it.id == id }
     }
 
     fun getItem(id: UUID): Item {
@@ -33,5 +33,10 @@ class ItemService {
         items.remove(item)
         items.add(new)
         return new
+    }
+
+    fun markItemAsDone(item: Item) {
+        var foundItem = items.find { it.id == item.id }
+        foundItem?.done = true
     }
 }

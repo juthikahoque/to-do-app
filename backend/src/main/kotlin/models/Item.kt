@@ -12,5 +12,7 @@ data class Item(
     val labels: MutableSet<Label>,
     val priority: Int,
     val id: @Serializable(with = UUIDSerializer::class) UUID,
-    val done: Boolean,
-)
+    var done: Boolean,
+) {
+    constructor(text: String) : this(text, LocalDateTime.now(), UUID.randomUUID(), mutableSetOf(), 1, UUID.randomUUID(), false)
+}
