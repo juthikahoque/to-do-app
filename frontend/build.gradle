@@ -39,6 +39,7 @@ javafx {
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testImplementation "io.ktor:ktor-client-mock:$ktor_version"
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
