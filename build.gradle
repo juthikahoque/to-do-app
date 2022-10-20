@@ -1,11 +1,13 @@
 allprojects {
     buildscript {
-        ext.kotlin_version = '1.2.21'
-        ext.kotlinx_html_version = '0.6.8'
-        ext.frontend_plugin_version = '0.0.27'
-        ext.serialization_version = '0.4.1'
-        ext.junitVersion = '5.8.2'
-        ext.ktor_version = '2.1.2'
+        ext {
+            kotlin_version = '1.2.21'
+            kotlinx_html_version = '0.6.8'
+            frontend_plugin_version = '0.0.27'
+            serialization_version = '0.4.1'
+            junitVersion = '5.8.2'
+            ktor_version = '2.1.2'
+        }
 
         repositories {
             mavenCentral()
