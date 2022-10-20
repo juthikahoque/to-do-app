@@ -11,17 +11,17 @@ class DatabaseConnectionTest {
     @Test
     fun testDatabase() {
         val db = DatabaseConnection()
-        var conn = db.connect()
+        val conn = db.connect("test")
 
         if (conn != null) {
             val stmt = conn.createStatement()
             val dropTable = "DROP TABLE IF EXISTS test"
-            stmt.executeUpdate(dropTable)
 
-            val createTable = "CREATE TABLE IF NOT EXISTS test (name VARCHAR(1000))"
-            stmt.executeUpdate(createTable)
-
-            val sql = "INSERT INTO test VALUES ('Juthika Hoque')"
+            val sql = """
+                ${dropTable};
+                CREATE TABLE IF NOT EXISTS test (name VARCHAR(1000));
+                INSERT INTO test VALUES ('Juthika Hoque');
+            """.trimMargin()
             stmt.executeUpdate(sql)
 
             val query = "select * from test"
@@ -42,20 +42,20 @@ class DatabaseConnectionTest {
     @Test
     fun createUserTable() {
         val db = DatabaseConnection()
-        val conn = db.connect()
+        val conn = db.connect("test")
 
         if (conn != null) {
             val stmt = conn.createStatement()
             val dropTable = "DROP TABLE IF EXISTS testUsers"
-            stmt.executeUpdate(dropTable)
 
-            val createTable = "CREATE TABLE IF NOT EXISTS testUsers (" +
-                    "id INT NOT NULL PRIMARY KEY," +
-                    "name VARCHAR(1000))"
+            val createTable = """
+                ${dropTable};
+                CREATE TABLE IF NOT EXISTS testUsers (
+                    id INT NOT NULL PRIMARY KEY,
+                    name VARCHAR(1000));
+                INSERT INTO testUsers (id, name) VALUES (1, 'Juthika Hoque')
+            """.trimIndent()
             stmt.executeUpdate(createTable)
-
-            var insertSql = "INSERT INTO testUsers (id, name) VALUES (1, 'Juthika Hoque')"
-            stmt.executeUpdate(insertSql)
 
             val query = "select * from testUsers"
             val results = stmt.executeQuery(query)
@@ -75,22 +75,22 @@ class DatabaseConnectionTest {
     @Test
     fun createBoardTable() {
         val db = DatabaseConnection()
-        val conn = db.connect()
+        val conn = db.connect("test")
 
         if (conn != null) {
             val stmt = conn.createStatement()
             val dropTable = "DROP TABLE IF EXISTS testBoards"
-            stmt.executeUpdate(dropTable)
 
-            var createTable = "CREATE TABLE IF NOT EXISTS testBoards (" +
-                    "id INT NOT NULL PRIMARY KEY," +
-                    "name VARCHAR(1000)," +
-                    "userId INT," +
-                    "FOREIGN KEY(userId) REFERENCES testUsers(id))"
-            stmt.executeUpdate(createTable)
-
-            val insertSql = "INSERT INTO testBoards (id, name, userId) VALUES (1, 'Mine', 1)"
-            stmt.executeUpdate(insertSql)
+            var sql = """
+                ${dropTable};
+                CREATE TABLE IF NOT EXISTS testBoards (
+                    id INT NOT NULL PRIMARY KEY,
+                    name VARCHAR(1000),
+                    userId INT,
+                    FOREIGN KEY(userId) REFERENCES testUsers(id));
+                INSERT INTO testBoards (id, name, userId) VALUES (1, 'Mine', 1);
+                    """
+            stmt.executeUpdate(sql)
 
             val query = "select * from testBoards"
             val results = stmt.executeQuery(query)
@@ -110,26 +110,26 @@ class DatabaseConnectionTest {
     @Test
     fun createItemTable() {
         val db = DatabaseConnection()
-        val conn = db.connect()
+        val conn = db.connect("test")
 
         if (conn != null) {
             val stmt = conn.createStatement()
             val dropTable = "DROP TABLE IF EXISTS testItems"
-            stmt.executeUpdate(dropTable)
 
-            val createTable = "CREATE TABLE IF NOT EXISTS testItems (" +
-                    "id INT NOT NULL PRIMARY KEY," +
-                    "text VARCHAR(1000)," +
-                    "dueDate DATETIME," +
-                    "priority INT," +
-                    "done BOOLEAN," +
-                    "boardId INT," +
-                    "FOREIGN KEY(boardId) REFERENCES testBoards(id))"
-            stmt.executeUpdate(createTable)
-
-            val insertSql = "INSERT INTO testItems (id, text, dueDate, priority, done, boardId) VALUES (" +
-                    "1, 'to do item', '${LocalDateTime.now()}', 1, 1, 1)"
-            stmt.executeUpdate(insertSql)
+            val sql = """
+                ${dropTable};
+                CREATE TABLE IF NOT EXISTS testItems (
+                    id INT NOT NULL PRIMARY KEY,
+                    text VARCHAR(1000),
+                    dueDate DATETIME,
+                    priority INT,
+                    done BOOLEAN,
+                    boardId INT,
+                    FOREIGN KEY(boardId) REFERENCES testBoards(id));
+                INSERT INTO testItems (id, text, dueDate, priority, done, boardId) VALUES (
+                1, 'to do item', '${LocalDateTime.now()}', 1, 1, 1);
+            """
+            stmt.executeUpdate(sql)
 
             val query = "select * from testItems"
             val results = stmt.executeQuery(query)
@@ -149,25 +149,24 @@ class DatabaseConnectionTest {
     @Test
     fun createLabelTable() {
         val db = DatabaseConnection()
-        val conn = db.connect()
+        val conn = db.connect("test")
 
         if (conn != null) {
             val stmt = conn.createStatement()
             val dropTable = "DROP TABLE IF EXISTS testLabels"
-            stmt.executeUpdate(dropTable)
 
-            val createTable = "CREATE TABLE IF NOT EXISTS testLabels (" +
-                    "id INT PRIMARY KEY," +
-                    "value VARCHAR(1000)," +
-                    "itemId INT," +
-                    "boardId INT," +
-                    "FOREIGN KEY(itemId) REFERENCES testItems(id)," +
-                    "FOREIGN KEY(boardId) REFERENCES testBoards(id))"
-            stmt.executeUpdate(createTable)
-
-            val insertSql = "INSERT INTO testLabels (id, value, itemId, boardId) VALUES (" +
-                    "1, 'CS 346', 1, 1)"
-            stmt.executeUpdate(insertSql)
+            val sql = """
+                ${dropTable};
+                CREATE TABLE IF NOT EXISTS testLabels (
+                    id INT PRIMARY KEY,
+                    value VARCHAR(1000),
+                    itemId INT,
+                    boardId INT,
+                    FOREIGN KEY(itemId) REFERENCES testItems(id),
+                    FOREIGN KEY(boardId) REFERENCES testBoards(id));
+                 INSERT INTO testLabels (id, value, itemId, boardId) VALUES (1, 'CS 346', 1, 1);
+            """.trimMargin()
+            stmt.executeUpdate(sql)
 
             val query = "select * from testLabels"
             val results = stmt.executeQuery(query)
