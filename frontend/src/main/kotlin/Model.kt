@@ -1,12 +1,16 @@
 import javafx.application.Platform
 import models.Board
+import services.BoardService
+import kotlinx.coroutines.runBlocking
 
 class Model {
     private val views: ArrayList<IView> = ArrayList()
     private val boards: ArrayList<Board> = ArrayList()
     init {
-        boards.add(Board("All"))
-        boards.add(Board("Personal"))
+        runBlocking {
+            BoardService.addBoard(Board("All"))
+            BoardService.addBoard(Board("Personal"))
+        }
     }
     fun addView(view: IView) {
         views.add(view)
@@ -20,11 +24,17 @@ class Model {
     }
 
     fun addBoard(board: Board){
-        boards.add(board)
+        runBlocking {
+            BoardService.addBoard(board)
+        }
         notifyObservers()
     }
 
-    fun getBoards(): ArrayList<Board>{
+    fun getBoards(): List<Board>{
+        lateinit var boards: List<Board>
+        runBlocking {
+            boards = BoardService.getBoards()
+        }
         return boards
     }
 

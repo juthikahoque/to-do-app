@@ -38,13 +38,13 @@ fun Route.itemRouting() {
 
             itemService.addItem(item)
             call.response.status(HttpStatusCode.Created)
-            call.respond(item.id)
+            call.respond(item)
         }
         put {
             val item = call.receive<Item>()
             itemService.updateItem(item)
             call.response.status(HttpStatusCode.OK)
-            call.respond(item.id)
+            call.respond(item)
         }
         delete("{id?}") {
             val id = UUID.fromString(call.parameters["id"])

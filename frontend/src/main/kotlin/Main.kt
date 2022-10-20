@@ -11,6 +11,7 @@ import kotlinx.coroutines.*
 
 class Main: Application() {
     override fun start(stage: Stage) {
+        runBlocking { setupHttpClient() }
         val pane = BorderPane()
 
         val model = Model()
@@ -31,7 +32,6 @@ class Main: Application() {
         stage.scene = scene
         stage.show()
 
-        runBlocking { setupHttpClient() }
     }
 
     fun setupHttpClient() {

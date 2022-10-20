@@ -23,6 +23,10 @@ internal class BoardServiceTest {
     @Test
     fun getBoards() {
         val boardService = BoardService()
+        boardService.boards.addAll(mutableSetOf(
+            Board("hello"),
+            Board("world"),
+        ))
         val boardLen = boardService.boards.size
 
         val boards = boardService.getBoards()

@@ -6,10 +6,7 @@ import models.*
 class BoardService() {
 
     // temp boards
-    val boards = mutableSetOf(
-        Board("hello"),
-        Board("world"),
-    )
+    val boards = mutableSetOf<Board>()
 
     fun addBoard(board: Board): Board {
         // assert board
