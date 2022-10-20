@@ -1,20 +1,22 @@
-package database
+package services
 
-import java.sql.*
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.SQLException
 
 
-class DatabaseConnection {
+class Database {
 
-    fun connect(): Connection? {
-        var conn: Connection? = null
+    fun connect(): Connection {
         try {
             val url = "jdbc:sqlite:todo.db"
-            conn = DriverManager.getConnection(url)
+            val conn = DriverManager.getConnection(url)
             println("Connection to SQLite has been established.")
+            return conn
         } catch (e: SQLException) {
             println(e.message)
+            error("cannot connect to database")
         }
-        return conn
     }
 
     fun query(conn:Connection?): MutableSet<String> {

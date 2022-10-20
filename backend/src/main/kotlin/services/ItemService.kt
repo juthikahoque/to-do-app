@@ -1,12 +1,17 @@
 package services
 
 import models.Item
-import java.util.UUID
+import java.sql.Connection
+import java.util.*
 
 
-class ItemService {
+object ItemService {
 
     var items: MutableSet<Item> = mutableSetOf()
+
+    fun init(conn: Connection) {
+
+    }
 
     fun addItem(item: Item) {
         items.add(item)

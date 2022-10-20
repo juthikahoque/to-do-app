@@ -7,10 +7,14 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import routes.boardRouting
 import routes.itemRouting
+import services.BoardService
+import services.Database
+import services.ItemService
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module() {
+    configureServices()
     configureRouting()
     configureSerialization()
 }
@@ -29,7 +33,13 @@ fun Application.configureSerialization() {
 
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            call.respond(HttpStatusCode.InternalServerError, cause.message?:"Unexpected")
+            call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unexpected")
         }
     }
+}
+
+fun Application.configureServices() {
+    val conn = Database().connect()
+    BoardService.init(conn)
+    ItemService.init(conn)
 }
