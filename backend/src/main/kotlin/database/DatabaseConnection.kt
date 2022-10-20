@@ -17,8 +17,8 @@ class DatabaseConnection {
         return conn
     }
 
-    fun query(conn:Connection?): MutableSet<String> {
-        var names = mutableSetOf<String>()
+    // only call this function ONCE
+    fun init(conn:Connection?) {
         try {
             if (conn != null) {
                 val stmt = conn.createStatement()
@@ -27,17 +27,39 @@ class DatabaseConnection {
 
                 println("Created table in given database...")
 
-                val insert = conn.createStatement()
                 sql = "INSERT INTO test VALUES ('Juthika Hoque')"
-                insert.executeUpdate(sql)
+                stmt.executeUpdate(sql)
 
-                sql = "select * from test"
-                val query = conn.createStatement()
-                val results = query.executeQuery(sql)
+                println("inserted into test")
+            }
+        } catch (ex: SQLException) {
+            println(ex.message)
+        }
+    }
 
-                println("Fetched data:")
-                var names = mutableSetOf<String>()
-                while (results.next()) {
+    fun end(conn:Connection?) {
+        try {
+            if (conn != null) {
+                val stmt = conn.createStatement()
+                val sql = "DROP TABLE IF EXISTS test"
+                stmt.executeUpdate(sql)
+
+                println("Drop table in given database...")
+            }
+        } catch (ex: SQLException) {
+            println(ex.message)
+        }
+    }
+
+    fun query(conn: Connection?): MutableSet<String> {
+        try {
+            var names = mutableSetOf<String>()
+            if (conn != null) {
+                val stmt = conn.createStatement()
+                val sql = "select * from test"
+                val results = stmt.executeQuery(sql)
+
+                while(results.next()) {
                     val name = results.getString("name")
                     names.add(name)
                 }
@@ -45,7 +67,7 @@ class DatabaseConnection {
             return names
         } catch (ex: SQLException) {
             println(ex.message)
-            return names
+            return mutableSetOf()
         }
     }
 
