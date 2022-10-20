@@ -11,13 +11,17 @@ class DatabaseTest {
     @Test
     fun testDatabase() {
         val db = DatabaseConnection()
+
         var conn = db.connect()
+        assert(conn != null)
+
+        db.end(conn) // drop test table
+        db.init(conn) // create test table and init
 
         val names: MutableSet<String> = db.query(conn)
 
-        assertEquals(names.size, 1)
-        assertEquals(names.elementAt(0), "Juthika Hoque")
+        assertEquals(1, names.size)
+        assertEquals("Juthika Hoque", names.elementAt(0))
     }
-
 
 }
