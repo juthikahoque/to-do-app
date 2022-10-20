@@ -1,11 +1,9 @@
-package services
+package database
 
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.SQLException
+import java.sql.*
 
 
-class Database {
+class DatabaseConnection {
 
     fun connect(): Connection {
         try {
@@ -18,37 +16,4 @@ class Database {
             error("cannot connect to database")
         }
     }
-
-    fun query(conn:Connection?): MutableSet<String> {
-        var names = mutableSetOf<String>()
-        try {
-            if (conn != null) {
-                val stmt = conn.createStatement()
-                var sql = "CREATE TABLE test (name VARCHAR(1000))"
-                stmt.executeUpdate(sql)
-
-                println("Created table in given database...")
-
-                val insert = conn.createStatement()
-                sql = "INSERT INTO test VALUES ('Juthika Hoque')"
-                insert.executeUpdate(sql)
-
-                sql = "select * from test"
-                val query = conn.createStatement()
-                val results = query.executeQuery(sql)
-
-                println("Fetched data:")
-                var names = mutableSetOf<String>()
-                while (results.next()) {
-                    val name = results.getString("name")
-                    names.add(name)
-                }
-            }
-            return names
-        } catch (ex: SQLException) {
-            println(ex.message)
-            return names
-        }
-    }
-
 }

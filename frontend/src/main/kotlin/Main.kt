@@ -11,6 +11,7 @@ import kotlinx.coroutines.*
 
 class Main: Application() {
     override fun start(stage: Stage) {
+        runBlocking { setupHttpClient() }
         val pane = BorderPane()
 
         val model = Model()
@@ -31,10 +32,9 @@ class Main: Application() {
         stage.scene = scene
         stage.show()
 
-        runBlocking { setupHttpClient() }
     }
 
-    suspend fun setupHttpClient() {
+    fun setupHttpClient() {
         val client = HttpClient() {
             install(ContentNegotiation) {
                 json()
@@ -44,7 +44,7 @@ class Main: Application() {
 
             }
         }
-
-        val boardS = BoardService(client)
+        BoardService.init(client)
+        ItemService.init(client)
     }
 }
