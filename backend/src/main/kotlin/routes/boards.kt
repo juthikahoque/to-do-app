@@ -27,13 +27,13 @@ fun Route.boardRouting() {
             val board = call.receive<Board>()
             boardService.addBoard(board)
             call.response.status(HttpStatusCode.Created)
-            call.respond(board.id)
+            call.respond(board)
         }
         put {
             val board = call.receive<Board>()
             boardService.updateBoard(board)
             call.response.status(HttpStatusCode.OK)
-            call.respond(board.id)
+            call.respond(board)
         }
         delete("{id?}") {
             val id = UUID.fromString(call.parameters["id"])
