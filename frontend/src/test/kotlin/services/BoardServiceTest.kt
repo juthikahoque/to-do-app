@@ -10,6 +10,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import models.Board
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class BoardServiceTest {
@@ -49,12 +50,16 @@ internal class BoardServiceTest {
             json()
         }
     }
-    private val boardService = BoardService(httpClient)
+
+    @BeforeEach
+    fun init() {
+        BoardService.init(httpClient)
+    }
 
     @Test
     fun addBoard() {
         runBlocking {
-            val result = boardService.addBoard(b1)
+            val result = BoardService.addBoard(b1)
 
             assertEquals(result, b1)
         }
@@ -63,7 +68,7 @@ internal class BoardServiceTest {
     @Test
     fun getBoards() {
         runBlocking {
-            val result = boardService.getBoards()
+            val result = BoardService.getBoards()
 
             assertEquals(result, listOf(b1, b2))
         }
@@ -72,7 +77,7 @@ internal class BoardServiceTest {
     @Test
     fun getBoard() {
         runBlocking {
-            val result = boardService.getBoard(b1.id)
+            val result = BoardService.getBoard(b1.id)
 
             assertEquals(result, b1)
         }
@@ -81,7 +86,7 @@ internal class BoardServiceTest {
     @Test
     fun updateBoard() {
         runBlocking {
-            val result = boardService.updateBoard(b1)
+            val result = BoardService.updateBoard(b1)
 
             assertEquals(result, b1)
         }
@@ -90,7 +95,7 @@ internal class BoardServiceTest {
     @Test
     fun deleteBoard() {
         runBlocking {
-            val result = boardService.deleteBoard(b1.id)
+            BoardService.deleteBoard(b1.id)
         }
     }
 }

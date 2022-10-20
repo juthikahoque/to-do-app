@@ -7,7 +7,12 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.http.*
 
-class ItemService(private val client: HttpClient) {
+object ItemService {
+    private lateinit var client: HttpClient
+
+    fun init(httpClient: HttpClient) {
+        client = httpClient
+    }
     suspend fun addItem(bid: UUID, item: Item): Item? {
         val result = client.post("board/${bid}/item") {
             contentType(ContentType.Application.Json)
@@ -41,5 +46,6 @@ class ItemService(private val client: HttpClient) {
         val result = client.delete("board/${bid}/item") {
             url(id.toString())
         }
+        if (result.status != HttpStatusCode.NoContent) error("failed to delete item")
     }
 }

@@ -34,7 +34,7 @@ class Main: Application() {
         runBlocking { setupHttpClient() }
     }
 
-    suspend fun setupHttpClient() {
+    fun setupHttpClient() {
         val client = HttpClient() {
             install(ContentNegotiation) {
                 json()
@@ -44,7 +44,7 @@ class Main: Application() {
 
             }
         }
-
-        val boardS = BoardService(client)
+        BoardService.init(client)
+        ItemService.init(client)
     }
 }

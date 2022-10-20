@@ -12,6 +12,7 @@ import models.Item
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import java.util.*
 
 internal class ItemServiceTest {
@@ -53,12 +54,16 @@ internal class ItemServiceTest {
             json()
         }
     }
-    private val itemService = ItemService(httpClient)
+
+    @BeforeEach
+    fun init() {
+        ItemService.init(httpClient)
+    }
 
     @Test
     fun addItem() {
         runBlocking {
-            val result = itemService.addItem(bid, i1)
+            val result = ItemService.addItem(bid, i1)
 
             assertEquals(result, i1)
         }
@@ -67,7 +72,7 @@ internal class ItemServiceTest {
     @Test
     fun getItems() {
         runBlocking {
-            val result = itemService.getItems(bid)
+            val result = ItemService.getItems(bid)
 
             assertEquals(result, listOf(i1, i2))
         }
@@ -76,7 +81,7 @@ internal class ItemServiceTest {
     @Test
     fun getItem() {
         runBlocking {
-            val result = itemService.getItem(bid, i1.id)
+            val result = ItemService.getItem(bid, i1.id)
 
             assertEquals(result, i1)
         }
@@ -85,7 +90,7 @@ internal class ItemServiceTest {
     @Test
     fun updateItem() {
         runBlocking {
-            val result = itemService.updateItem(bid, i1)
+            val result = ItemService.updateItem(bid, i1)
 
             assertEquals(result, i1)
         }
@@ -94,7 +99,7 @@ internal class ItemServiceTest {
     @Test
     fun deleteItem() {
         runBlocking {
-            val result = itemService.deleteItem(bid, i1.id)
+            ItemService.deleteItem(bid, i1.id)
         }
     }
 }
