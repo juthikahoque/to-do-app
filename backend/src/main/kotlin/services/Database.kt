@@ -1,13 +1,14 @@
-package database
+package services
 
-import java.sql.*
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.SQLException
 
+class Database {
 
-class DatabaseConnection {
-
-    fun connect(): Connection {
+    fun connect(db: String): Connection {
         try {
-            val url = "jdbc:sqlite:todo.db"
+            val url = "jdbc:sqlite:${db}.db"
             val conn = DriverManager.getConnection(url)
             println("Connection to SQLite has been established.")
             return conn

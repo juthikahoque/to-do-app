@@ -39,7 +39,7 @@ fun Application.configureSerialization() {
 }
 
 fun Application.configureServices() {
-    val conn = Database().connect()
+    val conn = Database().connect("todo")
     BoardService.init(conn)
     ItemService.init(conn)
 }
