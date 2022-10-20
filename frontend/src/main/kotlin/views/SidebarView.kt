@@ -1,10 +1,11 @@
-import javafx.geometry.*
+import javafx.geometry.Insets
 import javafx.scene.control.*
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
-import javafx.scene.text.*
+import javafx.scene.text.Font
 import models.Board
+import java.util.*
 
 /* The view for the sidebar which includes
     - The current user's username
@@ -36,7 +37,7 @@ class SidebarView(private val model:Model): BorderPane(), IView{
         textFill = Color.LIGHTGREEN
         font = Font(Font.getDefault().name, 15.0)
         this.addEventHandler(MouseEvent.MOUSE_CLICKED){
-            model.addBoard(Board("New Board"))
+            model.addBoard(Board("New Board", mutableSetOf(UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"))))
         }
     }
 

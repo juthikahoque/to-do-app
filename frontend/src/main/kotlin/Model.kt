@@ -1,15 +1,18 @@
-import javafx.application.Platform
+import kotlinx.coroutines.runBlocking
 import models.Board
 import services.BoardService
-import kotlinx.coroutines.runBlocking
+import java.util.*
 
 class Model {
     private val views: ArrayList<IView> = ArrayList()
-    private val boards: ArrayList<Board> = ArrayList()
+    private val userId = UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46")
     init {
         runBlocking {
-            BoardService.addBoard(Board("All"))
-            BoardService.addBoard(Board("Personal"))
+            val boards = BoardService.getBoards()
+            if (boards.isEmpty()) {
+                BoardService.addBoard(Board("All", mutableSetOf(userId)))
+                BoardService.addBoard(Board("Personal", mutableSetOf(userId)))
+            }
         }
     }
     fun addView(view: IView) {
