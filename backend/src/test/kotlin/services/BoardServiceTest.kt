@@ -1,77 +1,105 @@
 package services
 
 import models.Board
-import models.Label
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.sql.Connection
+import java.sql.DriverManager
+import java.time.LocalDateTime
 
+lateinit var conn: Connection
 internal class BoardServiceTest {
+    @BeforeEach
+    fun init() {
+        assertDoesNotThrow {
+            val url = "jdbc:sqlite:test.db"
+            conn = DriverManager.getConnection(url)
+            BoardService.init(conn)
+        }
+    }
+
+    @AfterEach
+    fun cleanup() {
+        assertDoesNotThrow {
+            val stat = conn.createStatement()
+            stat.executeUpdate("DROP TABLE boards")
+        }
+    }
+
+    @Test
+    fun initOk() {
+        assertTrue(true)
+    }
 
     @Test
     fun addBoard() {
-        val boardService = BoardService()
-        val boardLen = boardService.boards.size
         val board = Board("board")
 
-        boardService.addBoard(board)
+        val res = BoardService.addBoard(board)
 
-        assertTrue(boardService.boards.contains(board))
-        assertEquals(boardLen + 1, boardService.boards.size)
+        assertEquals(res, board)
     }
 
     @Test
     fun getBoards() {
-        val boardService = BoardService()
-        val boardLen = boardService.boards.size
+        val boards = listOf(
+            Board("1"),
+            Board("2"),
+        )
+        boards.forEach { BoardService.addBoard(it) }
 
-        val boards = boardService.getBoards()
+        val res = BoardService.getBoards()
 
-        assertEquals(boardLen, boards.size)
+        assertEquals(boards, res)
     }
 
     @Test
     fun getBoard() {
-        val boardService = BoardService()
-        val board = Board("board")
-        val id = board.id
-        boardService.addBoard(board)
+        val boards = listOf(
+            Board("1"),
+            Board("2"),
+        )
+        boards.forEach { BoardService.addBoard(it) }
 
-        val got = boardService.getBoard(id)
+        val res = BoardService.getBoard(boards.first().id)
 
-        assertEquals(board, got)
+        assertEquals(boards.first(), res)
     }
 
     @Test
     fun updateBoard() {
-        val boardId = UUID.randomUUID()
-        val userId = UUID.randomUUID()
-        val boardService = BoardService()
-        val board = Board("board", mutableSetOf(UUID.randomUUID()), boardId, mutableSetOf(Label("label")))
-        val updated = Board("updated", mutableSetOf(userId), boardId, mutableSetOf(Label("updated")))
-        boardService.addBoard(board)
+        val boards = listOf(
+            Board("1"),
+            Board("2"),
+        )
+        boards.forEach { BoardService.addBoard(it) }
 
-        val new = boardService.updateBoard(updated)!! // throws if not null
+        val new = boards.first().copy(
+            name = "new",
+//            users =  mutableSetOf(UUID.randomUUID()),
+//            labels = mutableSetOf(Label("label")),
+            updated_at = LocalDateTime.now(),
+        )
 
-        assertEquals(boardId, new.id)
-        assertEquals(userId, new.users.first())
-        assertEquals("updated", new.name)
-        assertEquals(Label("updated"), new.labels.first())
+        val res = BoardService.updateBoard(new)
+
+        assertEquals(new, res)
     }
 
     @Test
     fun deleteBoard() {
-        val boardService = BoardService()
         val board = Board("board")
         val id = board.id
-        boardService.addBoard(board)
+        BoardService.addBoard(board)
 
-        val res = boardService.deleteBoard(id)
+        val res = BoardService.deleteBoard(id)
 
         assertTrue(res)
-        assertFalse(boardService.boards.contains(board))
+        assertFalse(BoardService.getBoards().contains(board))
 
-        val res2 = boardService.deleteBoard(id)
+        val res2 = BoardService.deleteBoard(id)
 
         assertFalse(res2)
     }
