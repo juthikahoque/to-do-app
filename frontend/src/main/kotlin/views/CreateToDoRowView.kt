@@ -2,7 +2,11 @@ import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
+import models.Item
+import models.Label
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class CreateToDoRowView(private val model: Model): HBox(), IView {
 
@@ -53,12 +57,20 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         // handle create button click
         createButton.setOnMouseClicked {
             val title = titleInput.text
-            val date = datePicker.value as LocalDate
+            val date = datePicker.value.atStartOfDay()
             //val boardUUID = model.getCurrentBoard().id
             val labels = mutableSetOf(labelsComboBox.value)
             val priority = priorityChoiceBox.selectionModel.selectedItem
-
-            // TODO: call create to do service
+            val todo = Item(
+                title,
+                date,
+                UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                mutableSetOf<Label>(),
+                priority,
+                UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                false
+            )
+            model.addToDoItem(todo)
         }
 
         gridPane.alignment = Pos.TOP_LEFT
