@@ -24,6 +24,7 @@ class BoardView(private val model: Model): VBox(), IView {
         for (item in model.getItems()) {
             children.add(ToDoRowView(item))
         }
+        isVisible = !model.showCreateBoard
     }
 
     init {

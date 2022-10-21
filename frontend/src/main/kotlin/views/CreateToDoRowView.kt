@@ -15,7 +15,7 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
     private val gridPane = GridPane()
 
     override fun updateView() {
-
+        isVisible = !model.showCreateBoard
     }
 
     init {
