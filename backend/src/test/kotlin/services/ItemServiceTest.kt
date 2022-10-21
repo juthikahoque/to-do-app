@@ -5,25 +5,23 @@ import models.Label
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 internal class ItemServiceTest {
     @Test
     fun addItem() {
-        val itemService = ItemService()
-        val itemsLen = itemService.items.size
+        val itemsLen = ItemService.items.size
         val item = Item("todo")
 
-        itemService.addItem(item)
+        ItemService.addItem(item)
 
-        assertTrue(itemService.items.contains(item))
-        assertEquals(itemsLen + 1, itemService.items.size)
+        assertTrue(ItemService.items.contains(item))
+        assertEquals(itemsLen + 1, ItemService.items.size)
     }
 
     @Test
     fun getAllItems() {
-        val itemService = ItemService()
-        val firstItem: Item? = if(itemService.items.size > 0) itemService.items.elementAt(0) else null
+        val firstItem: Item? = if (ItemService.items.size > 0) ItemService.items.elementAt(0) else null
 
         lateinit var boardId: UUID
         if(firstItem != null) {
@@ -31,14 +29,14 @@ internal class ItemServiceTest {
         } else {
             val newItem = Item("new item")
             boardId = newItem.boardId
-            itemService.addItem(newItem)
+            ItemService.addItem(newItem)
         }
 
-        val itemsWithBoardId = itemService.getAllItems(boardId)
+        val itemsWithBoardId = ItemService.getAllItems(boardId)
 
         var currentItemsWithBoardId: MutableSet<Item> = mutableSetOf()
-        for (it in itemService.items) {
-            if(it.boardId == boardId) {
+        for (it in ItemService.items) {
+            if (it.boardId == boardId) {
                 currentItemsWithBoardId.add(it)
             }
         }
@@ -48,12 +46,11 @@ internal class ItemServiceTest {
 
     @Test
     fun getBoard() {
-        val itemService = ItemService()
         val newItem = Item("item")
         val itemId = newItem.id
-        itemService.addItem(newItem)
+        ItemService.addItem(newItem)
 
-        val itemWithId = itemService.getItem(itemId)
+        val itemWithId = ItemService.getItem(itemId)
 
         assertEquals(itemWithId, newItem)
     }
@@ -61,12 +58,11 @@ internal class ItemServiceTest {
     @Test
     fun updateBoard() {
         val boardId = UUID.randomUUID()
-        val itemService = ItemService()
         val newItem = Item("board", LocalDateTime.now(), boardId, mutableSetOf(Label("label")), 1, UUID.randomUUID(), true)
         val updatedItem = Item("updated", LocalDateTime.now(), boardId, mutableSetOf(Label("updated")), 2, newItem.id, false)
-        itemService.addItem(newItem)
+        ItemService.addItem(newItem)
 
-        val itemAfterUpdate = itemService.updateItem(updatedItem)!! // throws if not null
+        val itemAfterUpdate = ItemService.updateItem(updatedItem)!! // throws if not null
 
         assertEquals(boardId, itemAfterUpdate.boardId)
         assertEquals(newItem.id, itemAfterUpdate.id)
@@ -78,32 +74,30 @@ internal class ItemServiceTest {
 
     @Test
     fun deleteBoard() {
-        val itemService = ItemService()
         val newItem = Item("item")
         val itemId = newItem.id
-        itemService.addItem(newItem)
+        ItemService.addItem(newItem)
 
-        val isDeletedTrue = itemService.deleteItem(itemId)
+        val isDeletedTrue = ItemService.deleteItem(itemId)
 
         assertTrue(isDeletedTrue)
-        assertFalse(itemService.items.contains(newItem))
+        assertFalse(ItemService.items.contains(newItem))
 
-        val isDeletedFalse = itemService.deleteItem(itemId)
+        val isDeletedFalse = ItemService.deleteItem(itemId)
 
         assertFalse(isDeletedFalse)
     }
 
     @Test
     fun testDone() {
-        val itemService = ItemService()
         val newItem = Item("item")
-        itemService.addItem(newItem)
+        ItemService.addItem(newItem)
 
-        var itemsNotDone = itemService.items.filter { !it.done }
+        var itemsNotDone = ItemService.items.filter { !it.done }
 
-        assertEquals(itemsNotDone.size, itemService.items.size)
+        assertEquals(itemsNotDone.size, ItemService.items.size)
 
-        itemService.markItemAsDone(newItem);
+        ItemService.markItemAsDone(newItem);
 
         assertTrue(newItem.done)
     }

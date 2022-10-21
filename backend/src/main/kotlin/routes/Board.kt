@@ -10,34 +10,32 @@ import java.util.UUID
 import models.*
 import services.*
 
-val boardService = BoardService()
-
 fun Route.boardRouting() {
     route("/board") {
         get {
             call.response.status(HttpStatusCode.OK)
-            call.respond(boardService.getBoards())
+            call.respond(BoardService.getBoards())
         }
         get("{id?}") {
             val id = UUID.fromString(call.parameters["id"])
             call.response.status(HttpStatusCode.OK)
-            call.respond(boardService.getBoard(id))
+            call.respond(BoardService.getBoard(id))
         }
         post {
             val board = call.receive<Board>()
-            boardService.addBoard(board)
+            BoardService.addBoard(board)
             call.response.status(HttpStatusCode.Created)
             call.respond(board)
         }
         put {
             val board = call.receive<Board>()
-            boardService.updateBoard(board)
+            BoardService.updateBoard(board)
             call.response.status(HttpStatusCode.OK)
             call.respond(board)
         }
         delete("{id?}") {
             val id = UUID.fromString(call.parameters["id"])
-            boardService.deleteBoard(id)
+            BoardService.deleteBoard(id)
             call.response.status(HttpStatusCode.NoContent)
         }
     }
