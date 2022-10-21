@@ -2,23 +2,19 @@ import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
-import javafx.scene.layout.VBox
-import models.Item
-import models.Label
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 class CreateToDoRowView(private val model: Model): HBox(), IView {
 
     private val titleInput = TextField()
     private val datePicker = DatePicker()
-    private val priorityChoiceBox = ComboBox<Int>()
+    private val priorityChoiceBox = ChoiceBox<Int>()
     private val labelsComboBox = ComboBox<String>()
     private val assignedToComboBox = ComboBox<String>()
     private val createButton = Button("Create")
     private val gridPane = GridPane()
 
-    override fun updateView(){
+    override fun updateView() {
 
     }
 
@@ -40,17 +36,17 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         // combobox for labels
         labelsComboBox.promptText = "Select label(s)"
         labelsComboBox.isEditable = true
-        for (label in model.getBoards()[model.getCurrentBoardIndex()].labels) {
+        /*for (label in model.getCurrentBoard().labels) {
             labelsComboBox.items.add(label.value)
-        }
+        }*/
 
         // combobox for assigning todo
         assignedToComboBox.promptText = "Assign to..."
         assignedToComboBox.isEditable = true
-        for (user in model.getBoards()[model.getCurrentBoardIndex()].users) {
+        /*for (user in model.getCurrentBoard().users) {
             // TODO: will need to accept name
             assignedToComboBox.items.add(user.toString())
-        }
+        }*/
 
         createButton.minWidth = 75.0
 
@@ -58,7 +54,7 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         createButton.setOnMouseClicked {
             val title = titleInput.text
             val date = datePicker.value as LocalDate
-            val boardUUID = model.getBoards()[model.getCurrentBoardIndex()].id
+            //val boardUUID = model.getCurrentBoard().id
             val labels = mutableSetOf(labelsComboBox.value)
             val priority = priorityChoiceBox.selectionModel.selectedItem
 

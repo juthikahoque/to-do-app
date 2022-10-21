@@ -1,11 +1,15 @@
 import kotlinx.coroutines.runBlocking
 import models.Board
+import models.Item
+import models.Label
 import services.BoardService
+import java.time.LocalDateTime
 import java.util.*
 
 class Model {
     private val views: ArrayList<IView> = ArrayList()
     private val boards: ArrayList<Board> = ArrayList()
+    private val items: ArrayList<Item> = ArrayList()
     private val currentBoardIdx = 0
     private val userId = UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46")
 
@@ -16,6 +20,51 @@ class Model {
                 BoardService.addBoard(Board("All", mutableSetOf(userId)))
                 BoardService.addBoard(Board("Personal", mutableSetOf(userId)))
             }
+
+            items.add(
+                Item(
+                    "Do groceries",
+                    LocalDateTime.now(),
+                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                    mutableSetOf<Label>(),
+                    1,
+                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                    false
+                )
+            )
+            items.add(
+                Item(
+                    "Clean room",
+                    LocalDateTime.now(),
+                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                    mutableSetOf<Label>(),
+                    1,
+                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                    false
+                )
+            )
+            items.add(
+                Item(
+                    "Pick up package",
+                    LocalDateTime.now(),
+                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                    mutableSetOf<Label>(),
+                    2,
+                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                    false
+                )
+            )
+            items.add(
+                Item(
+                    "Do laundry",
+                    LocalDateTime.now(),
+                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                    mutableSetOf<Label>(),
+                    0,
+                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
+                    false
+                )
+            )
         }
     }
     fun addView(view: IView) {
@@ -29,8 +78,8 @@ class Model {
         }
     }
 
-    fun getCurrentBoardIndex(): Int {
-        return currentBoardIdx
+    fun getCurrentBoard(): Board {
+        return boards[currentBoardIdx]
     }
 
     fun addBoard(board: Board){
@@ -46,6 +95,10 @@ class Model {
             boards = BoardService.getBoards()
         }
         return boards
+    }
+
+    fun getItems(): List<Item> {
+        return items
     }
 
     fun logout(){
