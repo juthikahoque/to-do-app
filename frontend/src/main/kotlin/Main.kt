@@ -12,18 +12,18 @@ import kotlinx.coroutines.*
 class Main: Application() {
     override fun start(stage: Stage) {
         runBlocking { setupHttpClient() }
-        val pane = BorderPane()
+        val hbox = HBox()
 
         val model = Model()
 
         val sidebar = SidebarView(model)
+        val board = BoardView(model)
 
-        pane.apply {
-            left = sidebar
-        }
+        hbox.children.addAll(sidebar, board)
+        HBox.setHgrow(board, Priority.ALWAYS)
 
         // set the scene
-        val scene = Scene(pane, 800.0, 600.0)
+        val scene = Scene(hbox, 800.0, 600.0)
 
         // set the stage
         stage.title = "To-Do App"

@@ -86,7 +86,7 @@ class SidebarView(private val model:Model): BorderPane(), IView{
 
     init {
         padding = Insets(20.0)
-        prefWidth = 200.0
+        minWidth = 175.0
         background = Background(BackgroundFill(Color.web("#343436"), null, null))
 
         top = username

@@ -5,7 +5,10 @@ import java.util.*
 
 class Model {
     private val views: ArrayList<IView> = ArrayList()
+    private val boards: ArrayList<Board> = ArrayList()
+    private val currentBoardIdx = 0
     private val userId = UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46")
+
     init {
         runBlocking {
             val boards = BoardService.getBoards()
@@ -24,6 +27,10 @@ class Model {
         for (view in views) {
             view.updateView()
         }
+    }
+
+    fun getCurrentBoardIndex(): Int {
+        return currentBoardIdx
     }
 
     fun addBoard(board: Board){
