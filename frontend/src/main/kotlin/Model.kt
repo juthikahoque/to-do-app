@@ -1,10 +1,11 @@
-import kotlinx.coroutines.runBlocking
+
 import models.Board
 import models.Item
 import models.Label
 import services.BoardService
 import java.time.LocalDateTime
 import java.util.*
+import kotlinx.coroutines.runBlocking
 
 class Model {
     private val views: ArrayList<IView> = ArrayList()
@@ -12,7 +13,7 @@ class Model {
     private val items: ArrayList<Item> = ArrayList()
     private val currentBoardIdx = 0
     private val userId = UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46")
-
+    var showCreateBoard = false
     init {
         runBlocking {
             val boards = BoardService.getBoards()
@@ -99,6 +100,11 @@ class Model {
 
     fun getItems(): List<Item> {
         return items
+    }
+
+    fun setCreateBoardMenu(toOpen:Boolean){
+        showCreateBoard = toOpen
+        notifyObservers()
     }
 
     fun logout(){

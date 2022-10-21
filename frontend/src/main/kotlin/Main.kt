@@ -19,7 +19,10 @@ class Main: Application() {
         val sidebar = SidebarView(model)
         val board = BoardView(model)
 
-        hbox.children.addAll(sidebar, board)
+        val createBoard = CreateBoardView(model)
+
+
+        hbox.children.addAll(sidebar, VBox(board, createBoard))
         HBox.setHgrow(board, Priority.ALWAYS)
 
         // set the scene
