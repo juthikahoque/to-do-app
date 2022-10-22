@@ -54,7 +54,7 @@ object BoardService {
         """.trimIndent()
         )
 
-        getStatementSQL = "SELECT * FROM boards INNER JOIN boards_users ON id = boardId"
+        getStatementSQL = "SELECT * FROM boards INNER JOIN boards_users ON id = boardId ON userId = ?"
         getStatement = listOf(
             conn.prepareStatement(getStatementSQL),
             conn.prepareStatement("SELECT * FROM boards_users WHERE boardId = ?"),
@@ -131,8 +131,9 @@ object BoardService {
         }
     }
 
-    fun getBoards(): List<Board> {
+    fun getBoards(id: UUID): List<Board> {
         try {
+            getStatement[0].setString(1, id.toString())
             val res = getStatement[0].executeQuery()
             val list = mutableListOf<Board>()
             while (res.next()) {
