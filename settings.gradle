@@ -2,3 +2,6 @@ rootProject.name = 'todo_app'
 
 include 'frontend'
 include 'backend'
+include 'frontend:src:main:resource'
+findProject(':frontend:src:main:resource')?.name = 'resource'
+

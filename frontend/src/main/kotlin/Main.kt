@@ -49,5 +49,6 @@ class Main: Application() {
         }
         BoardService.init(client)
         ItemService.init(client)
+        AuthService.init(client)
     }
 }
