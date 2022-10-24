@@ -1,0 +1,4 @@
+plugins {
+    id 'java-library'
+    id 'todo.kotlin-common-conventions'
+}
