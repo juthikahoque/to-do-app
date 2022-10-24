@@ -1,35 +1,13 @@
 plugins {
-    id 'java'
-    id 'application'
-    id 'org.jetbrains.kotlin.jvm'
+    id 'todo.kotlin-application-conventions'
     id 'org.openjfx.javafxplugin' version '0.0.12'
     id 'org.beryx.jlink' version '2.24.1'
     id 'io.ktor.plugin' version '2.1.2'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.20'
 }
 
-group 'net.codebot'
-version '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
-
-sourceCompatibility = '17'
-targetCompatibility = '17'
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
 application {
     mainClass = 'Main'
-}
-
-[compileKotlin, compileTestKotlin].forEach {
-    it.kotlinOptions {
-        jvmTarget = '11'
-    }
 }
 
 javafx {
@@ -38,8 +16,8 @@ javafx {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    implementation project(":shared")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     // Ktor Http service
@@ -49,10 +27,6 @@ dependencies {
     implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
     implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
     implementation("org.xerial:sqlite-jdbc:3.39.3.0")
-}
-
-test {
-    useJUnitPlatform()
 }
 
 jlink {
