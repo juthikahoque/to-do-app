@@ -41,7 +41,6 @@ object ItemService {
     }
 
     fun markItemAsDone(item: Item) {
-        var foundItem = items.find { it.id == item.id }
-        foundItem?.done = true
+        updateItem(item.copy(done = true))
     }
 }

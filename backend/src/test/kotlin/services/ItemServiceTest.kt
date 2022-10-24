@@ -93,13 +93,10 @@ internal class ItemServiceTest {
         val newItem = Item("item")
         ItemService.addItem(newItem)
 
-        var itemsNotDone = ItemService.items.filter { !it.done }
-
-        assertEquals(itemsNotDone.size, ItemService.items.size)
-
         ItemService.markItemAsDone(newItem);
 
-        assertTrue(newItem.done)
+        val updatedItem = ItemService.items.first { it.id == newItem.id }
+        assertTrue(updatedItem.done)
     }
 }
 
