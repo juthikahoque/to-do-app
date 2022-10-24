@@ -16,7 +16,7 @@ fun Route.userRouting() {
         get {
             val user = call.principal<User>()!!
             call.response.status(HttpStatusCode.OK)
-            call.respond(BoardService.getBoards(user.id))
+            call.respond(BoardService.getBoards(user))
         }
         get("{id?}") {
             val id = UUID.fromString(call.parameters["id"])

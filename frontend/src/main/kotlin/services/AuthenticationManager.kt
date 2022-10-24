@@ -1,4 +1,3 @@
-
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -18,16 +17,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
 import org.apache.commons.codec.binary.Base64
 import java.awt.Desktop
+import java.math.BigInteger
 import java.net.URI
-import java.net.URLEncoder
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
+
 
 object AuthenticationManager {
 
@@ -50,41 +48,62 @@ object AuthenticationManager {
         clientSecret: String,
         redirectUri: String,
         scope: String,
-    ) {
+    ): TokenResponse {
         // val job = coroutineScope.launch {
+        var retval: TokenResponse? = null
+        val audience = "todo-app-53e07"
         runBlocking {
             try {
                 val verifier = createVerifier()
                 val challenge = createChallenge(verifier)
-                val url = createLoginUrl(
-                    domain = authUrl,
-                    clientId = clientId,
-                    redirectUri = redirectUri,
-                    scope = scope,
-                    challenge = challenge,
-                )
 
-                println("Launching URL: $url")
+                // pop up auth window
+                val urlParam = Parameters.build {
+                    append("client_id", clientId)
+                    append("redirect_uri", redirectUri)
+                    append("response_type", "code")
+                    append("scope", scope)
+                    append("code_challenge", challenge)
+                    append("code_challenge_method", "S256")
+                    append("state", challenge)
+                    append("access_type", "offline")
 
-                withContext(Dispatchers.IO) {
-                    Desktop.getDesktop().browse(URI(url))
-                }
+                }.formUrlEncode()
+
+                println("Launching URL: $authUrl?$urlParam")
+
+                 withContext(Dispatchers.IO) {
+                    Desktop.getDesktop().browse(URI("$authUrl?$urlParam"))
+                 }
 
                 val code = waitForCallback()
 
-                return@runBlocking getToken(
-                    domain = tokenUrl,
-                    clientId = clientId,
-                    verifier = verifier,
-                    code = code,
-                    clientSecret = clientSecret,
-                    redirectUri = redirectUri,
-                )
+                // get token
+                val response = client.post(tokenUrl) {
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(FormDataContent(Parameters.build {
+                        append("client_id", clientId)
+                        append("client_secret", clientSecret)
+                        append("code", code)
+                        append("code_verifier", verifier)
+                        append("grant_type", "authorization_code")
+                        append("redirect_uri", redirectUri)//"https://todo-app-53e07.firebaseapp.com/__/auth/handler")
+                        // append("audience", audience)
+                    }))
+                }
+
+                println("\nresponse: ${response.body<String>()}")
+
+                retval = response.body()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
 
+        if (retval == null)
+            error("unauthorized")
+        else
+            return retval!!
 //        callbackJob.value = job
 //        job.invokeOnCompletion { callbackJob.value = null }
 //
@@ -93,41 +112,16 @@ object AuthenticationManager {
 //        }
     }
 
-    private suspend fun getToken(
-        domain: String,
-        clientId: String,
-        verifier: String,
-        clientSecret: String,
-        code: String,
-        redirectUri: String,
-    ): TokenResponse {
-        val response = client.post(domain) {
-            contentType(ContentType.Application.FormUrlEncoded)
-            setBody(FormDataContent(Parameters.build {
-                append("client_id", clientId)
-                append("client_secret", clientSecret)
-                append("code", code)
-                append("code_verifier", verifier)
-                append("grant_type", "authorization_code")
-                append("redirect_uri", redirectUri)
-            }))
-        }
-
-        println("response: ${response.body<String>()}")
-
-        return response.body()
-    }
-
     private suspend fun waitForCallback(): String {
         var server: NettyApplicationEngine? = null
 
         val code = suspendCancellableCoroutine<String> { continuation ->
             server = embeddedServer(Netty, port = 5000) {
                 routing {
-                    get ("/oauth-authorized/google") {
+                    get("/oauth-authorized/google") {
                         val code = call.parameters["code"] ?: throw RuntimeException("Received a response with no code")
                         println("got code: $code")
-                        call.respondText("OK")
+                        call.respondText("OK sdfasdf")
 
                         continuation.resume(code)
                     }
@@ -142,21 +136,9 @@ object AuthenticationManager {
         return code
     }
 
-    private fun createLoginUrl(
-        domain: String,
-        clientId: String,
-        redirectUri: String,
-        scope: String,
-        challenge: String,
-    ): String {
-        val encodedRedirectUri = URLEncoder.encode(redirectUri, Charsets.UTF_8)
-        val encodedScope = URLEncoder.encode(scope, Charsets.UTF_8)
-
-        return "$domain?client_id=$clientId&redirect_uri=$encodedRedirectUri&response_type=code&scope=$encodedScope&access_type=offline&code_challenge=$challenge&code_challenge_method=S256"
-    }
-
     private fun createVerifier(): String {
         val sr = SecureRandom()
+
         val code = ByteArray(32)
         sr.nextBytes(code)
         return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(code)
@@ -191,94 +173,4 @@ data class TokenResponse(
     val tokenType: String,
 )
 
-object AuthService {
-    private val settings: AuthSettings = Json.decodeFromStream(this::class.java.classLoader.getResource("auth-settings.json").openStream())
-
-    lateinit var client: HttpClient
-
-    fun init(client: HttpClient) {
-        this.client = client
-        AuthenticationManager.init(client)
-    }
-
-    class AuthRequst(
-        val postBody: String = "id_token=[token]&providerId=google.com",
-        val requestUri: String = "http://localhost",
-        val returnIdpCredential: Boolean = true,
-        val returnSecureToken: Boolean = true,
-    )
-
-    private var apiKey = ""
-
-    fun getEndpoint(action: String): String {
-        return "https://identitytoolkit.googleapis.com/v1/${action}?key=${apiKey}"
-    }
-
-    fun googleAuth() {
-        val googleToken = AuthenticationManager.authenticateUser(
-            authUrl = settings.google.auth_url, // Config.domain,
-            tokenUrl = settings.google.token_url,
-            clientId = settings.google.clientId, // Config.clientId,
-            clientSecret = settings.google.client_secret,
-            redirectUri = "http://localhost:5000/oauth-authorized/google",
-            scope = "openid",
-        )
-        getEndpoint("")
-
-//        val firebaseToken
-    }
-
-    fun firebaseSignInWithOAuth() {
-        getEndpoint("accounts:signInWithIdp")
-    }
-
-//    class FirebaseRet {
-//        federatedId	string	The unique ID identifies the IdP account.
-//        providerId	string	The linked provider ID (e.g. "google.com" for the Google provider).
-//        localId	string	The uid of the authenticated user.
-//        emailVerified	boolean	Whether the sign-in email is verified.
-//        email	string	The email of the account.
-//        oauthIdToken	string	The OIDC id token if available.
-//        oauthAccessToken	string	The OAuth access token if available.
-//        oauthTokenSecret	string	The OAuth 1.0 token secret if available.
-//        rawUserInfo	string	The stringified JSON response containing all the IdP data corresponding to the provided OAuth credential.
-//        firstName	string	The first name for the account.
-//        lastName	string	The last name for the account.
-//        fullName	string	The full name for the account.
-//        displayName	string	The display name for the account.
-//        photoUrl	string	The photo Url for the account.
-//        idToken	string	A Firebase Auth ID token for the authenticated user.
-//        refreshToken	string	A Firebase Auth refresh token for the authenticated user.
-//        expiresIn	string	The number of seconds in which the ID token expires.
-//        needConfirmation	boolean
-//    }
-
-    class AuthSettings (
-        val google: GoogleSettings
-    ) {
-        class GoogleSettings(
-            @SerialName("client_id")
-            val clientId: String,
-            @SerialName("auth_url")
-            val auth_url: String,
-            @SerialName("token_url")
-            val token_url: String,
-            @SerialName("client_secret")
-            val client_secret: String,
-        )
-    }
-}
-
-
-
-fun main() {
-    val client = HttpClient() {
-        install(ContentNegotiation) {
-            json()
-        }
-        defaultRequest {
-            url("http://127.0.0.1:8080")
-        }
-    }
-}
 

@@ -39,7 +39,7 @@ fun Application.configureSerialization() {
     }
 
     install(Authentication) {
-        firebase()
+        google()
     }
 }
 

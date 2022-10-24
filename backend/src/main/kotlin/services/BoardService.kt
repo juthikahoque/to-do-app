@@ -2,6 +2,7 @@ package services
 
 import models.Board
 import models.Label
+import models.User
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -54,9 +55,9 @@ object BoardService {
         """.trimIndent()
         )
 
-        getStatementSQL = "SELECT * FROM boards INNER JOIN boards_users ON id = boardId ON userId = ?"
+        getStatementSQL = "SELECT * FROM boards INNER JOIN boards_users ON id = boardId"
         getStatement = listOf(
-            conn.prepareStatement(getStatementSQL),
+            conn.prepareStatement("$getStatementSQL AND userId = ?"),
             conn.prepareStatement("SELECT * FROM boards_users WHERE boardId = ?"),
             conn.prepareStatement("SELECT * FROM boards_labels WHERE boardId = ?"),
         )
@@ -83,9 +84,9 @@ object BoardService {
         // get board users
         getStatement[1].setString(1, boardId)
         val usersRes = getStatement[1].executeQuery()
-        val users = mutableSetOf<UUID>()
+        val users = mutableSetOf<String>()
         while (usersRes.next()) {
-            users.add(UUID.fromString(usersRes.getString("userId")))
+            users.add(usersRes.getString("userId"))
         }
         // get board labels
         getStatement[2].setString(1, boardId)
@@ -131,9 +132,9 @@ object BoardService {
         }
     }
 
-    fun getBoards(id: UUID): List<Board> {
+    fun getBoards(user: User): List<Board> {
         try {
-            getStatement[0].setString(1, id.toString())
+            getStatement[0].setString(1, user.id)
             val res = getStatement[0].executeQuery()
             val list = mutableListOf<Board>()
             while (res.next()) {
@@ -179,7 +180,7 @@ object BoardService {
             val users = new.users
             while (userRes.next()) {
                 val userId = userRes.getString("userId")
-                if (!users.remove(UUID.fromString(userId))) {
+                if (!users.remove(userId)) {
                     deleteStatement[1].setString(2, userId)
                     deleteStatement[1].executeUpdate()
                 }

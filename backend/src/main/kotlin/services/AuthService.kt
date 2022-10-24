@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseToken
 import io.ktor.http.*
 import io.ktor.server.auth.*
@@ -41,12 +42,16 @@ class FirebaseAuthenticationProvider internal constructor(name: String) : Authen
             context.challenge("firebase", AuthenticationFailedCause.NoCredentials, challengeFunction)
             return
         }
-        print(token)
+//        print(token)
         try {
-//            val fbToken = FirebaseAuthService.verify(token)!!
-//            context.principal(User(UUID.fromString(fbToken.uid)))
-            context.principal(User(UUID.fromString(token)))
+            val fbToken = FirebaseAuthService.verify(token)!!
+            print(fbToken.uid)
+            context.principal(User(fbToken.uid))
+//            context.principal(User(UUID.fromString(token)))
+        } catch (fdae: FirebaseAuthException) {
+            print(fdae)
         } catch (cause: Throwable) {
+            print("failed to verify")
             context.challenge("firebase", AuthenticationFailedCause.InvalidCredentials, challengeFunction)
         }
     }
