@@ -6,7 +6,7 @@ import java.util.*
 
 @Serializable
 data class Item(
-    val text: String = "default",
+    val text: String = "",
     val dueDate: @Serializable(with = DateTimeSerializer::class) LocalDateTime? = LocalDateTime.MAX,
     val boardId: @Serializable(with = UUIDSerializer::class) UUID = UUID.randomUUID(),
     val labels: MutableSet<Label> = mutableSetOf(),
