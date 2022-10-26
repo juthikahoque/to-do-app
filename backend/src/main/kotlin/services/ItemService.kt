@@ -1,12 +1,8 @@
 package services
 
-import kotlinx.serialization.Serializable
 import models.*
-import models.DateTimeSerializer
-import models.UUIDSerializer
 import java.sql.Connection
 import java.sql.*
-import java.sql.PreparedStatement
 import java.sql.SQLException
 import java.time.LocalDateTime
 import java.util.*
@@ -21,8 +17,6 @@ object ItemService {
         conn = connection
         // create table if dne
         val statement = conn.createStatement()
-        statement.executeUpdate("DROP TABLE IF EXISTS items;")
-        statement.executeUpdate("DROP TABLE IF EXISTS items_labels;")
         statement.executeUpdate("""
             CREATE TABLE IF NOT EXISTS items (
                 id INT NOT NULL PRIMARY KEY,
