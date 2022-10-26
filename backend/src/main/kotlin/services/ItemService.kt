@@ -21,6 +21,8 @@ object ItemService {
         conn = connection
         // create table if dne
         val statement = conn.createStatement()
+        statement.executeUpdate("DROP TABLE IF EXISTS items;")
+        statement.executeUpdate("DROP TABLE IF EXISTS items_labels;")
         statement.executeUpdate("""
             CREATE TABLE IF NOT EXISTS items (
                 id INT NOT NULL PRIMARY KEY,
@@ -35,7 +37,7 @@ object ItemService {
         statement.executeUpdate(
             """
             CREATE TABLE IF NOT EXISTS items_labels (
-                itemId TEXT NOT NULL,
+                itemId INT NOT NULL,
                 label TEXT NOT NULL,
                 PRIMARY KEY (itemId, label),
                 FOREIGN KEY (itemId) REFERENCES items(id)
@@ -48,15 +50,15 @@ object ItemService {
     fun addItem(item: Item): Item {
         try {
             // prepared statements
-            val insertItems: PreparedStatement = conn.prepareStatement("INSERT INTO items (id, text, dueDate, priority, done, boardId) VALUES (?, ?, ?, ?, ?, ?)")
-            var insertLabels: PreparedStatement = conn.prepareStatement("INSERT INTO items_labels (itemId, label) VALUES (?, ?);")
+            val insertItems = conn.prepareStatement("INSERT INTO items (id, text, dueDate, priority, done, boardId) VALUES (?, ?, ?, ?, ?, ?)")
+            var insertLabels = conn.prepareStatement("INSERT INTO items_labels (itemId, label) VALUES (?, ?);")
 
             // insert into items table
             insertItems.setString(1, item.id.toString())
             insertItems.setString(2, item.text)
             insertItems.setString(3, item.dueDate.toString())
-            insertItems.setString(4, item.priority.toString())
-            insertItems.setString(5, item.done.toString())
+            insertItems.setInt(4, item.priority)
+            insertItems.setBoolean(5, item.done)
             insertItems.setString(6, item.boardId.toString())
 
             insertItems.executeUpdate()
@@ -76,12 +78,12 @@ object ItemService {
     fun deleteItem(id: UUID): Boolean {
         try {
             // prepared statements
-            val deleteItems: PreparedStatement = conn.prepareStatement("DELETE FROM items WHERE id = ?")
-            var deleteLabels: PreparedStatement = conn.prepareStatement("DELETE FROM items_labels WHERE itemId = ?")
+            val deleteItems = conn.prepareStatement("DELETE FROM items WHERE id = ?")
+            var deleteLabels = conn.prepareStatement("DELETE FROM items_labels WHERE itemId = ?")
 
             // delete from items_labels table
             deleteLabels.setString(1, id.toString())
-            val rowLabels = deleteLabels.executeUpdate()
+            deleteLabels.executeUpdate()
 
             // delete from items table
             deleteItems.setString(1, id.toString())
@@ -95,7 +97,7 @@ object ItemService {
 
     fun getItemLabels(id: UUID) : MutableSet<Label> {
         try {
-            val getLabelsWithId: PreparedStatement = conn.prepareStatement("SELECT * FROM items_labels WHERE itemId = ?")
+            val getLabelsWithId = conn.prepareStatement("SELECT * FROM items_labels WHERE itemId = ?")
             getLabelsWithId.setString(1, id.toString())
 
             val results = getLabelsWithId.executeQuery()
@@ -129,7 +131,7 @@ object ItemService {
 
     fun getItem(id: UUID): Item {
         try {
-            val getItemWithId: PreparedStatement = conn.prepareStatement("SELECT * FROM items WHERE id = ?")
+            val getItemWithId = conn.prepareStatement("SELECT * FROM items WHERE id = ?")
             getItemWithId.setString(1, id.toString())
 
             val res = getItemWithId.executeQuery()
@@ -147,7 +149,7 @@ object ItemService {
 
     fun getAllItems(boardId: UUID) : List<Item> {
         try {
-            val getItemWithId: PreparedStatement = conn.prepareStatement("SELECT * FROM items WHERE boardId = ?")
+            val getItemWithId = conn.prepareStatement("SELECT * FROM items WHERE boardId = ?")
             getItemWithId.setString(1, boardId.toString())
             val res = getItemWithId.executeQuery()
 
@@ -167,8 +169,8 @@ object ItemService {
             val updateItem = conn.prepareStatement("UPDATE items SET text = ?, dueDate = ?, priority = ?, done = ? WHERE id = ?")
             updateItem.setString(1, new.text)
             updateItem.setString(2, new.dueDate.toString())
-            updateItem.setString(3, new.priority.toString())
-            updateItem.setString(4, new.done.toString())
+            updateItem.setInt(3, new.priority)
+            updateItem.setBoolean(4, new.done)
             updateItem.setString(5, new.id.toString())
 
             updateItem.executeUpdate()
@@ -194,7 +196,7 @@ object ItemService {
         try {
             val updateItem = conn.prepareStatement("UPDATE items SET done = ? WHERE id = ?")
             val done = true
-            updateItem.setString(1, done.toString())
+            updateItem.setBoolean(1, done)
             updateItem.setString(2, item.id.toString())
             val updated = updateItem.executeUpdate()
             return updated != 0

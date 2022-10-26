@@ -56,22 +56,8 @@ internal class ItemServiceTest {
         val it1 = items.elementAt(0)
         val it2 = items.elementAt(1)
 
-        assertEquals(it1.id, item1.id)
-        assertEquals(it1.priority, item1.priority)
-        assertEquals(it1.boardId, item1.boardId)
-        assertEquals(it1.done, item1.done)
-        assertEquals(it1.labels, item1.labels)
-        assertEquals(it1.text, item1.text)
-        assertEquals(it1.dueDate, item1.dueDate)
-
-        assertEquals(it2.id, item2.id)
-        assertEquals(it2.priority, item2.priority)
-        assertEquals(it2.boardId, item2.boardId)
-        assertEquals(it2.done, item2.done)
-        assertEquals(it2.labels, item2.labels)
-        assertEquals(it2.text, item2.text)
-        assertEquals(it2.dueDate, item2.dueDate)
-
+        assertEquals(it1, item1)
+        assertEquals(it2, item2)
         assertEquals(res.size, items.size)
     }
 
