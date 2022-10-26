@@ -1,51 +1,82 @@
 package services
 
-import models.Item
-import models.Label
+import kotlinx.serialization.Serializable
+import models.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.sql.Connection
+import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
 
 internal class ItemServiceTest {
+    @BeforeEach
+    fun init() {
+        assertDoesNotThrow {
+            val url = "jdbc:sqlite:test.db"
+            conn = DriverManager.getConnection(url)
+            ItemService.init(conn)
+        }
+    }
+
+    @AfterEach
+    fun cleanup() {
+        assertDoesNotThrow {
+            val stat = conn.createStatement()
+            stat.executeUpdate("DROP TABLE items")
+        }
+    }
     @Test
     fun addItem() {
-        val itemsLen = ItemService.items.size
         val item = Item("todo")
 
         ItemService.addItem(item)
 
-        assertTrue(ItemService.items.contains(item))
-        assertEquals(itemsLen + 1, ItemService.items.size)
+        val res = ItemService.getItem(item.id)
+
+        assertEquals(res, item)
     }
 
     @Test
     fun getAllItems() {
-        val firstItem: Item? = if (ItemService.items.size > 0) ItemService.items.elementAt(0) else null
+        val item1 = Item("todo1", LocalDateTime.now(), UUID.randomUUID(), mutableSetOf(Label("label")), 1, UUID.randomUUID(), true)
+        val item2 = Item("todo1", LocalDateTime.now(), item1.boardId, mutableSetOf(Label("label")), 1, UUID.randomUUID(), true)
 
-        lateinit var boardId: UUID
-        if(firstItem != null) {
-            boardId = firstItem.boardId
-        } else {
-            val newItem = Item("new item")
-            boardId = newItem.boardId
-            ItemService.addItem(newItem)
-        }
+        val items = listOf(
+            item1,
+            item2
+        )
 
-        val itemsWithBoardId = ItemService.getAllItems(boardId)
+        items.forEach { ItemService.addItem(it) }
 
-        var currentItemsWithBoardId: MutableSet<Item> = mutableSetOf()
-        for (it in ItemService.items) {
-            if (it.boardId == boardId) {
-                currentItemsWithBoardId.add(it)
-            }
-        }
+        val res = ItemService.getAllItems(item1.boardId)
 
-        assertEquals(currentItemsWithBoardId.size, itemsWithBoardId.size)
+        val it1 = items.elementAt(0)
+        val it2 = items.elementAt(1)
+
+        assertEquals(it1.id, item1.id)
+        assertEquals(it1.priority, item1.priority)
+        assertEquals(it1.boardId, item1.boardId)
+        assertEquals(it1.done, item1.done)
+        assertEquals(it1.labels, item1.labels)
+        assertEquals(it1.text, item1.text)
+        assertEquals(it1.dueDate, item1.dueDate)
+
+        assertEquals(it2.id, item2.id)
+        assertEquals(it2.priority, item2.priority)
+        assertEquals(it2.boardId, item2.boardId)
+        assertEquals(it2.done, item2.done)
+        assertEquals(it2.labels, item2.labels)
+        assertEquals(it2.text, item2.text)
+        assertEquals(it2.dueDate, item2.dueDate)
+
+        assertEquals(res.size, items.size)
     }
 
     @Test
-    fun getBoard() {
+    fun getItem() {
         val newItem = Item("item")
         val itemId = newItem.id
         ItemService.addItem(newItem)
@@ -56,13 +87,13 @@ internal class ItemServiceTest {
     }
 
     @Test
-    fun updateBoard() {
+    fun updateItem() {
         val boardId = UUID.randomUUID()
         val newItem = Item("board", LocalDateTime.now(), boardId, mutableSetOf(Label("label")), 1, UUID.randomUUID(), true)
         val updatedItem = Item("updated", LocalDateTime.now(), boardId, mutableSetOf(Label("updated")), 2, newItem.id, false)
         ItemService.addItem(newItem)
 
-        val itemAfterUpdate = ItemService.updateItem(updatedItem)!! // throws if not null
+        val itemAfterUpdate = ItemService.updateItem(updatedItem)
 
         assertEquals(boardId, itemAfterUpdate.boardId)
         assertEquals(newItem.id, itemAfterUpdate.id)
@@ -73,7 +104,7 @@ internal class ItemServiceTest {
     }
 
     @Test
-    fun deleteBoard() {
+    fun deleteItem() {
         val newItem = Item("item")
         val itemId = newItem.id
         ItemService.addItem(newItem)
@@ -81,10 +112,8 @@ internal class ItemServiceTest {
         val isDeletedTrue = ItemService.deleteItem(itemId)
 
         assertTrue(isDeletedTrue)
-        assertFalse(ItemService.items.contains(newItem))
 
         val isDeletedFalse = ItemService.deleteItem(itemId)
-
         assertFalse(isDeletedFalse)
     }
 
@@ -93,13 +122,9 @@ internal class ItemServiceTest {
         val newItem = Item("item")
         ItemService.addItem(newItem)
 
-        var itemsNotDone = ItemService.items.filter { !it.done }
+        val done = ItemService.markItemAsDone(newItem)
 
-        assertEquals(itemsNotDone.size, ItemService.items.size)
-
-        ItemService.markItemAsDone(newItem);
-
-        assertTrue(newItem.done)
+        assertTrue(done)
     }
 }
 
