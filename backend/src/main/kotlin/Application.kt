@@ -39,13 +39,13 @@ fun Application.configureSerialization() {
     }
 
     install(Authentication) {
-        google()
+        firebase()
     }
 }
 
 fun Application.configureServices() {
+    FirebaseAuthService.init()
     val conn = Database().connect("todo")
     BoardService.init(conn)
     ItemService.init(conn)
-    FirebaseAuthService.init()
 }

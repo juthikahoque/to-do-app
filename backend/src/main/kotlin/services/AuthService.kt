@@ -12,7 +12,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import models.User
 import java.io.InputStream
-import java.util.*
 
 object FirebaseAuthService {
     private val serviceAccount: InputStream? =
@@ -29,8 +28,8 @@ object FirebaseAuthService {
     }
 }
 
-class FirebaseAuthenticationProvider internal constructor(name: String) : AuthenticationProvider(Configuration(name)) {
-    class Configuration(name: String) : Config(name)
+class FirebaseAuthenticationProvider internal constructor(name: String?) : AuthenticationProvider(Configuration(name)) {
+    class Configuration(name: String?) : Config(name)
 
     private val challengeFunction: ChallengeFunction = { _, call ->
         call.respond(HttpStatusCode.Unauthorized)
@@ -42,14 +41,13 @@ class FirebaseAuthenticationProvider internal constructor(name: String) : Authen
             context.challenge("firebase", AuthenticationFailedCause.NoCredentials, challengeFunction)
             return
         }
-//        print(token)
         try {
             val fbToken = FirebaseAuthService.verify(token)!!
             print(fbToken.uid)
             context.principal(User(fbToken.uid))
-//            context.principal(User(UUID.fromString(token)))
-        } catch (fdae: FirebaseAuthException) {
-            print(fdae)
+        } catch (cause: FirebaseAuthException) {
+            print("failed to verify")
+            context.challenge("firebase", AuthenticationFailedCause.InvalidCredentials, challengeFunction)
         } catch (cause: Throwable) {
             print("failed to verify")
             context.challenge("firebase", AuthenticationFailedCause.InvalidCredentials, challengeFunction)
@@ -60,6 +58,6 @@ class FirebaseAuthenticationProvider internal constructor(name: String) : Authen
 fun AuthenticationConfig.firebase(
     name: String? = null
 ) {
-    val provider = FirebaseAuthenticationProvider("firebase")
+    val provider = FirebaseAuthenticationProvider(name)
     register(provider)
 }

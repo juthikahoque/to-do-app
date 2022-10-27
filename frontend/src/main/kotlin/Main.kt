@@ -39,32 +39,21 @@ class Main: Application() {
 
     }
 
-    fun setupHttpClient() {
+    suspend fun setupHttpClient() {
+        AuthService.init()
+        AuthService.googleAuth()
+
         val client = HttpClient() {
-            install(ContentNegotiation) {
-                json(Json{ ignoreUnknownKeys = true })
-            }
-            defaultRequest {
-                url("http://127.0.0.1:8080")
-
-            }
-        }
-        AuthService.init(client)
-//        AuthService.googleAuth()
-//
-        print("\n")
-        print(AuthService.idToken)
-
-        val authedClient = HttpClient() {
             install(ContentNegotiation) {
                 json()
             }
             defaultRequest {
                 url("http://127.0.0.1:8080")
-                bearerAuth(AuthService.idToken)
+                bearerAuth(AuthService.user!!.idToken)
             }
         }
-        BoardService.init(authedClient)
-        ItemService.init(authedClient)
+
+        BoardService.init(client)
+        ItemService.init(client)
     }
 }

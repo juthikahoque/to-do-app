@@ -19,7 +19,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.apache.commons.codec.binary.Base64
 import java.awt.Desktop
-import java.math.BigInteger
 import java.net.URI
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -51,11 +50,12 @@ object AuthenticationManager {
     ): TokenResponse {
         // val job = coroutineScope.launch {
         var retval: TokenResponse? = null
-        val audience = "todo-app-53e07"
+
         runBlocking {
             try {
                 val verifier = createVerifier()
                 val challenge = createChallenge(verifier)
+                val state = createState()
 
                 // pop up auth window
                 val urlParam = Parameters.build {
@@ -65,7 +65,7 @@ object AuthenticationManager {
                     append("scope", scope)
                     append("code_challenge", challenge)
                     append("code_challenge_method", "S256")
-                    append("state", challenge)
+                    append("state", state)
                     append("access_type", "offline")
 
                 }.formUrlEncode()
@@ -76,7 +76,7 @@ object AuthenticationManager {
                     Desktop.getDesktop().browse(URI("$authUrl?$urlParam"))
                  }
 
-                val code = waitForCallback()
+                val code = waitForCallback(state)
 
                 // get token
                 val response = client.post(tokenUrl) {
@@ -87,12 +87,10 @@ object AuthenticationManager {
                         append("code", code)
                         append("code_verifier", verifier)
                         append("grant_type", "authorization_code")
-                        append("redirect_uri", redirectUri)//"https://todo-app-53e07.firebaseapp.com/__/auth/handler")
+                        append("redirect_uri", redirectUri)
                         // append("audience", audience)
                     }))
                 }
-
-                println("\nresponse: ${response.body<String>()}")
 
                 retval = response.body()
             } catch (e: Exception) {
@@ -112,7 +110,7 @@ object AuthenticationManager {
 //        }
     }
 
-    private suspend fun waitForCallback(): String {
+    private suspend fun waitForCallback(state: String): String {
         var server: NettyApplicationEngine? = null
 
         val code = suspendCancellableCoroutine<String> { continuation ->
@@ -120,8 +118,10 @@ object AuthenticationManager {
                 routing {
                     get("/oauth-authorized/google") {
                         val code = call.parameters["code"] ?: throw RuntimeException("Received a response with no code")
-                        println("got code: $code")
-                        call.respondText("OK sdfasdf")
+                        if (call.parameters["state"] != state) {
+                            throw RuntimeException("Received invalid state")
+                        }
+                        call.respond("""Sign in successful""")
 
                         continuation.resume(code)
                     }
@@ -150,6 +150,14 @@ object AuthenticationManager {
         md.update(bytes, 0, bytes.size)
         val digest = md.digest()
         return Base64.encodeBase64URLSafeString(digest)
+    }
+
+    private fun createState(): String {
+        val sr = SecureRandom()
+
+        val code = ByteArray(32)
+        sr.nextBytes(code)
+        return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(code)
     }
 
     fun cancelLogin() {

@@ -132,9 +132,9 @@ object BoardService {
         }
     }
 
-    fun getBoards(user: User): List<Board> {
+    fun getBoards(userId: String): List<Board> {
         try {
-            getStatement[0].setString(1, user.id)
+            getStatement[0].setString(1, userId)
             val res = getStatement[0].executeQuery()
             val list = mutableListOf<Board>()
             while (res.next()) {
