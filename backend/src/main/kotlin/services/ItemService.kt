@@ -111,10 +111,11 @@ object ItemService {
 
         // get item labels
         val labels: MutableSet<Label> = getItemLabels(itemId)
+        val dueDateStr = res.getString("dueDate")
 
         return Item(
             text = res.getString("text"),
-            dueDate = LocalDateTime.parse(res.getString("dueDate")),
+            dueDate = if (dueDateStr == "null") null else LocalDateTime.parse(dueDateStr),
             boardId = UUID.fromString(res.getString("boardId")),
             labels = labels,
             priority = res.getInt("priority"),
