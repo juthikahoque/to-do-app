@@ -104,6 +104,69 @@ internal class ItemServiceTest {
     }
 
     @Test
+    fun filterByDate() {
+        val items = listOf(
+            Item(text = "same day", dueDate = LocalDateTime.now()),
+            Item(text = "item2", dueDate = LocalDateTime.now().plusDays(1)),
+            Item(text = "same day", dueDate = LocalDateTime.now().plusHours(5))
+        )
+        items.forEach { ItemService.addItem(it) }
+
+        var sameDueDate = items.filter { it.text == "same day" }
+
+        var filteredItems = ItemService.filterByDate(LocalDateTime.now())
+
+        assertEquals(filteredItems, sameDueDate)
+
+        sameDueDate = items.filter { it.text == "item2" }
+        filteredItems = ItemService.filterByDate(LocalDateTime.now().plusDays(1))
+
+        assertEquals(filteredItems, sameDueDate)
+    }
+    @Test
+    fun filterByLabels() {
+        val items = listOf(
+            Item(text = "CS 346", priority = 0, labels = mutableSetOf(Label("CS 346"), Label("CS 341"))),
+            Item(text = "CS 346", priority = 1, labels = mutableSetOf(Label("CS 346"))),
+            Item(text = "CS 341", priority = 0, labels = mutableSetOf(Label("CS 341")))
+        )
+
+        items.forEach { ItemService.addItem(it) }
+
+        var sameLabels = items.filter { it.text == "CS 346" }
+        var filteredItems = ItemService.filterByLabel(Label("CS 346"))
+
+        assertEquals(filteredItems, sameLabels)
+
+        sameLabels = items.filter { it.priority == 0 }
+        filteredItems = ItemService.filterByLabel(Label("CS 341"))
+
+        assertEquals(filteredItems, sameLabels)
+    }
+
+    @Test
+    fun filterByPriority() {
+        val items = listOf(
+            Item(text = "CS 346", priority = 1),
+            Item(text = "CS 346", priority = 1),
+            Item(text = "same day", priority = 0)
+        )
+
+        items.forEach { ItemService.addItem(it) }
+
+        var samePriority = items.filter { it.priority == 1 }
+        var filteredItems = ItemService.filterByPriority(1)
+
+        assertEquals(filteredItems, samePriority)
+
+        samePriority = items.filter { it.priority == 0 }
+        filteredItems = ItemService.filterByPriority(0)
+
+        assertEquals(filteredItems, samePriority)
+
+    }
+
+    @Test
     fun testDone() {
         val newItem = Item("item")
         ItemService.addItem(newItem)

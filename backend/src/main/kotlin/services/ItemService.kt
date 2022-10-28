@@ -19,19 +19,19 @@ object ItemService {
         val statement = conn.createStatement()
         statement.executeUpdate("""
             CREATE TABLE IF NOT EXISTS items (
-                id INT NOT NULL PRIMARY KEY,
+                id TEXT NOT NULL PRIMARY KEY,
                 text VARCHAR(1000),
-                dueDate DATETIME,
+                dueDate TEXT,
                 priority INT,
                 done BOOLEAN,
-                boardId INT,
+                boardId TEXT,
                 FOREIGN KEY(boardId) REFERENCES boards(id));
         """.trimIndent())
 
         statement.executeUpdate(
             """
             CREATE TABLE IF NOT EXISTS items_labels (
-                itemId INT NOT NULL,
+                itemId TEXT NOT NULL,
                 label TEXT NOT NULL,
                 PRIMARY KEY (itemId, label),
                 FOREIGN KEY (itemId) REFERENCES items(id)
@@ -195,6 +195,67 @@ object ItemService {
             updateItem.setString(2, item.id.toString())
             val updated = updateItem.executeUpdate()
             return updated != 0
+        } catch (ex: SQLException) {
+            error("not updated")
+        }
+    }
+
+    fun filterByDate(date: LocalDateTime): List<Item> {
+        try {
+            val actualDate = date.year.toString() + "-" + date.month.value.toString() + "-" + date.dayOfMonth.toString()
+            val addOneDay = date.plusDays(1)
+            val nextDate = addOneDay.year.toString() + "-" + addOneDay.month.value.toString() + "-" + addOneDay.dayOfMonth.toString()
+
+            val getItems = conn.prepareStatement("SELECT * FROM items where dueDate >= ? AND dueDate < ?")
+            getItems.setString(1, actualDate)
+            getItems.setString(2, nextDate)
+
+            val res = getItems.executeQuery()
+
+            val itemsList = mutableListOf<Item>()
+            while (res.next()) {
+                itemsList.add(getItemFromRes(res))
+            }
+            res.close()
+            return itemsList
+        } catch (ex: SQLException) {
+            error("not updated")
+        }
+    }
+
+    fun filterByLabel(label: Label) : List<Item> {
+        try {
+            val labelText = label.value
+
+            val getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE label = ?")
+            getItems.setString(1, labelText)
+
+            val res = getItems.executeQuery()
+
+            val itemsList = mutableListOf<Item>()
+            while (res.next()) {
+                itemsList.add(getItemFromRes(res))
+            }
+            res.close()
+            return itemsList
+        } catch (ex: SQLException) {
+            error("not updated")
+        }
+    }
+
+    fun filterByPriority(priority: Int): List<Item> {
+        try {
+            val getItems = conn.prepareStatement("SELECT * FROM items WHERE priority = ?")
+            getItems.setInt(1, priority)
+
+            val res = getItems.executeQuery()
+
+            val itemsList = mutableListOf<Item>()
+            while (res.next()) {
+                itemsList.add(getItemFromRes(res))
+            }
+            res.close()
+            return itemsList
         } catch (ex: SQLException) {
             error("not updated")
         }
