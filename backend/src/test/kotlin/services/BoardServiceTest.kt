@@ -18,15 +18,13 @@ internal class BoardServiceTest {
         assertDoesNotThrow {
             val url = "jdbc:sqlite:test.db"
             conn = DriverManager.getConnection(url)
-            BoardService.init(conn)
-        }
-    }
-
-    @AfterEach
-    fun cleanup() {
-        assertDoesNotThrow {
+            // clear table
             val stat = conn.createStatement()
-            stat.executeUpdate("DROP TABLE boards")
+            stat.executeUpdate("DROP TABLE IF EXISTS boards")
+            stat.executeUpdate("DROP TABLE IF EXISTS boards_users")
+            stat.executeUpdate("DROP TABLE IF EXISTS boards_labels")
+
+            BoardService.init(conn)
         }
     }
 
