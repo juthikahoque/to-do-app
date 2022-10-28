@@ -3,15 +3,22 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
-group 'net.codebot'
-version '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
+ext {
+    kotlin_version = '1.2.21'
+    kotlinx_html_version = '0.6.8'
+    frontend_plugin_version = '0.0.27'
+    serialization_version = '0.4.1'
+    junitVersion = '5.8.2'
+    ktor_version = '2.1.2'
 }
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
+repositories {
+    // mavenCentral()
+    jcenter()
+}
+
+sourceCompatibility = '18'
+targetCompatibility = '18'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
