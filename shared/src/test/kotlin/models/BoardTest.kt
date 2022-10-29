@@ -21,13 +21,14 @@ internal class BoardTest {
         )
 
         val str = Json.encodeToString(board)
-        val output = Json.decodeFromString<Board>(str)
 
         val usersString = board.users.fold("") { acc, uuid -> "${acc},\"${uuid}\"" }.drop(1)
         assertEquals(
             """{"name":"board","users":[${usersString}],"labels":[{"value":"label1"},{"value":"label2"}],"updated_at":"${board.updated_at}","created_at":"${board.created_at}","id":"${board.id}"}""",
             str
         )
+
+        val output = Json.decodeFromString<Board>(str)
         assertEquals(output, board)
     }
 }

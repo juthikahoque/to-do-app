@@ -128,6 +128,7 @@ object BoardService {
             // conn.commit() // if using transactions
             return board
         } catch (ex: SQLException) {
+            print(ex)
             error("sql error")
         }
     }
@@ -143,6 +144,7 @@ object BoardService {
             res.close()
             return list
         } catch (ex: SQLException) {
+            print(ex)
             error("not found")
         }
     }
@@ -162,6 +164,7 @@ object BoardService {
                 error("not found")
             }
         } catch (ex: SQLException) {
+            print(ex)
             error("not found")
         }
     }

@@ -18,8 +18,8 @@ import java.util.*
 internal class ItemServiceTest {
 
     val bid = UUID.randomUUID()
-    val i1 = Item("item", bid)
-    val i2 = Item("2", bid)
+    val i1 = Item(text = "item", id = bid)
+    val i2 = Item(text = "2", id = bid)
 
     private val httpClient = HttpClient(MockEngine) {
         engine {

@@ -102,6 +102,11 @@ class Model {
         return items
     }
 
+    fun addToDoItem(item: Item) {
+        items.add(item)
+        notifyObservers()
+    }
+
     fun setCreateBoardMenu(toOpen:Boolean){
         showCreateBoard = toOpen
         notifyObservers()

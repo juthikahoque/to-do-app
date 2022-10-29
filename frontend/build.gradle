@@ -1,35 +1,13 @@
 plugins {
-    id 'java'
-    id 'application'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.20'
+    id 'todo.kotlin-application-conventions'
     id 'org.openjfx.javafxplugin' version '0.0.12'
     id 'org.beryx.jlink' version '2.24.1'
     id 'io.ktor.plugin' version '2.1.2'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.20'
 }
 
-group 'net.codebot'
-version '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
-
-sourceCompatibility = '17'
-targetCompatibility = '17'
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
 application {
     mainClass = 'Main'
-}
-
-[compileKotlin, compileTestKotlin].forEach {
-    it.kotlinOptions {
-        jvmTarget = '11'
-    }
 }
 
 javafx {
@@ -38,8 +16,8 @@ javafx {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    implementation project(":shared")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     // Ktor Http service
@@ -57,10 +35,6 @@ dependencies {
     implementation 'com.google.api-client:google-api-client:2.0.0'
     implementation 'com.auth0:java-jwt:4.1.0'
 
-}
-
-test {
-    useJUnitPlatform()
 }
 
 jlink {
