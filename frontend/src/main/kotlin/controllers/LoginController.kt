@@ -9,6 +9,7 @@ import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 import javafx.fxml.FXMLLoader
 import javafx.event.ActionEvent
+import javafx.application.Platform
 
 import kotlinx.coroutines.*
 
@@ -25,11 +26,22 @@ class LoginController {
         AuthService.init()
     }
 
+    var authJob: Job? = null
+
     @FXML
     private fun onLoginWithGoogle() {
-        runBlocking {
-            AuthService.googleAuth()
+        authJob = GlobalScope.launch {
+            try {
+                AuthService.googleAuth()
+            } catch (e: Throwable) {
+                if (e.message == "unauthorized") {
+                    print("unauthorized")
+                    cancelLogin()
+                    yield()
+                }
+            }
 
+            print("logged in ")
             val client = HttpClient() {
                 // install(Auth) {
 
@@ -46,8 +58,13 @@ class LoginController {
             ItemService.init(client)
 
             // then bring up home base
-            app.switchToMain()
+            Platform.runLater { app.switchToMain() }
             // app.changeScene("/views/main-view.fxml")
         }
+    }
+
+    @FXML
+    private fun cancelLogin() {
+        authJob?.cancel()
     }
 }
