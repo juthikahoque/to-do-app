@@ -5,6 +5,7 @@ import javafx.scene.control.TextField
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import models.Board
+import services.*
 import java.util.*
 
 class CreateBoardView(private val model:Model): VBox(), IView{
@@ -23,10 +24,10 @@ class CreateBoardView(private val model:Model): VBox(), IView{
         setOnMouseClicked {
             if(nameInput.text == ""){
                 println("No board name entered! This is probably an error!")
-                model.addBoard(Board("NO NAME", mutableSetOf(UUID.randomUUID())))
+                model.addBoard(Board("NO NAME", mutableSetOf(AuthService.user.localId)))
             }
             else{
-                model.addBoard(Board(nameInput.text, mutableSetOf(UUID.randomUUID())))
+                model.addBoard(Board(nameInput.text, mutableSetOf(AuthService.user.localId)))
             }
             nameInput.text = ""
             usersInput.text = ""

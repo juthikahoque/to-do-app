@@ -19,7 +19,7 @@ object AuthService {
 
     private lateinit var settings: AuthSettings
     private lateinit var client: HttpClient
-    var user: FirebaseRet? = null
+    lateinit var user: FirebaseRet
     private var token: Token? = null
 
     fun init() {
@@ -125,26 +125,4 @@ object AuthService {
             val clientSecret: String,
         )
     }
-}
-
-
-suspend fun main() {
-    AuthService.init()
-    AuthService.googleAuth()
-
-    val c = HttpClient {
-        install(ContentNegotiation) {
-            json(Json{ ignoreUnknownKeys = true })
-        }
-        defaultRequest {
-            url("http://127.0.0.1:8080")
-            bearerAuth(AuthService.user!!.idToken)
-        }
-    }
-
-    print(AuthService.user!!.idToken)
-
-    BoardService.init(c)
-
-    BoardService.getBoards()
 }
