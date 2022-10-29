@@ -2,18 +2,31 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.layout.*
 import javafx.stage.Stage
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
-import services.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
+import javafx.fxml.FXMLLoader
+
+import controller.*
+
+lateinit var app: Main
 
 class Main: Application() {
+
+    private lateinit var stage: Stage
+
     override fun start(stage: Stage) {
-        runBlocking { setupHttpClient() }
+        app = this
+
+        val fxmlLoader = FXMLLoader(LoginController::class.java.getResource("/views/login-view.fxml"))
+        val scene = Scene(fxmlLoader.load(), 320.0, 240.0)
+        stage.title = "To-Do App"
+        stage.scene = scene
+        stage.show()
+
+        this.stage = stage
+    }
+
+    fun switchToMain() {
         val hbox = HBox()
 
         val model = Model()
@@ -36,24 +49,12 @@ class Main: Application() {
         stage.minHeight = 600.0
         stage.scene = scene
         stage.show()
-
     }
 
-    suspend fun setupHttpClient() {
-        AuthService.init()
-        AuthService.googleAuth()
-
-        val client = HttpClient() {
-            install(ContentNegotiation) {
-                json()
-            }
-            defaultRequest {
-                url("http://127.0.0.1:8080")
-                bearerAuth(AuthService.user.idToken)
-            }
-        }
-
-        BoardService.init(client)
-        ItemService.init(client)
+    fun changeScene(sceneName: String) {
+        println("trying to change to $sceneName")
+        val fxmlLoader = FXMLLoader(Main::class.java.getResource(sceneName))
+        val scene = Scene(fxmlLoader.load(), 320.0, 240.0)
+        stage.scene = scene
     }
 }
