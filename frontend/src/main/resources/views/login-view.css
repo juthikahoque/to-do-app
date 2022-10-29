@@ -1,0 +1,4 @@
+
+.googleSignInButton {
+    -fx-graphic: url('/icons/google_signin_buttons/btn_google_signin_dark_normal_web.png');
+}
