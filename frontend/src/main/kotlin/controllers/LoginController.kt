@@ -10,6 +10,9 @@ import kotlinx.serialization.json.Json
 import javafx.fxml.FXMLLoader
 import javafx.event.ActionEvent
 import javafx.application.Platform
+import javafx.beans.binding.*
+import javafx.beans.property.*
+import javafx.beans.value.*
 
 import kotlinx.coroutines.*
 
@@ -28,8 +31,14 @@ class LoginController {
 
     var authJob: Job? = null
 
+    var loggingIn: SimpleBooleanProperty = SimpleBooleanProperty(false)
+    fun loggingInProperty(): BooleanProperty = loggingIn
+    fun getLoggingIn(): Boolean = loggingIn.get()
+    fun setloggingIn(value: Boolean) { return loggingIn.set(value)}
+
     @FXML
     private fun onLoginWithGoogle() {
+        loggingIn.setValue(true)
         authJob = GlobalScope.launch {
             try {
                 AuthService.googleAuth()
@@ -66,5 +75,6 @@ class LoginController {
     @FXML
     private fun cancelLogin() {
         authJob?.cancel()
+        loggingIn.setValue(false)
     }
 }

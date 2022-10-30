@@ -15,6 +15,7 @@
         fx:id="googleSignInButton" 
         onAction="#onLoginWithGoogle" 
         styleClass="googleSignInButton"
+        disable="${controller.loggingIn}"
     />
 
     <Button
@@ -22,7 +23,7 @@
         fx:id="cancelLogin"
         onAction="#cancelLogin"
         styleClass="cancelLoginButton"
-        visible="true"
+        visible="${controller.loggingIn}"
     />
     
 </VBox>
