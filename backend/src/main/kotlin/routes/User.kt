@@ -12,11 +12,13 @@ import models.*
 import services.*
 
 fun Route.userRouting() {
-    route("/user") {
-        get {
-            val user = call.principal<User>()!!
-            call.response.status(HttpStatusCode.OK)
-            call.respond(user)
+    authenticate { 
+        route("/user") {
+            get {
+                val user = call.principal<User>()!!
+                call.response.status(HttpStatusCode.OK)
+                call.respond(user)
+            }
         }
     }
 }
