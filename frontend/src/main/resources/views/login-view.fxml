@@ -25,5 +25,4 @@
         styleClass="cancelLoginButton"
         visible="${controller.loggingIn}"
     />
-    
 </VBox>

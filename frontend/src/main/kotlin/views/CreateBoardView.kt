@@ -42,8 +42,6 @@ class CreateBoardView(private val model:Model): VBox(), IView{
             usersInput.text = ""
             model.setCreateBoardMenu(false)
         }
-
-
     }
 
 

@@ -29,6 +29,7 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.39.3.0")
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-client-auth:$ktor_version")
 
 //    implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
     implementation 'com.microsoft.alm:oauth2-useragent:0.11.3'

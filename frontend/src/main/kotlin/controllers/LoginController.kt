@@ -22,6 +22,9 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import services.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
+
 import app
 
 class LoginController {
@@ -38,6 +41,7 @@ class LoginController {
 
     @FXML
     private fun onLoginWithGoogle() {
+        print(loggingIn.get())
         loggingIn.setValue(true)
         authJob = GlobalScope.launch {
             try {
@@ -52,9 +56,19 @@ class LoginController {
 
             print("logged in ")
             val client = HttpClient() {
-                // install(Auth) {
-
-                // }
+                install(Auth) {
+                    bearer {
+                        loadTokens {
+                            BearerTokens(AuthService.token!!.idToken, AuthService.token!!.refreshToken)
+                        }
+                        refreshTokens {
+                            runBlocking {
+                                AuthService.refresh()
+                            }
+                            BearerTokens(AuthService.token!!.idToken, AuthService.token!!.refreshToken)
+                        }
+                    }
+                }
                 install(ContentNegotiation) {
                     json()
                 }
@@ -69,6 +83,7 @@ class LoginController {
             // then bring up home base
             Platform.runLater { app.switchToMain() }
             // app.changeScene("/views/main-view.fxml")
+            loggingIn.setValue(false)
         }
     }
 
