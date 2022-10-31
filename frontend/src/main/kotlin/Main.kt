@@ -5,9 +5,11 @@ import javafx.stage.Stage
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import services.*
 import kotlinx.coroutines.*
+import kotlinx.serialization.json.Json
 
 class Main: Application() {
     override fun start(stage: Stage) {
@@ -37,16 +39,20 @@ class Main: Application() {
 
     }
 
-    fun setupHttpClient() {
+    suspend fun setupHttpClient() {
+        AuthService.init()
+        AuthService.googleAuth()
+
         val client = HttpClient() {
             install(ContentNegotiation) {
                 json()
             }
             defaultRequest {
                 url("http://127.0.0.1:8080")
-
+                bearerAuth(AuthService.user.idToken)
             }
         }
+
         BoardService.init(client)
         ItemService.init(client)
     }

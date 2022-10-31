@@ -1,8 +1,6 @@
 
-import models.Board
-import models.Item
-import models.Label
-import services.BoardService
+import models.*
+import services.*
 import java.time.LocalDateTime
 import java.util.*
 import kotlinx.coroutines.runBlocking
@@ -12,14 +10,13 @@ class Model {
     private val boards: ArrayList<Board> = ArrayList()
     private val items: ArrayList<Item> = ArrayList()
     private val currentBoardIdx = 0
-    private val userId = UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46")
     var showCreateBoard = false
     init {
         runBlocking {
             val boards = BoardService.getBoards()
             if (boards.isEmpty()) {
-                BoardService.addBoard(Board("All", mutableSetOf(userId)))
-                BoardService.addBoard(Board("Personal", mutableSetOf(userId)))
+                BoardService.addBoard(Board("All", mutableSetOf(AuthService.user.localId)))
+                BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user.localId)))
             }
 
             items.add(
