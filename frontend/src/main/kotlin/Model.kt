@@ -100,7 +100,9 @@ class Model {
     }
 
     fun addToDoItem(item: Item) {
-        items.add(item)
+        runBlocking {
+            ItemService.addItem(boards[currentBoardIdx].id, item)
+        }
         notifyObservers()
     }
 
