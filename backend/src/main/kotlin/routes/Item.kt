@@ -14,6 +14,7 @@ fun Route.itemRouting() {
     authenticate {
         route("/items") {
 
+        }
     }
 
     route("/board/{bid?}/item") {
