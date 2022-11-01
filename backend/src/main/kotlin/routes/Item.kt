@@ -4,18 +4,18 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import models.Item
 import services.ItemService
 import java.util.*
-import io.ktor.server.auth.*
 
 fun Route.itemRouting() {
     authenticate {
         route("/items") {
 
         }
-    
+
         route("/board/{bid?}/items") {
             get {
                 val boardId = UUID.fromString(call.parameters["bid"])
@@ -29,12 +29,12 @@ fun Route.itemRouting() {
             post {
                 val boardId = UUID.fromString(call.parameters["bid"])
                 val item = call.receive<Item>()
-    
+
                 if (item.boardId != boardId) {
                     call.response.status(HttpStatusCode.NotFound)
                     return@post
                 }
-    
+
                 ItemService.addItem(item)
                 call.response.status(HttpStatusCode.Created)
                 call.respond(item)
@@ -51,5 +51,5 @@ fun Route.itemRouting() {
                 call.response.status(HttpStatusCode.NoContent)
             }
         }
-    }   
+    }
 }

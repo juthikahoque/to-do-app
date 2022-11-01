@@ -12,7 +12,7 @@ import models.*
 import services.*
 
 fun Route.userRouting() {
-    authenticate { 
+    authenticate {
         route("/user") {
             get {
                 val user = call.principal<User>()!!
