@@ -20,7 +20,7 @@ object AuthService {
     private lateinit var settings: AuthSettings
     private lateinit var client: HttpClient
     lateinit var user: FirebaseRet
-    private var token: Token? = null
+    var token: Token? = null
 
     fun init() {
         val configString = this::class.java.classLoader.getResourceAsStream("auth-settings.json")!!

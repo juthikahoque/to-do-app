@@ -40,7 +40,7 @@ object AuthenticationManager {
         client = httpClient;
     }
 
-    fun authenticateUser(
+    suspend fun authenticateUser(
         authUrl: String,
         tokenUrl: String,
         clientId: String,
@@ -51,89 +51,86 @@ object AuthenticationManager {
         // val job = coroutineScope.launch {
         var retval: TokenResponse? = null
 
-        runBlocking {
-            try {
-                val verifier = createVerifier()
-                val challenge = createChallenge(verifier)
-                val state = createState()
+        try {
+            val verifier = createVerifier()
+            val challenge = createChallenge(verifier)
+            val state = createState()
 
-                // pop up auth window
-                val urlParam = Parameters.build {
-                    append("client_id", clientId)
-                    append("redirect_uri", redirectUri)
-                    append("response_type", "code")
-                    append("scope", scope)
-                    append("code_challenge", challenge)
-                    append("code_challenge_method", "S256")
-                    append("state", state)
-                    append("access_type", "offline")
+            // pop up auth window
+            val urlParam = Parameters.build {
+                append("client_id", clientId)
+                append("redirect_uri", redirectUri)
+                append("response_type", "code")
+                append("scope", scope)
+                append("code_challenge", challenge)
+                append("code_challenge_method", "S256")
+                append("state", state)
+                append("access_type", "offline")
 
-                }.formUrlEncode()
+            }.formUrlEncode()
 
-                println("Launching URL: $authUrl?$urlParam")
+            // println("Launching URL: $authUrl?$urlParam")
 
-                 withContext(Dispatchers.IO) {
-                    Desktop.getDesktop().browse(URI("$authUrl?$urlParam"))
-                 }
-
-                val code = waitForCallback(state)
-
-                // get token
-                val response = client.post(tokenUrl) {
-                    contentType(ContentType.Application.FormUrlEncoded)
-                    setBody(FormDataContent(Parameters.build {
-                        append("client_id", clientId)
-                        append("client_secret", clientSecret)
-                        append("code", code)
-                        append("code_verifier", verifier)
-                        append("grant_type", "authorization_code")
-                        append("redirect_uri", redirectUri)
-                        // append("audience", audience)
-                    }))
-                }
-
-                retval = response.body()
-            } catch (e: Exception) {
-                e.printStackTrace()
+            withContext(Dispatchers.IO) {
+                Desktop.getDesktop().browse(URI("$authUrl?$urlParam"))
             }
+
+            val code = waitForCallback(state)
+
+            // get token
+            val response = client.post(tokenUrl) {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(FormDataContent(Parameters.build {
+                    append("client_id", clientId)
+                    append("client_secret", clientSecret)
+                    append("code", code)
+                    append("code_verifier", verifier)
+                    append("grant_type", "authorization_code")
+                    append("redirect_uri", redirectUri)
+                    // append("audience", audience)
+                }))
+            }
+
+            retval = response.body()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
         if (retval == null)
             error("unauthorized")
         else
-            return retval!!
-//        callbackJob.value = job
-//        job.invokeOnCompletion { callbackJob.value = null }
-//
-//        runBlocking {
-//            job
-//        }
+            return retval
     }
 
     private suspend fun waitForCallback(state: String): String {
         var server: NettyApplicationEngine? = null
+        try {
+            val code = suspendCancellableCoroutine<String> { continuation ->
+                server = embeddedServer(Netty, port = 5000) {
+                    routing {
+                        get("/oauth-authorized/google") {
+                            val code = call.parameters["code"] ?: throw RuntimeException("Received a response with no code")
+                            if (call.parameters["state"] != state) {
+                                throw RuntimeException("Received invalid state")
+                            }
+                            call.respond("""Sign in successful""")
 
-        val code = suspendCancellableCoroutine<String> { continuation ->
-            server = embeddedServer(Netty, port = 5000) {
-                routing {
-                    get("/oauth-authorized/google") {
-                        val code = call.parameters["code"] ?: throw RuntimeException("Received a response with no code")
-                        if (call.parameters["state"] != state) {
-                            throw RuntimeException("Received invalid state")
+                            continuation.resume(code)
                         }
-                        call.respond("""Sign in successful""")
-
-                        continuation.resume(code)
                     }
-                }
-            }.start(wait = false)
-        }
-
-        coroutineScope.launch {
+                }.start(wait = false)
+            }
+            print("server should be s")
+        // coroutineScope.launch {
             server!!.stop(1, 5, TimeUnit.SECONDS)
-        }
+        // }
 
-        return code
+            return code
+        } catch (e: CancellationException){
+            println("Work cancelled!")
+            server?.stop(1, 5, TimeUnit.SECONDS)
+            throw e
+        }
     }
 
     private fun createVerifier(): String {
