@@ -13,7 +13,7 @@ internal class BoardTest {
     fun serialize() {
         val board = Board(
             name = "board",
-            users = mutableSetOf(UUID.randomUUID(), UUID.randomUUID()),
+            users = mutableSetOf("uid 1", "uid 2"),
             id = UUID.randomUUID(),
             labels = mutableSetOf(Label("label1"), Label("label2")),
             updated_at = LocalDateTime.now(),

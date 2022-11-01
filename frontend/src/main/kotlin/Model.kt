@@ -1,8 +1,6 @@
 
-import models.Board
-import models.Item
-import models.Label
-import services.BoardService
+import models.*
+import services.*
 import java.time.LocalDateTime
 import java.util.*
 import kotlinx.coroutines.runBlocking
@@ -25,8 +23,8 @@ class Model {
             // TODO: temporary check if empty; "All" and "Personal" boards should be created
             //         by default when a user creates an account
             if (boards.isEmpty()) {
-                BoardService.addBoard(Board("All", mutableSetOf(userId)))
-                BoardService.addBoard(Board("Personal", mutableSetOf(userId)))
+                BoardService.addBoard(Board("All", mutableSetOf(AuthService.user.localId)))
+                BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user.localId)))
             }
             items = getItems(boards[0].id)
             applicationState = ApplicationState.Ready

@@ -1,0 +1,20 @@
+{
+  "google": {
+    "client_id": "101606477015-tdl4cnd6kqtqqu45cpiclen32f1g6835.apps.googleusercontent.com",
+    "project_id": "todo-app-53e07",
+    "auth_uri": "https://accounts.google.com/o/oauth2/v2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret": "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",
+    "redirect_uris": [
+      "https://todo-app-53e07.firebaseapp.com/__/auth/handler",
+      "http://localhost:5000/oauth-authorized/google"
+    ],
+    "javascript_origins": [
+      "http://localhost",
+      "http://localhost:5000",
+      "https://todo-app-53e07.firebaseapp.com"
+    ]
+  },
+  "firebaseApiKey": "AIzaSyChADePJB6Ycal_6fSCPJGAqt23pv7oQWY"
+}
