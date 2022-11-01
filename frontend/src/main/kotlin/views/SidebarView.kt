@@ -51,7 +51,7 @@ class SidebarView(private val model:Model): BorderPane(), IView{
         }
     }
 
-    override fun updateView(){
+    override fun updateView() {
         //reset center
         center = null
 
@@ -64,13 +64,18 @@ class SidebarView(private val model:Model): BorderPane(), IView{
                 style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
                 toggleGroup = group
                 font = Font(Font.getDefault().name, 15.0)
+
                 selectedProperty().addListener { _, _, _ ->
                     //TODO: update views to show items in the selected board
-                    style = if(isSelected){
+                    style = if (isSelected){
                         "-fx-background: rgb(169, 169, 169);\n -fx-background-color: rgb(169, 169, 169)"
                     } else {
                         "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
                     }
+                }
+
+                setOnMouseClicked {
+                    model.updateCurrentBoard(i)
                 }
 
                 //first board ("all") is selected by default

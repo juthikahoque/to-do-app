@@ -20,6 +20,7 @@ object BoardService {
             contentType(ContentType.Application.Json)
             setBody(board)
         }
+
         return result.body()
     }
 
