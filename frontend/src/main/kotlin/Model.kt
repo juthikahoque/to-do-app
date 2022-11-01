@@ -6,68 +6,33 @@ import services.BoardService
 import java.time.LocalDateTime
 import java.util.*
 import kotlinx.coroutines.runBlocking
+import services.ItemService
+import utils.ApplicationState
 
 class Model {
     private val views: ArrayList<IView> = ArrayList()
-    private val boards: ArrayList<Board> = ArrayList()
-    private val items: ArrayList<Item> = ArrayList()
-    private val currentBoardIdx = 0
+    private var boards: List<Board>
+    private var items: List<Item>
+    private var currentBoardIdx = 0
     private val userId = UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46")
+    private var applicationState = ApplicationState.Loading
+
     var showCreateBoard = false
+
     init {
         runBlocking {
-            val boards = BoardService.getBoards()
+            boards = getBoards()
+            // TODO: temporary check if empty; "All" and "Personal" boards should be created
+            //         by default when a user creates an account
             if (boards.isEmpty()) {
                 BoardService.addBoard(Board("All", mutableSetOf(userId)))
                 BoardService.addBoard(Board("Personal", mutableSetOf(userId)))
             }
-
-            items.add(
-                Item(
-                    "Do groceries",
-                    LocalDateTime.now(),
-                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                    mutableSetOf<Label>(),
-                    1,
-                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                    false
-                )
-            )
-            items.add(
-                Item(
-                    "Clean room",
-                    LocalDateTime.now(),
-                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                    mutableSetOf<Label>(),
-                    1,
-                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                    false
-                )
-            )
-            items.add(
-                Item(
-                    "Pick up package",
-                    LocalDateTime.now(),
-                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                    mutableSetOf<Label>(),
-                    2,
-                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                    false
-                )
-            )
-            items.add(
-                Item(
-                    "Do laundry",
-                    LocalDateTime.now(),
-                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                    mutableSetOf<Label>(),
-                    0,
-                    UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                    false
-                )
-            )
+            items = getItems(boards[0].id)
+            applicationState = ApplicationState.Ready
         }
     }
+
     fun addView(view: IView) {
         views.add(view)
         view.updateView()
@@ -76,6 +41,21 @@ class Model {
     private fun notifyObservers() {
         for (view in views) {
             view.updateView()
+        }
+    }
+
+    fun getApplicationState(): ApplicationState {
+        return applicationState
+    }
+
+    fun updateCurrentBoard(idx: Int) {
+        if (idx !== currentBoardIdx) {
+            currentBoardIdx = idx
+            applicationState = ApplicationState.Loading
+            runBlocking {
+                items = getItems(boards[currentBoardIdx].id)
+            }
+            applicationState = ApplicationState.Ready
         }
     }
 
@@ -98,12 +78,16 @@ class Model {
         return boards
     }
 
-    fun getItems(): List<Item> {
+    fun getItems(boardId: UUID): List<Item> {
+        lateinit var items: List<Item>
+        runBlocking {
+            items = ItemService.getItems(boardId)
+        }
         return items
     }
 
     fun addToDoItem(item: Item) {
-        items.add(item)
+        // items.add(item)
         notifyObservers()
     }
 

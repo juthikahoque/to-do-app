@@ -20,12 +20,13 @@ object BoardService {
             contentType(ContentType.Application.Json)
             setBody(board)
         }
+
         return result.body()
     }
 
     suspend fun getBoards(): List<Board> {
         val result = client.get("board")
-
+        print(result.body<String>())
         return result.body()
     }
 
