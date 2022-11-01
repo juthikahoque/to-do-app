@@ -2,6 +2,7 @@ import javafx.geometry.*
 import javafx.scene.control.Label
 import javafx.scene.layout.*
 import javafx.scene.text.Font
+import utils.ApplicationState
 
 class BoardView(private val model: Model): VBox(), IView {
 
@@ -21,9 +22,15 @@ class BoardView(private val model: Model): VBox(), IView {
         myToDosHeader.padding = Insets(20.0, 0.0, 10.0, 0.0)
         myToDosHeader.font = Font("Regular", 16.0)
         children.add(myToDosHeader)
-        for (item in model.getItems()) {
-            children.add(ToDoRowView(item))
+
+        if (model.getApplicationState() == ApplicationState.Ready) {
+            for (item in model.getItems(model.getCurrentBoard().id)) {
+                children.add(ToDoRowView(item))
+            }
+        } else {
+            children.add(Label("Loading..."))
         }
+
         isVisible = !model.showCreateBoard
     }
 

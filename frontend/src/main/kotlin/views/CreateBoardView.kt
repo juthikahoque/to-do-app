@@ -42,10 +42,7 @@ class CreateBoardView(private val model:Model): VBox(), IView{
             usersInput.text = ""
             model.setCreateBoardMenu(false)
         }
-
-
     }
-
 
     override fun updateView() {
         isVisible = model.showCreateBoard
@@ -59,13 +56,5 @@ class CreateBoardView(private val model:Model): VBox(), IView{
         }
         children.addAll(nameSection, usersSection, buttons)
         model.addView(this)
-
     }
-
-
-
-
-
-
-
 }
