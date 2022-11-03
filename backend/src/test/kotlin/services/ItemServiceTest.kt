@@ -108,7 +108,8 @@ internal class ItemServiceTest {
         val items = listOf(
             Item(text = "same day", dueDate = LocalDateTime.now()),
             Item(text = "item2", dueDate = LocalDateTime.now().plusDays(1)),
-            Item(text = "same day", dueDate = LocalDateTime.now().plusHours(5))
+            Item(text = "same day", dueDate = LocalDateTime.now().plusHours(5)),
+            Item(text = "item3", dueDate = LocalDateTime.now().plusDays(2))
         )
         items.forEach { ItemService.addItem(it) }
 
@@ -122,6 +123,10 @@ internal class ItemServiceTest {
         filteredItems = ItemService.filterByDate(LocalDateTime.now().plusDays(1))
 
         assertEquals(filteredItems, sameDueDate)
+
+        filteredItems = ItemService.filterByDate(LocalDateTime.now(), LocalDateTime.now().plusDays(3))
+
+        assertEquals(items, filteredItems)
     }
     @Test
     fun filterByLabels() {
@@ -134,14 +139,18 @@ internal class ItemServiceTest {
         items.forEach { ItemService.addItem(it) }
 
         var sameLabels = items.filter { it.text == "CS 346" }
-        var filteredItems = ItemService.filterByLabel(Label("CS 346"))
+        var filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 346")))
 
         assertEquals(filteredItems, sameLabels)
 
         sameLabels = items.filter { it.priority == 0 }
-        filteredItems = ItemService.filterByLabel(Label("CS 341"))
+        filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 341")))
 
         assertEquals(filteredItems, sameLabels)
+
+        filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 341"), Label("CS 346")))
+
+        assertEquals(filteredItems.size, items.size)
     }
 
     @Test
@@ -155,14 +164,17 @@ internal class ItemServiceTest {
         items.forEach { ItemService.addItem(it) }
 
         var samePriority = items.filter { it.priority == 1 }
-        var filteredItems = ItemService.filterByPriority(1)
+        var filteredItems = ItemService.filterByPriority(mutableSetOf(1))
 
         assertEquals(filteredItems, samePriority)
 
         samePriority = items.filter { it.priority == 0 }
-        filteredItems = ItemService.filterByPriority(0)
+        filteredItems = ItemService.filterByPriority(mutableSetOf(0))
 
         assertEquals(filteredItems, samePriority)
+
+        filteredItems = ItemService.filterByPriority(mutableSetOf(1, 0))
+        assertEquals(filteredItems, items)
 
     }
 
