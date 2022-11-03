@@ -200,14 +200,15 @@ object ItemService {
         }
     }
 
-    fun filterByDate(startDateTime: LocalDateTime, endDateTime: LocalDateTime? = null): List<Item> {
+    fun filterByDate(startDateTime: LocalDateTime, boardId: UUID, endDateTime: LocalDateTime? = null): List<Item> {
         try {
             val startDate = startDateTime.toLocalDate()
             val endDate = if(endDateTime != null) endDateTime.toLocalDate() else startDate.plusDays(1)
 
-            val getItems = conn.prepareStatement("SELECT * FROM items where dueDate >= ? AND dueDate < ?")
+            val getItems = conn.prepareStatement("SELECT * FROM items where dueDate >= ? AND dueDate < ? and boardId = ?")
             getItems.setString(1, startDate.toString())
             getItems.setString(2, endDate.toString())
+            getItems.setString(3, boardId.toString())
 
             val res = getItems.executeQuery()
 
@@ -222,13 +223,14 @@ object ItemService {
         }
     }
 
-    fun filterByLabel(labels: MutableSet<Label>) : List<Item> {
+    fun filterByLabel(labels: MutableSet<Label>, boardId: UUID) : List<Item> {
         try {
             val itemsList = mutableListOf<Item>()
             for(label in labels) {
                 val labelText = label.value
-                val getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE label = ?")
+                val getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE label = ? and items.boardId = ?")
                 getItems.setString(1, labelText)
+                getItems.setString(2, boardId.toString())
 
                 val res = getItems.executeQuery()
 
@@ -246,12 +248,13 @@ object ItemService {
         }
     }
 
-    fun filterByPriority(priorities: MutableSet<Int>): List<Item> {
+    fun filterByPriority(priorities: MutableSet<Int>, boardId: UUID): List<Item> {
         try {
             val itemsList = mutableListOf<Item>()
             for(priority in priorities) {
-                val getItems = conn.prepareStatement("SELECT * FROM items WHERE priority = ?")
+                val getItems = conn.prepareStatement("SELECT * FROM items WHERE priority = ? and boardId = ?")
                 getItems.setInt(1, priority)
+                getItems.setString(2, boardId.toString())
 
                 val res = getItems.executeQuery()
 

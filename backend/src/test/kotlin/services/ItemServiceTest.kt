@@ -105,76 +105,102 @@ internal class ItemServiceTest {
 
     @Test
     fun filterByDate() {
+        val boardId1 = UUID.randomUUID()
+        val boardId2 = UUID.randomUUID()
+        val boardId3 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "same day", dueDate = LocalDateTime.now()),
-            Item(text = "item2", dueDate = LocalDateTime.now().plusDays(1)),
-            Item(text = "same day", dueDate = LocalDateTime.now().plusHours(5)),
-            Item(text = "item3", dueDate = LocalDateTime.now().plusDays(2))
+            Item(text = "item1", dueDate = LocalDateTime.now(), boardId = boardId1),
+            Item(text = "item2", dueDate = LocalDateTime.now().plusDays(1), boardId = boardId1),
+            Item(text = "item1", dueDate = LocalDateTime.now().plusHours(5), boardId = boardId1),
+            Item(text = "item3", dueDate = LocalDateTime.now().plusDays(2), boardId = boardId2),
+            Item(text = "item4", dueDate = LocalDateTime.now().plusHours(5), boardId = boardId2),
         )
         items.forEach { ItemService.addItem(it) }
 
-        var sameDueDate = items.filter { it.text == "same day" }
-
-        var filteredItems = ItemService.filterByDate(LocalDateTime.now())
-
+        // items between today and tomorrow with boardId 1
+        var sameDueDate = items.filter { it.text == "item1" }
+        var filteredItems = ItemService.filterByDate(LocalDateTime.now(), boardId1)
         assertEquals(filteredItems, sameDueDate)
 
+        // items between tomorrow and the day after with boardId 1
         sameDueDate = items.filter { it.text == "item2" }
-        filteredItems = ItemService.filterByDate(LocalDateTime.now().plusDays(1))
-
+        filteredItems = ItemService.filterByDate(LocalDateTime.now().plusDays(1), boardId1)
         assertEquals(filteredItems, sameDueDate)
 
-        filteredItems = ItemService.filterByDate(LocalDateTime.now(), LocalDateTime.now().plusDays(3))
+        // items with today's duedate and boardId 3
+        filteredItems = ItemService.filterByDate(LocalDateTime.now(), boardId3)
+        assertEquals(filteredItems.size, 0)
 
-        assertEquals(items, filteredItems)
+        // all items with boardId1
+        sameDueDate = items.filter { it.text == "item2" || it.text == "item1" }
+        filteredItems = ItemService.filterByDate(LocalDateTime.now(), boardId1, LocalDateTime.now().plusDays(3))
+        assertEquals(sameDueDate, filteredItems)
+
+        // all items with boardId 2
+        sameDueDate = items.filter { it.text == "item3" || it.text == "item4" }
+        filteredItems = ItemService.filterByDate(LocalDateTime.now(), boardId2, LocalDateTime.now().plusDays(3))
+        assertEquals(sameDueDate, filteredItems)
+
     }
     @Test
     fun filterByLabels() {
+        val boardId1 = UUID.randomUUID()
+        val boardId2 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "CS 346", priority = 0, labels = mutableSetOf(Label("CS 346"), Label("CS 341"))),
-            Item(text = "CS 346", priority = 1, labels = mutableSetOf(Label("CS 346"))),
-            Item(text = "CS 341", priority = 0, labels = mutableSetOf(Label("CS 341")))
+            Item(text = "CS 346", priority = 0, labels = mutableSetOf(Label("CS 346"), Label("CS 341")), boardId = boardId1),
+            Item(text = "CS 346", priority = 1, labels = mutableSetOf(Label("CS 346")), boardId = boardId1),
+            Item(text = "CS 341", priority = 0, labels = mutableSetOf(Label("CS 341")), boardId = boardId1),
+            Item(text = "CS 341", priority = 1, labels = mutableSetOf(Label("CS 341")), boardId = boardId2)
         )
 
         items.forEach { ItemService.addItem(it) }
 
         var sameLabels = items.filter { it.text == "CS 346" }
-        var filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 346")))
-
+        var filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 346")), boardId1)
         assertEquals(filteredItems, sameLabels)
 
         sameLabels = items.filter { it.priority == 0 }
-        filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 341")))
-
+        filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 341")), boardId1)
         assertEquals(filteredItems, sameLabels)
 
-        filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 341"), Label("CS 346")))
+        sameLabels = items.filter { it.boardId == boardId1 }
+        filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 346"), Label("CS 341")), boardId1)
+        assertEquals(filteredItems, sameLabels)
 
-        assertEquals(filteredItems.size, items.size)
+        sameLabels = items.filter { it.boardId == boardId2 }
+        filteredItems = ItemService.filterByLabel(mutableSetOf(Label("CS 341")), boardId2)
+        assertEquals(filteredItems, sameLabels)
+
     }
 
     @Test
     fun filterByPriority() {
+        val boardId1 = UUID.randomUUID()
+        val boardId2 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "CS 346", priority = 1),
-            Item(text = "CS 346", priority = 1),
-            Item(text = "same day", priority = 0)
+            Item(text = "CS 346", priority = 1, boardId = boardId1),
+            Item(text = "CS 346", priority = 1, boardId = boardId1),
+            Item(text = "same day", priority = 0, boardId = boardId1),
+            Item(text = "same day", priority = 0, boardId = boardId2),
         )
 
         items.forEach { ItemService.addItem(it) }
 
-        var samePriority = items.filter { it.priority == 1 }
-        var filteredItems = ItemService.filterByPriority(mutableSetOf(1))
-
+        var samePriority = items.filter { it.priority == 1 && it.boardId == boardId1 }
+        var filteredItems = ItemService.filterByPriority(mutableSetOf(1), boardId1)
         assertEquals(filteredItems, samePriority)
 
-        samePriority = items.filter { it.priority == 0 }
-        filteredItems = ItemService.filterByPriority(mutableSetOf(0))
-
+        samePriority = items.filter { it.priority == 0 && it.boardId == boardId1 }
+        filteredItems = ItemService.filterByPriority(mutableSetOf(0), boardId1)
         assertEquals(filteredItems, samePriority)
 
-        filteredItems = ItemService.filterByPriority(mutableSetOf(1, 0))
-        assertEquals(filteredItems, items)
+        samePriority = items.filter { it.boardId == boardId1 }
+        filteredItems = ItemService.filterByPriority(mutableSetOf(1, 0), boardId1)
+        assertEquals(filteredItems, samePriority)
+
+        samePriority = items.filter { it.boardId == boardId2 }
+        filteredItems = ItemService.filterByPriority(mutableSetOf(0), boardId2)
+        assertEquals(filteredItems, samePriority)
 
     }
 
