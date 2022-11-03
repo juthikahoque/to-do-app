@@ -90,7 +90,7 @@ object AuthenticationManager {
                     // append("audience", audience)
                 }))
             }
-
+            println(response.body<String>())
             retval = response.body()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -114,13 +114,12 @@ object AuthenticationManager {
                                 throw RuntimeException("Received invalid state")
                             }
                             call.respond("""Sign in successful""")
-
+                            println(code)
                             continuation.resume(code)
                         }
                     }
                 }.start(wait = false)
             }
-            print("server should be s")
         // coroutineScope.launch {
             server!!.stop(1, 5, TimeUnit.SECONDS)
         // }
@@ -168,7 +167,7 @@ data class TokenResponse(
     @SerialName("access_token")
     val accessToken: String,
     @SerialName("refresh_token")
-    val refreshToken: String,
+    val refreshToken: String?,
     @SerialName("id_token")
     val idToken: String,
     val scope: String,

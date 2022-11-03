@@ -25,6 +25,7 @@ class Model {
             if (boards.isEmpty()) {
                 BoardService.addBoard(Board("All", mutableSetOf(AuthService.user.localId)))
                 BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user.localId)))
+                boards = getBoards()
             }
             items = getItems(boards[0].id)
             applicationState = ApplicationState.Ready
