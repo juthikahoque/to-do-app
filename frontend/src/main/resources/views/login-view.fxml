@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controller.LoginController" stylesheets="@login-view.css">
+    <padding>
+        <Insets bottom="0.0" left="0.0" right="0.0" top="0.0"/>
+    </padding>
+
+    <Button 
+        fx:id="googleSignInButton" 
+        onAction="#onLoginWithGoogle" 
+        styleClass="googleSignInButton"
+        disable="${controller.loggingIn}"
+    />
+
+    <Button
+        text="Cancel"
+        fx:id="cancelLogin"
+        onAction="#cancelLogin"
+        styleClass="cancelLoginButton"
+        visible="${controller.loggingIn}"
+    />
+</VBox>

@@ -20,9 +20,6 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
 
     override fun updateView() {
         isVisible = !model.showCreateBoard
-    }
-
-    init {
         // to do title textfield
         titleInput.promptText = "To-Do Title"
 
@@ -58,14 +55,15 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         createButton.setOnMouseClicked {
             val title = titleInput.text
             val date = datePicker.value.atStartOfDay()
-            //val boardUUID = model.getCurrentBoard().id
-            val labels = mutableSetOf(labelsComboBox.value)
+            val boardId = model.getCurrentBoard().id
+            val labels = Label(labelsComboBox.value)
             val priority = priorityChoiceBox.selectionModel.selectedItem
+
             val todo = Item(
                 title,
                 date,
-                UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                mutableSetOf<Label>(),
+                boardId,
+                mutableSetOf<Label>(labels),
                 priority,
                 UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
                 false
@@ -84,7 +82,9 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         gridPane.add(createButton, 6, 0)
 
         children.add(gridPane)
+    }
 
+    init {
         model.addView(this)
     }
 }
