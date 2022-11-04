@@ -54,7 +54,7 @@ object ItemService {
     }
 
 //    suspend fun filterByDates(bid: UUID, startDate: String, endDate: String? = null): List<Item> {
-//        val result = client.get("board/${bid}/items/${"dueDate"}") {
+//        val result = client.get("board/${bid}/item/${"dueDate"}") {
 //            contentType(ContentType.Application.Json)
 //            setBody(mutableSetOf(startDate, endDate))
 //        }
@@ -62,14 +62,14 @@ object ItemService {
 //    }
 
     suspend fun filterByLabels(bid: UUID, labels: MutableSet<Label>) : List<Item> {
-        val result = client.get("board/${bid}/items/${"label"}") {
+        val result = client.get("board/${bid}/item/${"label"}") {
             contentType(ContentType.Application.Json)
             setBody(labels)
         }
         return result.body()
     }
     suspend fun filterByPriorities(bid: UUID, priorities: MutableSet<Int>) : List<Item> {
-        val result = client.get("board/${bid}/items/${"priority"}") {
+        val result = client.get("board/${bid}/item/${"priority"}") {
             contentType(ContentType.Application.Json)
             setBody(priorities)
         }

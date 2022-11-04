@@ -18,7 +18,7 @@ fun Route.itemRouting() {
 
         }
 
-        route("/board/{bid?}/items/{filterBy?}") {
+        route("/board/{bid?}/item/{filterBy?}") {
             get {
                 val boardId = UUID.fromString(call.parameters["bid"])
                 val filterBy = call.parameters["filterBy"]
