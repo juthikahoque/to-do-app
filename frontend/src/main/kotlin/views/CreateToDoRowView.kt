@@ -42,6 +42,7 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         // combobox for labels
         labelsComboBox.promptText = "Select label(s)"
         labelsComboBox.isEditable = true
+        labelsComboBox.items.add("Label 1")
         /*for (label in model.getCurrentBoard().labels) {
             labelsComboBox.items.add(label.value)
         }*/
