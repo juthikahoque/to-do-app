@@ -225,42 +225,44 @@ internal class ItemServiceTest {
             Item(text = "CS 341", priority = 1, dueDate = LocalDateTime.now(), labels = mutableSetOf(Label("CS 341")), boardId = boardId2)
         )
 
+        items.forEach{ ItemService.addItem(it) }
+
         var res = ItemService.sortByDueDates(boardId1, "ASC")
 
-//        assertEquals(res.size, 3)
-//        assertEquals(res[0], items[0])
-//        assertEquals(res[1], items[2])
-//        assertEquals(res[2], items[1])
-//
-//        res = ItemService.sortByDueDates(boardId1, "DESC")
-//        assertEquals(res.size, 3)
-//        assertEquals(res[0], items[1])
-//        assertEquals(res[1], items[2])
-//        assertEquals(res[2], items[0])
-//
-////        res = ItemService.sortByLabels(boardId1, "ASC")
-////        assertEquals(res.size, 3)
-////        assertEquals(res[0], items[2])
-////        assertEquals(res[1], items[0])
-////        assertEquals(res[2], items[1])
-////
-////        res = ItemService.sortByLabels(boardId1, "DESC")
-////        assertEquals(res.size, 3)
-////        assertEquals(res[0], items[2])
-////        assertEquals(res[1], items[0])
-////        assertEquals(res[2], items[1])
-//
-//        res = ItemService.sortByPriority(boardId1, "ASC")
-//        assertEquals(res.size, 3)
-//        assertEquals(res[0], items[0])
-//        assertEquals(res[1], items[2])
-//        assertEquals(res[2], items[1])
-//
-//        res = ItemService.sortByPriority(boardId1, "DESC")
-//        assertEquals(res.size, 3)
-//        assertEquals(res[0], items[1])
-//        assertEquals(res[1], items[2])
-//        assertEquals(res[2], items[0])
+        assertEquals(res.size, 3)
+        assertEquals(res[0], items[0])
+        assertEquals(res[1], items[2])
+        assertEquals(res[2], items[1])
+
+        res = ItemService.sortByDueDates(boardId1, "DESC")
+        assertEquals(res.size, 3)
+        assertEquals(res[0], items[1])
+        assertEquals(res[1], items[2])
+        assertEquals(res[2], items[0])
+
+        res = ItemService.sortByLabels(boardId1, "ASC")
+        assertEquals(res.size, 3)
+        assertEquals(res[0], items[0])
+        assertEquals(res[1], items[2])
+        assertEquals(res[2], items[1])
+
+        res = ItemService.sortByLabels(boardId1, "DESC")
+        assertEquals(res.size, 3)
+        assertEquals(res[0], items[0])
+        assertEquals(res[1], items[1])
+        assertEquals(res[2], items[2])
+
+        res = ItemService.sortByPriority(boardId1, "ASC")
+        assertEquals(res.size, 3)
+        assertEquals(res[0], items[0])
+        assertEquals(res[1], items[2])
+        assertEquals(res[2], items[1])
+
+        res = ItemService.sortByPriority(boardId1, "DESC")
+        assertEquals(res.size, 3)
+        assertEquals(res[0], items[1])
+        assertEquals(res[1], items[0])
+        assertEquals(res[2], items[2])
 
     }
 }

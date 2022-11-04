@@ -332,9 +332,9 @@ object ItemService {
 
             var getItems : PreparedStatement
             if(order == "ASC") {
-                getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId items.boardId = ? ORDER BY label ASC")
+                getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE items.boardId = ? ORDER BY label ASC")
             } else {
-                getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId items.boardId = ? ORDER BY label DESC")
+                getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE items.boardId = ? ORDER BY label DESC")
             }
             getItems.setString(1, boardId.toString())
             val res = getItems.executeQuery()
