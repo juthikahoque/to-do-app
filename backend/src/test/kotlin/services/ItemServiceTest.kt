@@ -213,5 +213,55 @@ internal class ItemServiceTest {
 
         assertTrue(done)
     }
+
+    @Test
+    fun sorting() {
+        val boardId1 = UUID.randomUUID()
+        val boardId2 = UUID.randomUUID()
+        val items = listOf(
+            Item(text = "CS 346", priority = 0, dueDate = LocalDateTime.now(), labels = mutableSetOf(Label("CS 346"), Label("CS 341")), boardId = boardId1),
+            Item(text = "CS 346", priority = 1, dueDate = LocalDateTime.now().plusDays(1), labels = mutableSetOf(Label("CS 346")), boardId = boardId1),
+            Item(text = "CS 341", priority = 0, dueDate = LocalDateTime.now().plusHours(1), labels = mutableSetOf(Label("CS 341")), boardId = boardId1),
+            Item(text = "CS 341", priority = 1, dueDate = LocalDateTime.now(), labels = mutableSetOf(Label("CS 341")), boardId = boardId2)
+        )
+
+        var res = ItemService.sortByDueDates(boardId1, "ASC")
+
+//        assertEquals(res.size, 3)
+//        assertEquals(res[0], items[0])
+//        assertEquals(res[1], items[2])
+//        assertEquals(res[2], items[1])
+//
+//        res = ItemService.sortByDueDates(boardId1, "DESC")
+//        assertEquals(res.size, 3)
+//        assertEquals(res[0], items[1])
+//        assertEquals(res[1], items[2])
+//        assertEquals(res[2], items[0])
+//
+////        res = ItemService.sortByLabels(boardId1, "ASC")
+////        assertEquals(res.size, 3)
+////        assertEquals(res[0], items[2])
+////        assertEquals(res[1], items[0])
+////        assertEquals(res[2], items[1])
+////
+////        res = ItemService.sortByLabels(boardId1, "DESC")
+////        assertEquals(res.size, 3)
+////        assertEquals(res[0], items[2])
+////        assertEquals(res[1], items[0])
+////        assertEquals(res[2], items[1])
+//
+//        res = ItemService.sortByPriority(boardId1, "ASC")
+//        assertEquals(res.size, 3)
+//        assertEquals(res[0], items[0])
+//        assertEquals(res[1], items[2])
+//        assertEquals(res[2], items[1])
+//
+//        res = ItemService.sortByPriority(boardId1, "DESC")
+//        assertEquals(res.size, 3)
+//        assertEquals(res[0], items[1])
+//        assertEquals(res[1], items[2])
+//        assertEquals(res[2], items[0])
+
+    }
 }
 

@@ -208,6 +208,7 @@ object ItemService {
             val endDate = if(endDateTime != null) endDateTime.toLocalDate() else startDate.plusDays(1)
 
             val getItems = conn.prepareStatement("SELECT * FROM items where dueDate >= ? AND dueDate < ? and boardId = ?")
+
             getItems.setString(1, startDate.toString())
             getItems.setString(2, endDate.toString())
             getItems.setString(3, boardId.toString())
@@ -273,4 +274,82 @@ object ItemService {
             error("not updated")
         }
     }
+
+    fun sortByPriority(boardId: UUID, order: String): List<Item> {
+        try {
+            val itemsList = mutableListOf<Item>()
+            var getItems : PreparedStatement
+            if(order == "ASC") {
+                getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY priority ASC")
+            } else {
+                getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY priority DESC")
+            }
+            getItems.setString(1, boardId.toString())
+            val res = getItems.executeQuery()
+
+            while (res.next()) {
+                val curItem = getItemFromRes(res)
+                if(!itemsList.contains(curItem)) {
+                    itemsList.add(curItem)
+                }
+            }
+            res.close()
+            return itemsList
+        } catch (ex: SQLException) {
+            error("not updated")
+        }
+    }
+    fun sortByDueDates(boardId: UUID, order: String): List<Item> {
+        try {
+            val itemsList = mutableListOf<Item>()
+
+            var getItems : PreparedStatement
+            if(order == "ASC") {
+                getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY dueDate ASC")
+                getItems.setString(1, boardId.toString())
+            } else {
+                getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY dueDate DESC")
+                getItems.setString(1, boardId.toString())
+            }
+            val res = getItems.executeQuery()
+
+            while (res.next()) {
+                val curItem = getItemFromRes(res)
+                if(!itemsList.contains(curItem)) {
+                    itemsList.add(curItem)
+                }
+            }
+            res.close()
+            return itemsList
+        } catch (ex: SQLException) {
+            error("not updated")
+        }
+    }
+
+    fun sortByLabels(boardId: UUID, order: String): List<Item> {
+        try {
+            val itemsList = mutableListOf<Item>()
+
+            var getItems : PreparedStatement
+            if(order == "ASC") {
+                getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId items.boardId = ? ORDER BY label ASC")
+            } else {
+                getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId items.boardId = ? ORDER BY label DESC")
+            }
+            getItems.setString(1, boardId.toString())
+            val res = getItems.executeQuery()
+
+            while (res.next()) {
+                val curItem = getItemFromRes(res)
+                if(!itemsList.contains(curItem)) {
+                    itemsList.add(curItem)
+                }
+            }
+            res.close()
+            return itemsList
+        } catch (ex: SQLException) {
+            error("not updated")
+        }
+    }
+
 }
