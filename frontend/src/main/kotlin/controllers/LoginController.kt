@@ -26,6 +26,7 @@ import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 
 import app
+import javafx.scene.control.Button
 
 class LoginController {
     init {
@@ -34,15 +35,17 @@ class LoginController {
 
     var authJob: Job? = null
 
-    var loggingIn: SimpleBooleanProperty = SimpleBooleanProperty(false)
-    fun loggingInProperty(): BooleanProperty = loggingIn
-    fun getLoggingIn(): Boolean = loggingIn.get()
-    fun setloggingIn(value: Boolean) { return loggingIn.set(value)}
+    @FXML
+    lateinit var googleSignInButton: Button
+
+    @FXML
+    lateinit var cancelLogin: Button
 
     @FXML
     private fun onLoginWithGoogle() {
-        print(loggingIn.get())
-        loggingIn.setValue(true)
+        googleSignInButton.isDisable = true
+        cancelLogin.isVisible = true
+
         authJob = GlobalScope.launch {
             try {
                 AuthService.googleAuth()
@@ -54,9 +57,7 @@ class LoginController {
                 }
             }
 
-            print("logged in ")
-            val client = HttpClient {
-                expectSuccess = true
+            val client = HttpClient() {
                 install(Auth) {
                     bearer {
                         loadTokens {
@@ -84,13 +85,14 @@ class LoginController {
             // then bring up home base
             Platform.runLater { app.switchToMain() }
             // app.changeScene("/views/main-view.fxml")
-            loggingIn.setValue(false)
         }
     }
 
     @FXML
     private fun cancelLogin() {
         authJob?.cancel()
-        loggingIn.setValue(false)
+
+        googleSignInButton.isDisable = false
+        cancelLogin.isVisible = false
     }
 }

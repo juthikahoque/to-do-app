@@ -25,6 +25,7 @@ class Model {
             runBlocking {
                 BoardService.addBoard(Board("All", mutableSetOf(AuthService.user.localId)))
                 BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user.localId)))
+                boards = getBoards()
             }
         }
         applicationState = ApplicationState.Ready

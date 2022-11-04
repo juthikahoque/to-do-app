@@ -55,7 +55,6 @@ class Main: Application() {
     }
 
     fun changeScene(sceneName: String) {
-        println("trying to change to $sceneName")
         val fxmlLoader = FXMLLoader(Main::class.java.getResource(sceneName))
         val scene = Scene(fxmlLoader.load(), 320.0, 240.0)
         stage.scene = scene
