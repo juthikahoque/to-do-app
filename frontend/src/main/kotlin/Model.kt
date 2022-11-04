@@ -63,6 +63,7 @@ class Model {
         runBlocking {
             boards = BoardService.getBoards()
         }
+        boards = boards
         return boards
     }
 
