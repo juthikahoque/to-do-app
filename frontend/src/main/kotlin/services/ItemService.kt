@@ -1,11 +1,15 @@
 package services
 
-import java.util.UUID
+import java.time.LocalDateTime
+import java.util.*
 import models.*
 import io.ktor.client.request.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
+
+
 
 object ItemService {
     private lateinit var client: HttpClient
@@ -48,4 +52,28 @@ object ItemService {
         }
         if (result.status != HttpStatusCode.NoContent) error("failed to delete item")
     }
+
+//    suspend fun filterByDates(bid: UUID, startDate: String, endDate: String? = null): List<Item> {
+//        val result = client.get("board/${bid}/items/${"dueDate"}") {
+//            contentType(ContentType.Application.Json)
+//            setBody(mutableSetOf(startDate, endDate))
+//        }
+//        return result.body()
+//    }
+
+    suspend fun filterByLabels(bid: UUID, labels: MutableSet<Label>) : List<Item> {
+        val result = client.get("board/${bid}/items/${"label"}") {
+            contentType(ContentType.Application.Json)
+            setBody(labels)
+        }
+        return result.body()
+    }
+    suspend fun filterByPriorities(bid: UUID, priorities: MutableSet<Int>) : List<Item> {
+        val result = client.get("board/${bid}/items/${"priority"}") {
+            contentType(ContentType.Application.Json)
+            setBody(priorities)
+        }
+        return result.body()
+    }
+
 }

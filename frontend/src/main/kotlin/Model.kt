@@ -5,6 +5,7 @@ import java.util.*
 import kotlinx.coroutines.runBlocking
 import services.ItemService
 import utils.ApplicationState
+import java.time.LocalDateTime
 
 class Model {
     private val views: ArrayList<IView> = ArrayList()
@@ -86,6 +87,24 @@ class Model {
             ItemService.addItem(boards[currentBoardIdx].id, item)
         }
         notifyObservers()
+    }
+
+//    fun filterByDates(date: LocalDateTime) {
+//        runBlocking {
+//            ItemService.filterByDates(boards[currentBoardIdx].id, date.toString())
+//        }
+//    }
+
+    fun filterByLabels(text: String) {
+        runBlocking {
+            ItemService.filterByLabels(boards[currentBoardIdx].id, mutableSetOf(Label("")))
+        }
+    }
+
+    fun filterByPriorities(priorities: MutableSet<Int>) {
+        runBlocking {
+            ItemService.filterByPriorities(boards[currentBoardIdx].id, priorities)
+        }
     }
 
     fun setCreateBoardMenu(toOpen:Boolean){
