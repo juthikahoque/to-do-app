@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import javafx.fxml.FXMLLoader
 
 import controller.*
+import views.Presenter
 
 lateinit var app: Main
 
@@ -27,22 +28,15 @@ class Main: Application() {
     }
 
     fun switchToMain() {
-        val hbox = HBox()
 
+        // create an instance of the model
         val model = Model()
 
-        val sidebar = SidebarView(model)
-        val board = BoardView(model)
-        val toolbar = ToolbarView(model)
-
-        val createBoard = CreateBoardView(model)
-
-
-        hbox.children.addAll(sidebar, VBox(toolbar, board, createBoard))
-        HBox.setHgrow(board, Priority.ALWAYS)
+        // instantiate the root container for the application
+        val presenter = Presenter(model)
 
         // set the scene
-        val scene = Scene(hbox, 800.0, 600.0)
+        val scene = Scene(presenter, 800.0, 600.0)
 
         // set the stage
         stage.title = "To-Do App"
