@@ -65,8 +65,6 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
                 boardId,
                 mutableSetOf<Label>(labels),
                 priority,
-                UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46"),
-                false
             )
             model.addToDoItem(todo)
         }
@@ -85,6 +83,7 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
     }
 
     init {
-        model.addView(this)
+        updateView()
+//        model.addView(this)
     }
 }
