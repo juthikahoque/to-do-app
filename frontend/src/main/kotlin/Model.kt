@@ -60,7 +60,6 @@ class Model {
     }
 
     fun getBoards(): List<Board> {
-        lateinit var boards: List<Board>
         runBlocking {
             boards = BoardService.getBoards()
         }

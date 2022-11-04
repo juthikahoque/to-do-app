@@ -122,7 +122,7 @@ object AuthenticationManager {
             }
         // coroutineScope.launch {
             server!!.stop(1, 5, TimeUnit.SECONDS)
-        // }
+            // }
 
             return code
         } catch (e: CancellationException){
