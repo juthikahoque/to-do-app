@@ -65,7 +65,7 @@ object ItemService {
             }
             return item
         } catch (ex: SQLException) {
-            error("sql error")
+            error(ex.message?:"sql add item failed")
         }
     }
 
@@ -85,7 +85,7 @@ object ItemService {
 
             return rowItems != 0
         } catch (ex: SQLException) {
-            error("sql error")
+            error(ex.message?:"sql add item failed")
         }
     }
 

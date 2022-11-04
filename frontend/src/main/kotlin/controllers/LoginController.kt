@@ -55,7 +55,8 @@ class LoginController {
             }
 
             print("logged in ")
-            val client = HttpClient() {
+            val client = HttpClient {
+                expectSuccess = true
                 install(Auth) {
                     bearer {
                         loadTokens {
