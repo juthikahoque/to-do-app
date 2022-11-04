@@ -72,6 +72,7 @@ class Model {
         runBlocking {
             BoardService.addBoard(board)
         }
+        showCreateBoard = false
         notifyObservers()
     }
 
@@ -90,7 +91,7 @@ class Model {
         notifyObservers()
     }
 
-    fun setCreateBoardMenu(toOpen:Boolean){
+    fun setCreateBoardMenu(toOpen:Boolean) {
         showCreateBoard = toOpen
         notifyObservers()
     }
