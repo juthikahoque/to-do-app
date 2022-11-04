@@ -24,7 +24,6 @@ object AuthService {
 
     fun init() {
         val configString = this::class.java.classLoader.getResourceAsStream("auth-settings.json")!!
-        print(configString)
         settings = json.decodeFromStream(configString)
 
         client = HttpClient {

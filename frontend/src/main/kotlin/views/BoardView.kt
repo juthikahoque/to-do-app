@@ -24,6 +24,7 @@ class BoardView(private val model: Model): VBox(), IView {
         children.add(myToDosHeader)
 
         if (model.getApplicationState() == ApplicationState.Ready) {
+            println(model.getCurrentBoard().id)
             for (item in model.getItems(model.getCurrentBoard().id)) {
                 children.add(ToDoRowView(item))
             }
