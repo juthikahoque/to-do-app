@@ -32,7 +32,7 @@ internal class ItemServiceTest {
                     )
 
                     HttpMethod.Get -> respond(
-                        if (request.url.encodedPath == "/board/${bid}/item") Json.encodeToString(listOf(i1, i2))
+                        if (request.url.encodedPath == "/board/${bid}/items") Json.encodeToString(listOf(i1, i2))
                         else Json.encodeToString(i1),
                         HttpStatusCode.OK,
                         headersOf(HttpHeaders.ContentType, "application/json")

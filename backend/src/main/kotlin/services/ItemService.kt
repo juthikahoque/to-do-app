@@ -47,6 +47,8 @@ object ItemService {
             val insertItems = conn.prepareStatement("INSERT INTO items (id, text, dueDate, priority, done, boardId) VALUES (?, ?, ?, ?, ?, ?)")
             var insertLabels = conn.prepareStatement("INSERT INTO items_labels (itemId, label) VALUES (?, ?);")
 
+            println(item)
+
             // insert into items table
             insertItems.setString(1, item.id.toString())
             insertItems.setString(2, item.text)
@@ -65,7 +67,7 @@ object ItemService {
             }
             return item
         } catch (ex: SQLException) {
-            error("sql error")
+            error(ex.message?:"sql add item failed")
         }
     }
 
@@ -85,7 +87,7 @@ object ItemService {
 
             return rowItems != 0
         } catch (ex: SQLException) {
-            error("sql error")
+            error(ex.message?:"sql add item failed")
         }
     }
 

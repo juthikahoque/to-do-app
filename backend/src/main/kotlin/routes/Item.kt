@@ -15,18 +15,6 @@ fun Route.itemRouting() {
         route("/items") {
 
         }
-    }
-
-    route("/board/{bid?}/item") {
-        get {
-            val boardId = UUID.fromString(call.parameters["bid"])
-            call.response.status(HttpStatusCode.OK)
-            call.respond(ItemService.getAllItems(boardId))
-        }
-        get("{id?}") {
-            val id = UUID.fromString(call.parameters["id"])
-            call.respond(ItemService.getItem(id))
-        }
 
         route("/board/{bid?}/items") {
             get {
