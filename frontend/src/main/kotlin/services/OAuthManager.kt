@@ -66,7 +66,7 @@ object AuthenticationManager {
                 append("code_challenge_method", "S256")
                 append("state", state)
                 append("access_type", "offline")
-
+                append("prompt", "consent")
             }.formUrlEncode()
 
             // println("Launching URL: $authUrl?$urlParam")
@@ -90,7 +90,7 @@ object AuthenticationManager {
                     // append("audience", audience)
                 }))
             }
-
+            println(response.body<String>())
             retval = response.body()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -114,16 +114,15 @@ object AuthenticationManager {
                                 throw RuntimeException("Received invalid state")
                             }
                             call.respond("""Sign in successful""")
-
+                            println(code)
                             continuation.resume(code)
                         }
                     }
                 }.start(wait = false)
             }
-            print("server should be s")
         // coroutineScope.launch {
             server!!.stop(1, 5, TimeUnit.SECONDS)
-        // }
+            // }
 
             return code
         } catch (e: CancellationException){

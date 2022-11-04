@@ -26,6 +26,7 @@ class Model {
             runBlocking {
                 BoardService.addBoard(Board("All", mutableSetOf(AuthService.user.localId)))
                 BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user.localId)))
+                boards = getBoards()
             }
         }
         applicationState = ApplicationState.Ready
@@ -60,10 +61,10 @@ class Model {
     }
 
     fun getBoards(): List<Board> {
-        lateinit var boards: List<Board>
         runBlocking {
             boards = BoardService.getBoards()
         }
+        boards = boards
         return boards
     }
 

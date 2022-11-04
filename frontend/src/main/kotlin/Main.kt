@@ -33,11 +33,12 @@ class Main: Application() {
 
         val sidebar = SidebarView(model)
         val board = BoardView(model)
+        val toolbar = ToolbarView(model)
 
         val createBoard = CreateBoardView(model)
 
 
-        hbox.children.addAll(sidebar, VBox(board, createBoard))
+        hbox.children.addAll(sidebar, VBox(toolbar, board, createBoard))
         HBox.setHgrow(board, Priority.ALWAYS)
 
         // set the scene
@@ -47,12 +48,13 @@ class Main: Application() {
         stage.title = "To-Do App"
         stage.minWidth = 800.0
         stage.minHeight = 600.0
+        stage.maxHeight = Double.MAX_VALUE
+        stage.maxWidth = Double.MAX_VALUE
         stage.scene = scene
         stage.show()
     }
 
     fun changeScene(sceneName: String) {
-        println("trying to change to $sceneName")
         val fxmlLoader = FXMLLoader(Main::class.java.getResource(sceneName))
         val scene = Scene(fxmlLoader.load(), 320.0, 240.0)
         stage.scene = scene

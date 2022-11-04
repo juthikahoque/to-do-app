@@ -20,6 +20,11 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
 
     override fun updateView() {
         isVisible = !model.showCreateBoard
+        datePicker.value = LocalDate.now()
+        priorityChoiceBox.selectionModel.selectFirst()
+    }
+
+    init {
         // to do title textfield
         titleInput.promptText = "To-Do Title"
 
@@ -80,10 +85,6 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         gridPane.add(createButton, 6, 0)
 
         children.add(gridPane)
-    }
-
-    init {
-        updateView()
-//        model.addView(this)
+        model.addView(this)
     }
 }
