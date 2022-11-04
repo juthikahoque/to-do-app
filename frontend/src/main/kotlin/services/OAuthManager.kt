@@ -121,9 +121,9 @@ object AuthenticationManager {
                 }.start(wait = false)
             }
             print("server should be s")
-        // coroutineScope.launch {
+            // coroutineScope.launch {
             server!!.stop(1, 5, TimeUnit.SECONDS)
-        // }
+            // }
 
             return code
         } catch (e: CancellationException){
