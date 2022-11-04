@@ -61,14 +61,14 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
             val title = titleInput.text
             val date = datePicker.value.atStartOfDay()
             val boardId = model.getCurrentBoard().id
-            val labels = Label(labelsComboBox.value)
+            //val labels = Label(labelsComboBox.value)
             val priority = priorityChoiceBox.selectionModel.selectedItem
 
             val todo = Item(
                 title,
                 date,
                 boardId,
-                mutableSetOf<Label>(labels),
+                mutableSetOf<Label>(),
                 priority,
             )
             model.addToDoItem(todo)

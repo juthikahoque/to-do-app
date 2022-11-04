@@ -56,6 +56,7 @@ class Model {
             applicationState = ApplicationState.Loading
             getItems(boards[currentBoardIdx].id)
             applicationState = ApplicationState.Ready
+            notifyObservers()
         }
     }
 
@@ -84,7 +85,7 @@ class Model {
 
     fun addToDoItem(item: Item) {
         runBlocking {
-            ItemService.addItem(boards[currentBoardIdx].id, item)
+            ItemService.addItem(item.boardId, item)
         }
         notifyObservers()
     }

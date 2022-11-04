@@ -58,6 +58,7 @@ class LoginController {
             }
 
             val client = HttpClient() {
+                expectSuccess = true
                 install(Auth) {
                     bearer {
                         loadTokens {
