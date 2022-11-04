@@ -66,7 +66,7 @@ object AuthenticationManager {
                 append("code_challenge_method", "S256")
                 append("state", state)
                 append("access_type", "offline")
-
+                append("prompt", "consent")
             }.formUrlEncode()
 
             // println("Launching URL: $authUrl?$urlParam")
@@ -167,7 +167,7 @@ data class TokenResponse(
     @SerialName("access_token")
     val accessToken: String,
     @SerialName("refresh_token")
-    val refreshToken: String?,
+    val refreshToken: String,
     @SerialName("id_token")
     val idToken: String,
     val scope: String,
