@@ -1,7 +1,6 @@
 
 import models.*
 import services.*
-import java.time.LocalDateTime
 import java.util.*
 import kotlinx.coroutines.runBlocking
 import services.ItemService
@@ -10,9 +9,7 @@ import utils.ApplicationState
 class Model {
     private val views: ArrayList<IView> = ArrayList()
     private var boards: List<Board>
-    private var items: List<Item>
     private var currentBoardIdx = 0
-    private val userId = UUID.fromString("bf80d583-978e-47df-879e-d1f751aafb46")
     private var applicationState = ApplicationState.Loading
 
     var showCreateBoard = false
@@ -20,16 +17,18 @@ class Model {
     init {
         runBlocking {
             boards = getBoards()
-            // TODO: temporary check if empty; "All" and "Personal" boards should be created
-            //         by default when a user creates an account
-            if (boards.isEmpty()) {
+        }
+
+        // TODO: temporary check if empty; "All" and "Personal" boards should be created
+        //         by default when a user creates an account
+        if (boards.isEmpty()) {
+            runBlocking {
                 BoardService.addBoard(Board("All", mutableSetOf(AuthService.user.localId)))
                 BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user.localId)))
                 boards = getBoards()
             }
-            items = getItems(boards[0].id)
-            applicationState = ApplicationState.Ready
         }
+        applicationState = ApplicationState.Ready
     }
 
     fun addView(view: IView) {
@@ -47,19 +46,25 @@ class Model {
         return applicationState
     }
 
+    fun getCurrentBoard(): Board {
+        return boards[currentBoardIdx]
+    }
+
     fun updateCurrentBoard(idx: Int) {
-        if (idx !== currentBoardIdx) {
+        if (idx != currentBoardIdx) {
             currentBoardIdx = idx
             applicationState = ApplicationState.Loading
-            runBlocking {
-                items = getItems(boards[currentBoardIdx].id)
-            }
+            getItems(boards[currentBoardIdx].id)
             applicationState = ApplicationState.Ready
         }
     }
 
-    fun getCurrentBoard(): Board {
-        return boards[currentBoardIdx]
+    fun getBoards(): List<Board> {
+        lateinit var boards: List<Board>
+        runBlocking {
+            boards = BoardService.getBoards()
+        }
+        return boards
     }
 
     fun addBoard(board: Board){
@@ -67,14 +72,6 @@ class Model {
             BoardService.addBoard(board)
         }
         notifyObservers()
-    }
-
-    fun getBoards(): List<Board>{
-        lateinit var boards: List<Board>
-        runBlocking {
-            boards = BoardService.getBoards()
-        }
-        return boards
     }
 
     fun getItems(boardId: UUID): List<Item> {
