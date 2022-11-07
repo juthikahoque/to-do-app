@@ -19,7 +19,7 @@ class SidebarView(private val model: Model): BorderPane(), IView {
 
     private val username = HBox(Label("Current User").apply {
         textFill = Color.WHITE
-        font = Font(Font.getDefault().name, 25.0)
+        font = Font( 25.0)
     })
 
     private val group = ToggleGroup().apply {
@@ -29,7 +29,7 @@ class SidebarView(private val model: Model): BorderPane(), IView {
     }
 
     //List of available boards
-    private  val boardArea = VBox().apply {
+    private val boardArea = VBox().apply {
         spacing = 10.0
     }
 
@@ -37,8 +37,9 @@ class SidebarView(private val model: Model): BorderPane(), IView {
         //TODO: Add styles in CSS sheet with additional hover properties
         style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
         textFill = Color.LIGHTGREEN
-        font = Font(Font.getDefault().name, 15.0)
-        this.addEventHandler(MouseEvent.MOUSE_CLICKED){
+        font = Font( 15.0)
+
+        setOnMouseClicked {
             model.setCreateBoardMenu(true)
         }
     }
@@ -47,48 +48,58 @@ class SidebarView(private val model: Model): BorderPane(), IView {
         //TODO: Add styles in CSS sheet with additional hover properties
         style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
         textFill = Color.INDIANRED
-        font = Font(Font.getDefault().name, 15.0)
-        this.addEventHandler(MouseEvent.MOUSE_CLICKED){
+        font = Font(15.0)
+
+        setOnMouseClicked {
             model.logout()
         }
     }
 
-    override fun updateView(){
-        //reset center
-        center = null
+    override fun updateView() {
+        if (!model.showCreateBoard) {
+            boardArea.children.clear()
 
-        //append new added boards to board area
-        val currBoards = model.getBoards()
-        for (i in boardArea.children.size until currBoards.size){
-            boardArea.children.add(ToggleButton(currBoards[i].name).apply {
-                textFill = Color.WHITE
-                //TODO: Add styles in CSS sheet with additional hover properties
-                style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
-                toggleGroup = group
-                font = Font(Font.getDefault().name, 15.0)
-                selectedProperty().addListener { _, _, _ ->
-                    //TODO: update views to show items in the selected board
-                    style = if(isSelected){
-                        "-fx-background: rgb(169, 169, 169);\n -fx-background-color: rgb(169, 169, 169)"
-                    } else {
-                        "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
+            model.getBoards().forEachIndexed { index, board ->
+                boardArea.children.add(ToggleButton(board.name).apply {
+                    textFill = Color.WHITE
+                    //TODO: Add styles in CSS sheet with additional hover properties
+                    style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54);\n -fx-pref-width: 150.0;\n" +
+                            " -fx-alignment: CENTER_LEFT"
+                    toggleGroup = group
+                    font = Font(Font.getDefault().name, 15.0)
+
+                    selectedProperty().addListener { _, _, _ ->
+                        style = if (isSelected) {
+                            "-fx-background: rgb(169, 169, 169);\n -fx-background-color: rgb(104, 104, 104);\n" +
+                                    " -fx-pref-width: 150.0;\n -fx-alignment: CENTER_LEFT"
+                        } else {
+                            "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54);\n" +
+                                    " -fx-pref-width: 150.0;\n -fx-alignment: CENTER_LEFT"
+                        }
                     }
-                }
 
-                //first board ("all") is selected by default
-                if(i == 0) { isSelected = true }
-            })
-        }
+                    setOnMouseClicked {
+                        model.updateCurrentBoard(index)
+                    }
 
-        //display new board area, which is scrollable
-        center = ScrollPane(boardArea).apply {
-            style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
-            isFitToWidth = true
+                    //first board ("all") is selected by default
+                    if (index == 0) { isSelected = true }
+                })
+            }
+
+
+            // display new board area, which is scrollable
+            center = ScrollPane(boardArea).apply {
+                style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
+                isFitToWidth = true
+            }
         }
     }
 
     init {
-        padding = Insets(20.0)
+        username.padding = Insets(0.0, 0.0, 20.0, 0.0)
+
+        padding = Insets(10.0)
         minWidth = 175.0
         background = Background(BackgroundFill(Color.web("#343436"), null, null))
 

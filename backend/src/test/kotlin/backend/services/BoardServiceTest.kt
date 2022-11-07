@@ -18,15 +18,13 @@ internal class BoardServiceTest {
         assertDoesNotThrow {
             val url = "jdbc:sqlite:test.db"
             conn = DriverManager.getConnection(url)
-            BoardService.init(conn)
-        }
-    }
-
-    @AfterEach
-    fun cleanup() {
-        assertDoesNotThrow {
+            // clear table
             val stat = conn.createStatement()
-            stat.executeUpdate("DROP TABLE boards")
+            stat.executeUpdate("DROP TABLE IF EXISTS boards")
+            stat.executeUpdate("DROP TABLE IF EXISTS boards_users")
+            stat.executeUpdate("DROP TABLE IF EXISTS boards_labels")
+
+            BoardService.init(conn)
         }
     }
 
@@ -46,21 +44,21 @@ internal class BoardServiceTest {
 
     @Test
     fun getBoards() {
-        val users = mutableSetOf(UUID.randomUUID())
+        val users = mutableSetOf("user")
         val boards = listOf(
             Board("1", users),
             Board("2", users),
         )
         boards.forEach { BoardService.addBoard(it) }
 
-        val res = BoardService.getBoards()
+        val res = BoardService.getBoards(users.first())
 
         assertEquals(boards, res)
     }
 
     @Test
     fun getBoard() {
-        val users = mutableSetOf(UUID.randomUUID())
+        val users = mutableSetOf("user")
         val labels = mutableSetOf(Label("label1"), Label("label2"))
         val boards = listOf(
             Board("1", users),
@@ -96,14 +94,15 @@ internal class BoardServiceTest {
 
     @Test
     fun deleteBoard() {
-        val board = Board("board")
+        val users = mutableSetOf("user")
+        val board = Board("board", users)
         val id = board.id
         BoardService.addBoard(board)
 
         val res = BoardService.deleteBoard(id)
 
         assertTrue(res)
-        assertFalse(BoardService.getBoards().contains(board))
+        assertFalse(BoardService.getBoards(users.first()).contains(board))
 
         val res2 = BoardService.deleteBoard(id)
 

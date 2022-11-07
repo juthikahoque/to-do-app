@@ -2,6 +2,7 @@ package backend.services
 
 import models.Board
 import models.Label
+import models.User
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -56,7 +57,7 @@ object BoardService {
 
         getStatementSQL = "SELECT * FROM boards INNER JOIN boards_users ON id = boardId"
         getStatement = listOf(
-            conn.prepareStatement(getStatementSQL),
+            conn.prepareStatement("$getStatementSQL AND userId = ?"),
             conn.prepareStatement("SELECT * FROM boards_users WHERE boardId = ?"),
             conn.prepareStatement("SELECT * FROM boards_labels WHERE boardId = ?"),
         )
@@ -83,9 +84,9 @@ object BoardService {
         // get board users
         getStatement[1].setString(1, boardId)
         val usersRes = getStatement[1].executeQuery()
-        val users = mutableSetOf<UUID>()
+        val users = mutableSetOf<String>()
         while (usersRes.next()) {
-            users.add(UUID.fromString(usersRes.getString("userId")))
+            users.add(usersRes.getString("userId"))
         }
         // get board labels
         getStatement[2].setString(1, boardId)
@@ -127,12 +128,14 @@ object BoardService {
             // conn.commit() // if using transactions
             return board
         } catch (ex: SQLException) {
+            print(ex)
             error("sql error")
         }
     }
 
-    fun getBoards(): List<Board> {
+    fun getBoards(userId: String): List<Board> {
         try {
+            getStatement[0].setString(1, userId)
             val res = getStatement[0].executeQuery()
             val list = mutableListOf<Board>()
             while (res.next()) {
@@ -141,6 +144,7 @@ object BoardService {
             res.close()
             return list
         } catch (ex: SQLException) {
+            print(ex)
             error("not found")
         }
     }
@@ -160,6 +164,7 @@ object BoardService {
                 error("not found")
             }
         } catch (ex: SQLException) {
+            print(ex)
             error("not found")
         }
     }
@@ -178,7 +183,7 @@ object BoardService {
             val users = new.users
             while (userRes.next()) {
                 val userId = userRes.getString("userId")
-                if (!users.remove(UUID.fromString(userId))) {
+                if (!users.remove(userId)) {
                     deleteStatement[1].setString(2, userId)
                     deleteStatement[1].executeUpdate()
                 }

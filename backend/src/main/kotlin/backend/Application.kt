@@ -1,13 +1,12 @@
 package backend
 
-import backend.routes.boardRouting
-import backend.routes.itemRouting
-import backend.services.BoardService
-import backend.services.Database
-import backend.services.ItemService
+import backend.routes.*
+import backend.services.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
@@ -38,9 +37,14 @@ fun Application.configureSerialization() {
             call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unexpected")
         }
     }
+
+    install(Authentication) {
+        firebase()
+    }
 }
 
 fun Application.configureServices() {
+    FirebaseAuthService.init()
     val conn = Database().connect("todo")
     BoardService.init(conn)
     ItemService.init(conn)

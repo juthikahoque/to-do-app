@@ -13,47 +13,56 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
+import services.*
 import kotlinx.coroutines.*
+import kotlinx.serialization.json.Json
+import javafx.fxml.FXMLLoader
+
+import controller.*
+import views.Presenter
+
+lateinit var app: Main
 
 class Main: Application() {
-    override fun start(stage: Stage) {
-        runBlocking { setupHttpClient() }
-        val hbox = HBox()
 
+    private lateinit var stage: Stage
+
+    override fun start(stage: Stage) {
+        app = this
+
+        val fxmlLoader = FXMLLoader(LoginController::class.java.getResource("/views/login-view.fxml"))
+        val scene = Scene(fxmlLoader.load(), 320.0, 240.0)
+        stage.title = "To-Do App"
+        stage.scene = scene
+        stage.show()
+
+        this.stage = stage
+    }
+
+    fun switchToMain() {
+
+        // create an instance of the model
         val model = Model()
 
-        val sidebar = SidebarView(model)
-        val board = BoardView(model)
-
-        val createBoard = CreateBoardView(model)
-
-
-        hbox.children.addAll(sidebar, VBox(board, createBoard))
-        HBox.setHgrow(board, Priority.ALWAYS)
+        // instantiate the root container for the application
+        val presenter = Presenter(model)
 
         // set the scene
-        val scene = Scene(hbox, 800.0, 600.0)
+        val scene = Scene(presenter, 800.0, 600.0)
 
         // set the stage
         stage.title = "To-Do App"
         stage.minWidth = 800.0
         stage.minHeight = 600.0
+        stage.maxHeight = Double.MAX_VALUE
+        stage.maxWidth = Double.MAX_VALUE
         stage.scene = scene
         stage.show()
-
     }
 
-    fun setupHttpClient() {
-        val client = HttpClient() {
-            install(ContentNegotiation) {
-                json()
-            }
-            defaultRequest {
-                url("http://127.0.0.1:8080")
-
-            }
-        }
-        BoardService.init(client)
-        ItemService.init(client)
+    fun changeScene(sceneName: String) {
+        val fxmlLoader = FXMLLoader(Main::class.java.getResource(sceneName))
+        val scene = Scene(fxmlLoader.load(), 320.0, 240.0)
+        stage.scene = scene
     }
 }

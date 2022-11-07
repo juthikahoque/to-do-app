@@ -8,67 +8,53 @@ import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
+import javafx.scene.text.Font
 import models.Board
+import services.*
 import java.util.*
 
 class CreateBoardView(private val model: Model): VBox(), IView {
 
-    private val nameLabel = Label("Board Name:")
+    private val header = Label("Create a Board:")
     private val nameInput = TextField()
-    private val nameSection = VBox(nameLabel, nameInput)
+    private val nameSection = VBox(nameInput)
 
-    private val usersLabel = Label("Users:")
-    //TODO: Change to a container that saves previous values
-    private val usersInput = TextField()
-    private val usersSection = VBox(usersLabel, usersInput)
-
-    private val createButton = Button("Create!").apply{
-        background = Background(BackgroundFill(Color.LIGHTGREEN, null, null))
+    private val createButton = Button("Create").apply{
+        background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnMouseClicked {
-            if(nameInput.text == ""){
+            if(nameInput.text == "") {
                 println("No board name entered! This is probably an error!")
-                model.addBoard(Board("NO NAME", mutableSetOf(UUID.randomUUID())))
+                model.addBoard(Board("NO NAME", mutableSetOf(AuthService.user.localId)))
+            } else {
+                model.addBoard(Board(nameInput.text, mutableSetOf(AuthService.user.localId)))
             }
-            else{
-                model.addBoard(Board(nameInput.text, mutableSetOf(UUID.randomUUID())))
-            }
-            nameInput.text = ""
-            usersInput.text = ""
-            model.setCreateBoardMenu(false)
         }
     }
 
     private val cancelButton = Button("Cancel").apply{
-        background = Background(BackgroundFill(Color.INDIANRED, null, null))
+        background = Background(BackgroundFill(Color.INDIANRED, CornerRadii(2.5), null))
         setOnMouseClicked {
             nameInput.text = ""
-            usersInput.text = ""
             model.setCreateBoardMenu(false)
         }
-
-
     }
 
-
     override fun updateView() {
-        isVisible = model.showCreateBoard
+
     }
 
     init {
+        nameInput.promptText = "Board Name"
+
+        header.font = Font(18.0)
         padding = Insets(20.0)
+
         spacing = 20.0
         val buttons = HBox(createButton, cancelButton).apply{
             spacing = 10.0
         }
-        children.addAll(nameSection, usersSection, buttons)
-        model.addView(this)
-
+        setMaxSize(300.0, 150.0)
+        background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+        children.addAll(header, nameSection, buttons)
     }
-
-
-
-
-
-
-
 }

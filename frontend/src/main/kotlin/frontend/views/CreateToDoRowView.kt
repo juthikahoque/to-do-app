@@ -6,7 +6,11 @@ import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
+import models.Item
+import models.Label
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class CreateToDoRowView(private val model: Model): HBox(), IView {
 
@@ -20,6 +24,8 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
 
     override fun updateView() {
         isVisible = !model.showCreateBoard
+        datePicker.value = LocalDate.now()
+        priorityChoiceBox.selectionModel.selectFirst()
     }
 
     init {
@@ -40,6 +46,7 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         // combobox for labels
         labelsComboBox.promptText = "Select label(s)"
         labelsComboBox.isEditable = true
+        labelsComboBox.items.add("Label 1")
         /*for (label in model.getCurrentBoard().labels) {
             labelsComboBox.items.add(label.value)
         }*/
@@ -57,12 +64,19 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         // handle create button click
         createButton.setOnMouseClicked {
             val title = titleInput.text
-            val date = datePicker.value as LocalDate
-            //val boardUUID = model.getCurrentBoard().id
-            val labels = mutableSetOf(labelsComboBox.value)
+            val date = datePicker.value.atStartOfDay()
+            val boardId = model.getCurrentBoard().id
+            //val labels = Label(labelsComboBox.value)
             val priority = priorityChoiceBox.selectionModel.selectedItem
 
-            // TODO: call create to do service
+            val todo = Item(
+                title,
+                date,
+                boardId,
+                mutableSetOf<Label>(),
+                priority,
+            )
+            model.addToDoItem(todo)
         }
 
         gridPane.alignment = Pos.TOP_LEFT
@@ -76,7 +90,6 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         gridPane.add(createButton, 6, 0)
 
         children.add(gridPane)
-
         model.addView(this)
     }
 }
