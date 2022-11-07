@@ -1,7 +1,7 @@
 package frontend.views
 
-import frontend.interfaces.IView
 import frontend.Model
+import frontend.interfaces.IView
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.GridPane
@@ -9,8 +9,6 @@ import javafx.scene.layout.HBox
 import models.Item
 import models.Label
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class CreateToDoRowView(private val model: Model): HBox(), IView {
 

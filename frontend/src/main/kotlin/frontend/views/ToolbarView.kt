@@ -1,13 +1,16 @@
+package frontend.views
+
+import frontend.Model
+import frontend.interfaces.IView
 import javafx.geometry.Insets
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
 import javafx.scene.layout.*
 
-
 //View for the toolbar, includes a search bar
 //invite button and options to filter/sort
 
-class ToolbarView(private val model:Model): BorderPane(), IView{
+class ToolbarView(private val model: Model): BorderPane(), IView {
     private val searchField = TextField().apply {
         promptText = "Search"
         minWidth = 400.0

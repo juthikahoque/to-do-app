@@ -1,4 +1,4 @@
-package services
+package frontend.services
 
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -61,7 +61,7 @@ object AuthService {
             contentType(ContentType.Application.Json)
             setBody("""{"refresh_token":"${token.refreshToken}","grant_type":"refresh_token"}""")
         }
-        this.token = result.body()
+        AuthService.token = result.body()
     }
 
     private suspend fun firebaseSignInWithOAuth(postBody: String): FirebaseRet {

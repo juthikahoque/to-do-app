@@ -13,8 +13,8 @@ ext {
 }
 
 repositories {
-    // mavenCentral()
-    jcenter()
+    mavenCentral()
+//    jcenter()
 }
 
 sourceCompatibility = '17'

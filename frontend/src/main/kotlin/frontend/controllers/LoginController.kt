@@ -1,32 +1,19 @@
-package controller
+package frontend.controllers
 
-import javafx.fxml.FXML
-import javafx.scene.control.Label
-import javafx.scene.*
-import javafx.scene.layout.*
-import javafx.stage.Stage
-import kotlinx.coroutines.*
-import kotlinx.serialization.json.Json
-import javafx.fxml.FXMLLoader
-import javafx.event.ActionEvent
-import javafx.application.Platform
-import javafx.beans.binding.*
-import javafx.beans.property.*
-import javafx.beans.value.*
-
-import kotlinx.coroutines.*
-
+import frontend.app
+import frontend.services.AuthService
+import frontend.services.BoardService
+import frontend.services.ItemService
 import io.ktor.client.*
 import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
-import services.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
-
-import app
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import javafx.application.Platform
+import javafx.fxml.FXML
 import javafx.scene.control.Button
+import kotlinx.coroutines.*
 
 class LoginController {
     init {

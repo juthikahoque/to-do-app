@@ -1,11 +1,7 @@
-package views
+package frontend.views
 
-import BoardView
-import CreateBoardView
-import IView
-import Model
-import SidebarView
-import ToolbarView
+import frontend.Model
+import frontend.interfaces.IView
 import javafx.geometry.Insets
 import javafx.scene.layout.*
 import javafx.scene.paint.Color

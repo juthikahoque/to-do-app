@@ -1,12 +1,12 @@
 package backend
 
-import backend.routes.*
+import backend.routes.boardRouting
+import backend.routes.itemRouting
 import backend.services.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*

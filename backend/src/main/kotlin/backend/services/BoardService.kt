@@ -2,7 +2,6 @@ package backend.services
 
 import models.Board
 import models.Label
-import models.User
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet

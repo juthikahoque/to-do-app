@@ -1,25 +1,11 @@
 package frontend
 
-import frontend.services.BoardService
-import frontend.services.ItemService
-import frontend.views.BoardView
-import frontend.views.CreateBoardView
-import frontend.views.SidebarView
+import frontend.controllers.LoginController
 import javafx.application.Application
-import javafx.scene.Scene
-import javafx.scene.layout.*
-import javafx.stage.Stage
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
-import services.*
-import kotlinx.coroutines.*
-import kotlinx.serialization.json.Json
 import javafx.fxml.FXMLLoader
-
-import controller.*
-import views.Presenter
+import javafx.scene.Scene
+import javafx.stage.Stage
+import frontend.views.Presenter
 
 lateinit var app: Main
 

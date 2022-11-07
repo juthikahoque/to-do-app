@@ -1,7 +1,7 @@
 package frontend.views
 
-import frontend.interfaces.IView
 import frontend.Model
+import frontend.interfaces.IView
 import javafx.geometry.Insets
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -10,8 +10,7 @@ import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import models.Board
-import services.*
-import java.util.*
+import frontend.services.AuthService
 
 class CreateBoardView(private val model: Model): VBox(), IView {
 

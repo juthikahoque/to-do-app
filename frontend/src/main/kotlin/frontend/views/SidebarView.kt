@@ -1,10 +1,9 @@
 package frontend.views
 
-import frontend.interfaces.IView
 import frontend.Model
+import frontend.interfaces.IView
 import javafx.geometry.Insets
 import javafx.scene.control.*
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.text.Font

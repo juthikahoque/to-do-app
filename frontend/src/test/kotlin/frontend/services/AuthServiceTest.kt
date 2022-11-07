@@ -1,5 +1,6 @@
-package services
+package frontend.services
 
+import frontend.services.AuthService
 import org.junit.jupiter.api.Assertions.assertNotNull
 
 // test google auth, then refresh token

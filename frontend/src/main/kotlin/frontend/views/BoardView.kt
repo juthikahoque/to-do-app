@@ -6,7 +6,7 @@ import javafx.geometry.*
 import javafx.scene.control.Label
 import javafx.scene.layout.*
 import javafx.scene.text.Font
-import utils.ApplicationState
+import frontend.utils.ApplicationState
 
 class BoardView(private val model: Model): VBox(), IView {
 

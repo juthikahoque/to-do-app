@@ -1,3 +1,5 @@
+package frontend.views
+
 import javafx.geometry.Insets
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.DatePicker
@@ -5,8 +7,6 @@ import javafx.scene.control.Label
 import javafx.scene.control.ToggleButton
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
-import views.PriorityTagView
-
 
 //View for the filtering by due date, labels and priorities
 class FilterView():VBox(){

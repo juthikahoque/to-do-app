@@ -1,3 +1,5 @@
+package frontend.views
+
 import javafx.geometry.Insets
 import javafx.scene.control.*
 import javafx.scene.image.Image
