@@ -1,8 +1,0 @@
-plugins {
-    id 'todo.kotlin-library-conventions'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.20'
-}
-
-dependencies {
-    implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
-}

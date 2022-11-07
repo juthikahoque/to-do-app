@@ -1,5 +1,5 @@
 rootProject.name = 'todo_app'
 
-include 'shared'
+include 'utilities'
 include 'frontend'
 include 'backend'

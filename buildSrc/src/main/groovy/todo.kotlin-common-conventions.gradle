@@ -17,8 +17,10 @@ repositories {
     jcenter()
 }
 
-sourceCompatibility = '18'
-targetCompatibility = '18'
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+compileKotlin.destinationDir = compileJava.destinationDir
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
