@@ -1,5 +1,5 @@
 module frontend {
-    requires utilities;
+    requires shared;
     requires kotlinx.coroutines.core.jvm;
     requires kotlin.stdlib;
     requires javafx.graphics;

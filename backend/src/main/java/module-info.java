@@ -8,5 +8,5 @@ module backend {
     requires io.ktor.http;
     requires java.sql;
 
-    requires utilities;
+    requires shared;
 }
