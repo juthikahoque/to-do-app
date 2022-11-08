@@ -19,11 +19,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.apache.commons.codec.binary.Base64
 import java.awt.Desktop
 import java.net.URI
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 
@@ -147,7 +147,7 @@ object AuthenticationManager {
         val md = MessageDigest.getInstance("SHA-256")
         md.update(bytes, 0, bytes.size)
         val digest = md.digest()
-        return Base64.encodeBase64URLSafeString(digest)
+        return Base64.getUrlEncoder().encodeToString(digest)
     }
 
     private fun createState(): String {

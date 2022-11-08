@@ -14,6 +14,5 @@ module frontend {
     requires io.ktor.server.netty;
     requires io.ktor.server.host.common;
     requires io.ktor.server.core;
-    requires org.apache.commons.codec;
     requires io.ktor.client.auth;
 }
