@@ -43,7 +43,7 @@ test:
       - .gradle
 
 installer:
-  stage: installer
+  stage: deploy
   script: ./gradlew jpackage
   cache:
     key: "$CI_COMMIT_REF_NAME"
