@@ -44,7 +44,7 @@ test:
 
 installer:
   stage: deploy
-  script: ./gradlew jpackage
+  script: ./gradlew backend:build backend:jpackage frontend:jpackage
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: push
