@@ -41,13 +41,3 @@ test:
     paths:
       - build
       - .gradle
-
-installer:
-  stage: deploy
-  script: ./gradlew backend:build backend:jpackage frontend:jpackage
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: push
-    paths:
-      - build
-      - .gradle
