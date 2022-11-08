@@ -30,16 +30,10 @@ import kotlin.coroutines.resume
 
 object AuthenticationManager {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
-
-    private val callbackJob = MutableStateFlow<Job?>(null)
-
-    val isLoggingIn = callbackJob.map { it?.isActive == true }
-
-    private lateinit var client: HttpClient;
+    private lateinit var client: HttpClient
 
     fun init(httpClient: HttpClient) {
-        client = httpClient;
+        client = httpClient
     }
 
     suspend fun authenticateUser(
@@ -139,7 +133,7 @@ object AuthenticationManager {
 
         val code = ByteArray(32)
         sr.nextBytes(code)
-        return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(code)
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(code)
     }
 
     private fun createChallenge(verifier: String): String {
@@ -147,7 +141,7 @@ object AuthenticationManager {
         val md = MessageDigest.getInstance("SHA-256")
         md.update(bytes, 0, bytes.size)
         val digest = md.digest()
-        return Base64.getUrlEncoder().encodeToString(digest)
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(digest)
     }
 
     private fun createState(): String {
@@ -155,12 +149,7 @@ object AuthenticationManager {
 
         val code = ByteArray(32)
         sr.nextBytes(code)
-        return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(code)
-    }
-
-    fun cancelLogin() {
-        callbackJob.value?.cancel()
-        callbackJob.value = null
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(code)
     }
 }
 

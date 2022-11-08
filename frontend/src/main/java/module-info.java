@@ -1,4 +1,12 @@
 module frontend {
+    exports frontend;
+    exports frontend.services;
+    opens frontend.controllers;
+
+    // resources
+    opens icons.google_signin_buttons;
+    opens icons.sort_icons;
+
     requires shared;
     requires kotlinx.coroutines.core.jvm;
     requires kotlin.stdlib;

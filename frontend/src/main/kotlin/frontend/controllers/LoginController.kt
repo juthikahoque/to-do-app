@@ -72,7 +72,6 @@ class LoginController {
 
             // then bring up home base
             Platform.runLater { app.switchToMain() }
-            // app.changeScene("/views/main-view.fxml")
         }
     }
 

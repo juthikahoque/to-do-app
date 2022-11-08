@@ -6,7 +6,6 @@ plugins {
 }
 
 application {
-    mainModule = "backend"
     mainClass = "backend.ApplicationKt"
 }
 

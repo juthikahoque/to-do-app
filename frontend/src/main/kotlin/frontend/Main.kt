@@ -1,11 +1,11 @@
 package frontend
 
 import frontend.controllers.LoginController
+import frontend.views.Presenter
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
 import javafx.stage.Stage
-import frontend.views.Presenter
 
 lateinit var app: Main
 
