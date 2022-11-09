@@ -5,7 +5,7 @@
 
 <?import javafx.scene.control.Button?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controller.LoginController" stylesheets="@login-view.css">
+      fx:controller="frontend.controllers.LoginController" stylesheets="@login-view.css">
 
     <Button 
         fx:id="googleSignInButton" 
