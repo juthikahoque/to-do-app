@@ -23,4 +23,5 @@ module frontend {
     requires io.ktor.server.host.common;
     requires io.ktor.server.core;
     requires io.ktor.client.auth;
+    requires java.prefs;
 }
