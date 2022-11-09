@@ -53,26 +53,32 @@ object ItemService {
         if (result.status != HttpStatusCode.NoContent) error("failed to delete item")
     }
 
-//    suspend fun filterByDates(bid: UUID, startDate: String, endDate: String? = null): List<Item> {
-//        val result = client.get("board/${bid}/item/${"dueDate"}") {
-//            contentType(ContentType.Application.Json)
-//            setBody(mutableSetOf(startDate, endDate))
-//        }
-//        return result.body()
-//    }
+    suspend fun filterByDates(bid: UUID, startDate: LocalDateTime, endDate: LocalDateTime? = null): List<Item> {
+        val headers = Parameters.build {
+            append("date", startDate.toString())
+            append("date", endDate?.toString() ?: "")
+        }.formUrlEncode()
+        val result = client.get("board/${bid}/items?date=${headers}")
+        return result.body()
+    }
 
     suspend fun filterByLabels(bid: UUID, labels: MutableSet<Label>) : List<Item> {
-        val result = client.get("board/${bid}/item/${"label"}") {
-            contentType(ContentType.Application.Json)
-            setBody(labels)
-        }
+        val headers = Parameters.build {
+            for(label in labels) {
+                append("priority", label.value)
+            }
+        }.formUrlEncode()
+        val result = client.get("board/${bid}/items?label=${headers}")
         return result.body()
     }
     suspend fun filterByPriorities(bid: UUID, priorities: MutableSet<Int>) : List<Item> {
-        val result = client.get("board/${bid}/item/${"priority"}") {
-            contentType(ContentType.Application.Json)
-            setBody(priorities)
-        }
+        val headers = Parameters.build {
+            for(priority in priorities) {
+                append("priority", priority.toString())
+            }
+        }.formUrlEncode()
+        val result = client.get("board/${bid}/items?priority=${headers}")
+
         return result.body()
     }
 

@@ -18,30 +18,36 @@ fun Route.itemRouting() {
 
         }
 
-        route("/board/{bid?}/item/{filterBy?}") {
-            get {
-                val boardId = UUID.fromString(call.parameters["bid"])
-                val filterBy = call.parameters["filterBy"]
-                if(filterBy == "dueDate") {
-                    val item = call.receive<MutableSet<String?>>()
-                    val endDate = if(item.elementAt(1) != null) LocalDateTime.parse(item.elementAt(1)) else null
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.filterByDate(LocalDateTime.parse(item.elementAt(0)), boardId, endDate))
-                } else if(filterBy == "label") {
-                    val labels = call.receive<MutableSet<Label>>()
-                    call.respond(ItemService.filterByLabel(labels, boardId))
-                } else if(filterBy == "priority") {
-                    val priorities = call.receive<MutableSet<Int>>()
-                    call.respond(ItemService.filterByPriority(priorities, boardId))
-                }
-            }
-        }
-
         route("/board/{bid?}/items") {
             get {
                 val boardId = UUID.fromString(call.parameters["bid"])
+                val filterByPriority = call.request.queryParameters.getAll("priority")
+                val filterByLabel = call.request.queryParameters.getAll("label")
+                val filterByDate = call.request.queryParameters.getAll("date")
+
+
+                if (filterByPriority != null) {
+                    val priorities = mutableSetOf<Int>()
+                    for(s in filterByPriority) {
+                        priorities.add(s.toInt())
+                        println(s)
+                    }
+                    call.respond(ItemService.filterByPriority(priorities, boardId))
+                } else if (filterByLabel != null) {
+                    val labels = mutableSetOf<Label>()
+                    for(label in filterByLabel) {
+                        labels.add(Label(label))
+                    }
+                    call.respond(ItemService.filterByLabel(labels, boardId))
+                } else if (filterByDate != null) {
+                    val startDate = LocalDateTime.parse(filterByDate[0])
+                    val endDate = if(filterByDate[1] != "") LocalDateTime.parse(filterByDate[1]) else null
+                    call.respond(ItemService.filterByDate(startDate, boardId, endDate))
+                } else {
+                    println("null req")
+                    call.respond(ItemService.getAllItems(boardId))
+                }
                 call.response.status(HttpStatusCode.OK)
-                call.respond(ItemService.getAllItems(boardId))
             }
             get("{id?}") {
                 val id = UUID.fromString(call.parameters["id"])
