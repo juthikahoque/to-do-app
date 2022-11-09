@@ -36,6 +36,7 @@ dependencies {
     implementation 'com.google.api-client:google-api-client:2.0.0'
     implementation 'com.auth0:java-jwt:4.1.0'
 
+    implementation "com.russhwolf:multiplatform-settings:1.0.0-RC"
 }
 
 jlink {

@@ -6,6 +6,8 @@ import kotlinx.coroutines.runBlocking
 import services.ItemService
 import utils.ApplicationState
 
+import app
+
 class Model {
     private val views: ArrayList<IView> = ArrayList()
     private var boards: List<Board>
@@ -23,8 +25,8 @@ class Model {
         //         by default when a user creates an account
         if (boards.isEmpty()) {
             runBlocking {
-                BoardService.addBoard(Board("All", mutableSetOf(AuthService.user.localId)))
-                BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user.localId)))
+                BoardService.addBoard(Board("All", mutableSetOf(AuthService.user!!.localId)))
+                BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user!!.localId)))
                 boards = getBoards()
             }
         }
@@ -97,6 +99,7 @@ class Model {
     }
 
     fun logout(){
-        println("Logged out!")
+        AuthService.logout()
+        app.changeScene("/views/login-view.fxml")
     }
 }
