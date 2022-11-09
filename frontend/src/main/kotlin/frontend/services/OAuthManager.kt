@@ -15,8 +15,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.awt.Desktop
@@ -117,13 +115,13 @@ object AuthenticationManager {
                 }.start(wait = false)
             }
         // coroutineScope.launch {
-            server!!.stop(1, 5, TimeUnit.SECONDS)
+            server!!.stop(0, 0, TimeUnit.SECONDS)
             // }
 
             return code
         } catch (e: CancellationException){
             println("Work cancelled!")
-            server?.stop(1, 5, TimeUnit.SECONDS)
+            server?.stop(0, 0, TimeUnit.SECONDS)
             throw e
         }
     }

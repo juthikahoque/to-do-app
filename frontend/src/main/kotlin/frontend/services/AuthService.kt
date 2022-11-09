@@ -37,7 +37,6 @@ object AuthService {
         AuthenticationManager.init(client)
 
         val tokenString = Settings.get("auth.token", "")
-        print(tokenString)
         if (tokenString != "") {
             token = json.decodeFromString<Token>(tokenString)
         }
