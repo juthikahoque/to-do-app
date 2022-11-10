@@ -2,44 +2,60 @@ package frontend.views
 
 import javafx.geometry.Insets
 import javafx.scene.control.*
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.VBox
+import javafx.scene.layout.*
+import javafx.scene.text.TextAlignment
 import models.Item
 import java.time.format.DateTimeFormatter
 
 class ToDoRowView(item: Item): VBox() {
 
-    private val gridPane =  GridPane()
-    private val completedCheckBox = CheckBox()
-    private val titleLabel = Label()
-    private val dueDateLabel = Label()
-    private val tagLabel = Label()
-    private val assignedToLabel = Label()
+    private val completedCheckBox = CheckBox().apply {
+        isSelected = item.done
+    }
+    private val titleLabel = Label(item.text).apply{
+        minWidth = 200.0
+    }
+    private val dueDateLabel = Label().apply {
+        val formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy")
+        text = item.dueDate?.format(formatter)
+    }
+    private val tagLabel = Label().apply {
+        // TODO: right now only handling one label
+        text = if (item.labels.size == 0) "" else item.labels.first().value
+    }
+    private val assignedToLabel = Label("Me")
+
+
+    private val gridPane =  GridPane().apply {
+        hgap = 10.0
+        vgap = 5.0
+        add(completedCheckBox, 1, 0)
+        add(titleLabel, 2, 0)
+        add(dueDateLabel, 3, 0)
+        add(PriorityTagView(item.priority), 4, 0)
+        add(tagLabel, 5, 0)
+        add(assignedToLabel, 6, 0)
+
+        val alwaysGrow = ColumnConstraints().apply {
+            hgrow = Priority.ALWAYS
+        }
+
+        val neverGrow = ColumnConstraints().apply {
+            hgrow = Priority.NEVER
+        }
+
+        columnConstraints.addAll(
+            neverGrow, //completedCheckBox
+            neverGrow, //titleLabel
+            alwaysGrow, //dueDateLabel
+            neverGrow, //PriorityTagView
+            neverGrow, //tagLabel
+            neverGrow //assignedToLabel
+        )
+    }
+
 
     init {
-        gridPane.hgap = 10.0
-        gridPane.vgap = 5.0
-
-        completedCheckBox.isSelected = item.done
-        gridPane.add(completedCheckBox, 1, 0)
-
-        titleLabel.text = item.text
-        titleLabel.minWidth = 200.0
-        gridPane.add(titleLabel, 2, 0)
-
-        val formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy")
-        dueDateLabel.text = item.dueDate?.format(formatter)
-        gridPane.add(dueDateLabel, 3, 0)
-
-        gridPane.add(PriorityTagView(item.priority), 4, 0)
-
-        // TODO: right now only handling one label
-        tagLabel.text = if (item.labels.size == 0) "" else item.labels.first().value
-        gridPane.add(tagLabel, 5, 0)
-
-        assignedToLabel.text = "Me"
-        gridPane.add(assignedToLabel, 6, 0)
-
         padding = Insets(5.0, 0.0, 5.0, 0.0)
         children.add(gridPane)
     }
