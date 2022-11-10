@@ -6,6 +6,8 @@ import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
 import models.Item
 import models.Label
 import java.time.LocalDate
@@ -27,6 +29,7 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
     }
 
     init {
+        createButton.minWidth = 75.0
         // to do title textfield
         titleInput.promptText = "To-Do Title"
 
@@ -57,7 +60,7 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
             assignedToComboBox.items.add(user.toString())
         }*/
 
-        createButton.minWidth = 75.0
+        createButton.prefWidth = 75.0
 
         // handle create button click
         createButton.setOnMouseClicked {
@@ -87,7 +90,15 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         gridPane.add(assignedToComboBox, 5, 0)
         gridPane.add(createButton, 6, 0)
 
-        children.add(gridPane)
+
+        //add a spacer to make the UI responsive
+        val spacer = Pane().apply {
+            setHgrow(this, Priority.ALWAYS)
+        }
+
+        children.addAll(titleInput, datePicker, priorityChoiceBox, labelsComboBox, assignedToComboBox, spacer, createButton).apply{
+            spacing = 10.0
+        }
         model.addView(this)
     }
 }

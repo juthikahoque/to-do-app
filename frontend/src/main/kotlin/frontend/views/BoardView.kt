@@ -40,6 +40,7 @@ class BoardView(private val model: Model): VBox(), IView {
 
     init {
         padding = Insets(10.0)
+        HBox.setHgrow(this, Priority.ALWAYS)
         model.addView(this)
     }
 }

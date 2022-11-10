@@ -40,8 +40,6 @@ class Main: Application() {
         stage.title = "To-Do App"
         stage.minWidth = 800.0
         stage.minHeight = 600.0
-        stage.maxHeight = Double.MAX_VALUE
-        stage.maxWidth = Double.MAX_VALUE
         stage.scene = scene
         stage.show()
     }
