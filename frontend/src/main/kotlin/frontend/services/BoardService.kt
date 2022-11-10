@@ -51,4 +51,11 @@ object BoardService {
         }
         if (result.status != HttpStatusCode.NoContent) error("failed to delete item")
     }
+
+    suspend fun orderBoard(from: Int, to: Int) {
+        val result = client.put("board/order") {
+            parameter("from", from)
+            parameter("to", to)
+        }
+    }
 }

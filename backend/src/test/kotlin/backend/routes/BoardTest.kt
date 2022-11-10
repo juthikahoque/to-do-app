@@ -102,8 +102,6 @@ class BoardTest {
 
         BoardService.addBoard(board)
 
-        print(new)
-
         val response = client.put("/board") {
             contentType(ContentType.Application.Json)
             setBody(new)

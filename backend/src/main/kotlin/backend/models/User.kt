@@ -1,4 +1,4 @@
-package models
+package backend.models
 
 import io.ktor.server.auth.*
 

@@ -35,7 +35,8 @@ internal class BoardServiceTest {
                     )
 
                     HttpMethod.Put -> respond(
-                        Json.encodeToString(b1),
+                        if (request.url.encodedPath == "/board") Json.encodeToString(b1)
+                        else "",
                         HttpStatusCode.OK,
                         headersOf(HttpHeaders.ContentType, "application/json")
                     )
@@ -96,6 +97,13 @@ internal class BoardServiceTest {
     fun deleteBoard() {
         runBlocking {
             BoardService.deleteBoard(b1.id)
+        }
+    }
+
+    @Test
+    fun orderBoard() {
+        runBlocking {
+            BoardService.orderBoard(5, 4)
         }
     }
 }

@@ -5,7 +5,7 @@ import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import models.AuthUser
+import backend.models.AuthUser
 
 class FirebaseAuthenticationProvider internal constructor(name: String?) : AuthenticationProvider(Configuration(name)) {
     class Configuration(name: String?) : Config(name)

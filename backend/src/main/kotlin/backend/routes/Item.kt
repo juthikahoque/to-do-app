@@ -3,9 +3,9 @@ package backend.routes
 import backend.services.ItemService
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import models.Item
 import java.util.*
@@ -45,6 +45,20 @@ fun Route.itemRouting() {
                 val id = UUID.fromString(call.parameters["id"])
                 ItemService.deleteItem(id)
                 call.response.status(HttpStatusCode.NoContent)
+            }
+
+            put("order") {
+                val boardId = UUID.fromString(call.parameters["bid"])
+                val from = call.request.queryParameters["from"]?.toInt()
+                val to = call.request.queryParameters["to"]?.toInt()
+
+                if (from != null && to != null) {
+                    ItemService.changeOrder(boardId, from, to)
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(ItemService.getAllItems(boardId))
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "requires [from] and [to] query parameters")
+                }
             }
         }
     }
