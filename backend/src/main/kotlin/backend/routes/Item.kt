@@ -12,7 +12,6 @@ import java.util.*
 
 fun Route.itemRouting() {
     authenticate {
-
         route("/board/{bid?}/items") {
             get {
                 val boardId = UUID.fromString(call.parameters["bid"])
@@ -26,10 +25,7 @@ fun Route.itemRouting() {
             post {
                 val boardId = UUID.fromString(call.parameters["bid"])
                 val item = call.receive<Item>()
-                print("boardId:")
-                print(boardId)
-                print("item.boardId:")
-                print(item.boardId)
+
                 if (item.boardId != boardId) {
                     call.response.status(HttpStatusCode.NotFound)
                     return@post

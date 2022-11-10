@@ -1,7 +1,6 @@
 package backend
 
-import backend.routes.boardRouting
-import backend.routes.itemRouting
+import backend.routes.*
 import backend.services.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -17,13 +16,24 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module() {
     configureServices()
     configureRouting()
+    configureAuth()
+    configureErrorHandling()
     configureSerialization()
+}
+
+fun Application.configureAuth() {
+    install(Authentication) {
+        val provider = FirebaseAuthenticationProvider(null)
+        register(provider)
+    }
 }
 
 fun Application.configureRouting() {
     routing {
         boardRouting()
         itemRouting()
+        userRouting()
+        healthRouting()
     }
 }
 
@@ -31,20 +41,22 @@ fun Application.configureSerialization() {
     install(ContentNegotiation) {
         json()
     }
+}
 
+fun Application.configureErrorHandling() {
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unexpected")
+            println(cause.message)
+            if (cause.message == "not found") {
+                call.respond(HttpStatusCode.NotFound, cause.message ?: "unexpected")
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unexpected")
+            }
         }
-    }
-
-    install(Authentication) {
-        firebase()
     }
 }
 
 fun Application.configureServices() {
-    FirebaseAuthService.init()
     val conn = Database().connect("todo")
     BoardService.init(conn)
     ItemService.init(conn)

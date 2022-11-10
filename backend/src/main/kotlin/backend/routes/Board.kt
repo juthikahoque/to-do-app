@@ -7,6 +7,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import models.AuthUser
 import models.Board
 import models.User
 import java.util.*
@@ -15,7 +16,7 @@ fun Route.boardRouting() {
     authenticate {
         route("/board") {
             get {
-                val user = call.principal<User>()!!
+                val user = call.principal<AuthUser>()!!
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BoardService.getBoards(user.id))
             }
@@ -32,6 +33,8 @@ fun Route.boardRouting() {
             }
             put {
                 val board = call.receive<Board>()
+                print("SERVER GOT A BOARD TO UPDATE")
+                print(board)
                 val updated = BoardService.updateBoard(board)
                 if (updated != null) {
                     call.response.status(HttpStatusCode.OK)

@@ -172,14 +172,16 @@ object BoardService {
         return try {
             // update boards
             updateStatement[0].setString(1, new.name)
-            updateStatement[0].setString(2, LocalDateTime.now().toString())
-            updateStatement[0].executeUpdate()
+            updateStatement[0].setString(2, new.updated_at.toString())
+            updateStatement[0].setString(3, new.id.toString())
+            if (updateStatement[0].executeUpdate() == 0) error("not found")
+
             // update boards_users
             getStatement[1].setString(1, new.id.toString())
             deleteStatement[1].setString(1, new.id.toString())
             addStatement[1].setString(1, new.id.toString())
             val userRes = getStatement[1].executeQuery()
-            val users = new.users
+            val users = new.users.toMutableList()
             while (userRes.next()) {
                 val userId = userRes.getString("userId")
                 if (!users.remove(userId)) {
@@ -196,7 +198,7 @@ object BoardService {
             deleteStatement[2].setString(1, new.id.toString())
             addStatement[2].setString(1, new.id.toString())
             val labelRes = getStatement[2].executeQuery()
-            val labels = new.labels
+            val labels = new.labels.toMutableList()
             while (labelRes.next()) {
                 val label = labelRes.getString("userId")
                 if (!labels.remove(Label(label))) {
@@ -211,8 +213,7 @@ object BoardService {
             // conn.commit() // if using transactions
             new
         } catch (ex: SQLException) {
-            print(ex.message)
-            null
+            error(ex.message?:"update board failed")
         }
     }
 

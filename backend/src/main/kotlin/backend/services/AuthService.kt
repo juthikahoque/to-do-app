@@ -1,32 +1,11 @@
 package backend.services
 
-import com.google.auth.oauth2.GoogleCredentials
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.FirebaseToken
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import models.User
-import java.io.InputStream
-
-object FirebaseAuthService {
-    private val serviceAccount: InputStream? =
-        this::class.java.classLoader.getResourceAsStream("todo-app-firebase-adminsdk.json")
-
-    private val options: FirebaseOptions = FirebaseOptions.builder()
-        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-        .build()
-
-    fun init(): FirebaseApp = FirebaseApp.initializeApp(options)
-
-    fun verify(token: String): FirebaseToken? {
-        return FirebaseAuth.getInstance().verifyIdToken(token)
-    }
-}
+import models.AuthUser
 
 class FirebaseAuthenticationProvider internal constructor(name: String?) : AuthenticationProvider(Configuration(name)) {
     class Configuration(name: String?) : Config(name)
@@ -42,9 +21,9 @@ class FirebaseAuthenticationProvider internal constructor(name: String?) : Authe
             return
         }
         try {
-            val fbToken = FirebaseAuthService.verify(token)!!
+            val fbToken = FirebaseService.auth().verifyIdToken(token)
             print(fbToken.uid)
-            context.principal(User(fbToken.uid))
+            context.principal(AuthUser(fbToken.uid))
         } catch (cause: FirebaseAuthException) {
             print("failed to verify")
             context.challenge("firebase", AuthenticationFailedCause.InvalidCredentials, challengeFunction)
@@ -53,11 +32,4 @@ class FirebaseAuthenticationProvider internal constructor(name: String?) : Authe
             context.challenge("firebase", AuthenticationFailedCause.InvalidCredentials, challengeFunction)
         }
     }
-}
-
-fun AuthenticationConfig.firebase(
-    name: String? = null
-) {
-    val provider = FirebaseAuthenticationProvider(name)
-    register(provider)
 }

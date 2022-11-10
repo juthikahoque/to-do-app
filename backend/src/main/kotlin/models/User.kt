@@ -1,8 +1,7 @@
 package models
 
 import io.ktor.server.auth.*
-import java.util.*
 
-data class User(
+data class AuthUser(
     val id: String,
 ): Principal

@@ -2,14 +2,12 @@ package backend.services
 
 import models.Board
 import models.Label
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.LocalDateTime
-import java.util.*
 
 lateinit var conn: Connection
 internal class BoardServiceTest {
@@ -74,16 +72,15 @@ internal class BoardServiceTest {
 
     @Test
     fun updateBoard() {
+        val users = mutableSetOf("user")
         val boards = listOf(
-            Board("1"),
-            Board("2"),
+            Board("1", users),
+            Board("2", users),
         )
         boards.forEach { BoardService.addBoard(it) }
 
         val new = boards.first().copy(
             name = "new",
-//            users =  mutableSetOf(UUID.randomUUID()),
-//            labels = mutableSetOf(Label("label")),
             updated_at = LocalDateTime.now(),
         )
 
