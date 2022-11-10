@@ -1,12 +1,11 @@
 package backend.services
 
-import kotlinx.serialization.Serializable
-import models.*
+import models.Item
+import models.Label
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.sql.Connection
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
