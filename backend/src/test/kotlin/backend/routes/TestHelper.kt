@@ -8,7 +8,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import models.AuthUser
+import backend.models.AuthUser
 
 
 fun ApplicationTestBuilder.configureTest(mockUserId: String): HttpClient {

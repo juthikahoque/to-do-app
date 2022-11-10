@@ -6,6 +6,8 @@ import java.sql.*
 import java.sql.SQLException
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 
 object ItemService {
@@ -17,7 +19,8 @@ object ItemService {
         conn = connection
         // create table if dne
         val statement = conn.createStatement()
-        statement.executeUpdate("""
+        statement.executeUpdate(
+            """
             CREATE TABLE IF NOT EXISTS items (
                 id INT NOT NULL PRIMARY KEY,
                 text VARCHAR(1000),
@@ -25,8 +28,10 @@ object ItemService {
                 priority INT,
                 done BOOLEAN,
                 boardId INT,
-                FOREIGN KEY(boardId) REFERENCES boards(id));
-        """.trimIndent())
+                ordering INT NOT NULL UNIQUE,
+                FOREIGN KEY(boardId) REFERENCES boards(id))
+        """.trimIndent()
+        )
 
         statement.executeUpdate(
             """
@@ -44,10 +49,13 @@ object ItemService {
     fun addItem(item: Item): Item {
         try {
             // prepared statements
-            val insertItems = conn.prepareStatement("INSERT INTO items (id, text, dueDate, priority, done, boardId) VALUES (?, ?, ?, ?, ?, ?)")
-            var insertLabels = conn.prepareStatement("INSERT INTO items_labels (itemId, label) VALUES (?, ?);")
-
-            println(item)
+            val insertItems = conn.prepareStatement(
+                """
+                INSERT INTO items (id, text, dueDate, priority, done, boardId, ordering) 
+                SELECT ?, ?, ?, ?, ?, ?, COALESCE(MAX(ordering) + 1, 0) FROM items WHERE boardId = ?
+                """.trimIndent()
+            )
+            val insertLabels = conn.prepareStatement("INSERT INTO items_labels (itemId, label) VALUES (?, ?)")
 
             // insert into items table
             insertItems.setString(1, item.id.toString())
@@ -56,6 +64,7 @@ object ItemService {
             insertItems.setInt(4, item.priority)
             insertItems.setBoolean(5, item.done)
             insertItems.setString(6, item.boardId.toString())
+            insertItems.setString(7, item.boardId.toString())
 
             insertItems.executeUpdate()
 
@@ -75,7 +84,7 @@ object ItemService {
         try {
             // prepared statements
             val deleteItems = conn.prepareStatement("DELETE FROM items WHERE id = ?")
-            var deleteLabels = conn.prepareStatement("DELETE FROM items_labels WHERE itemId = ?")
+            val deleteLabels = conn.prepareStatement("DELETE FROM items_labels WHERE itemId = ?")
 
             // delete from items_labels table
             deleteLabels.setString(1, id.toString())
@@ -87,7 +96,7 @@ object ItemService {
 
             return rowItems != 0
         } catch (ex: SQLException) {
-            error(ex.message?:"sql add item failed")
+            error(ex.message?:"sql delete item failed")
         }
     }
 
@@ -104,7 +113,7 @@ object ItemService {
             }
             return labels
         } catch (ex: SQLException) {
-            error("not found")
+            error(ex.message?:"sql get item labels failed")
         }
     }
 
@@ -132,21 +141,21 @@ object ItemService {
             getItemWithId.setString(1, id.toString())
 
             val res = getItemWithId.executeQuery()
-            if(res.next()) {
+            if (res.next()) {
                 val item = getItemFromRes(res)
                 res.close()
                 return item
             } else {
-                error("not found")
+                error("item with id $id was not found")
             }
         } catch (ex: SQLException) {
-            error("not found")
+            error(ex.message?:"sql get item by id failed")
         }
     }
 
-    fun getAllItems(boardId: UUID) : List<Item> {
+    fun getAllItems(boardId: UUID): List<Item> {
         try {
-            val getItemWithId = conn.prepareStatement("SELECT * FROM items WHERE boardId = ?")
+            val getItemWithId = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY ordering")
             getItemWithId.setString(1, boardId.toString())
             val res = getItemWithId.executeQuery()
 
@@ -157,7 +166,7 @@ object ItemService {
             res.close()
             return itemsList
         } catch (ex: SQLException) {
-            error("not found")
+            error(ex.message?:"sql get all item failed")
         }
     }
 
@@ -176,8 +185,8 @@ object ItemService {
             deleteLabels.setString(1, new.id.toString())
             deleteLabels.executeUpdate()
 
-            val addLabels = conn.prepareStatement("INSERT INTO items_labels (itemId, label) VALUES (?, ?);")
-            for(label in new.labels) {
+            val addLabels = conn.prepareStatement("INSERT INTO items_labels (itemId, label) VALUES (?, ?)")
+            for (label in new.labels) {
                 addLabels.setString(1, new.id.toString())
                 addLabels.setString(2, label.value)
                 addLabels.executeUpdate()
@@ -185,7 +194,7 @@ object ItemService {
 
             return getItem(new.id)
         } catch (ex: SQLException) {
-            error("${ex.message}")
+            error(ex.message?:"sql update item failed")
         }
     }
 
@@ -198,7 +207,34 @@ object ItemService {
             val updated = updateItem.executeUpdate()
             return updated != 0
         } catch (ex: SQLException) {
-            error("not updated")
+            error(ex.message?:"sql mark item as done failed")
+        }
+    }
+
+    private val changeOrderSQL by lazy {
+        listOf(
+            conn.prepareStatement("UPDATE items SET ordering = -1 WHERE boardId = ? AND ordering = ?"),
+            conn.prepareStatement("UPDATE items SET ordering = ordering + ? WHERE boardId = ? AND ordering BETWEEN ? AND ?"),
+            conn.prepareStatement("UPDATE items SET ordering = ? WHERE boardId = ? AND ordering = -1"),
+        )
+    }
+
+    fun changeOrder(boardId: UUID, from: Int, to: Int) {
+        try {
+            val boardIdStr = boardId.toString()
+            changeOrderSQL[0].setString(1, boardIdStr)
+            changeOrderSQL[1].setString(2, boardIdStr)
+            changeOrderSQL[2].setString(2, boardIdStr)
+
+            changeOrderSQL[0].setInt(2, from)
+            changeOrderSQL[1].setInt(1, if (from < to) -1 else 1)
+            changeOrderSQL[1].setInt(3, min(from, to))
+            changeOrderSQL[1].setInt(4, max(to, from))
+            changeOrderSQL[2].setInt(1, to)
+
+            changeOrderSQL.forEach { it.executeUpdate() }
+        } catch (ex: SQLException) {
+            error(ex.message?:"sql delete item failed")
         }
     }
 }

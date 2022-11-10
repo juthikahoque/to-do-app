@@ -10,6 +10,7 @@ import java.sql.DriverManager
 import java.time.LocalDateTime
 
 lateinit var conn: Connection
+
 internal class BoardServiceTest {
     @BeforeEach
     fun init() {
@@ -33,7 +34,7 @@ internal class BoardServiceTest {
 
     @Test
     fun addBoard() {
-        val board = Board("board")
+        val board = Board("board", mutableSetOf("user"))
 
         val res = BoardService.addBoard(board)
 
@@ -104,5 +105,27 @@ internal class BoardServiceTest {
         val res2 = BoardService.deleteBoard(id)
 
         assertFalse(res2)
+    }
+
+
+    private fun assertOrdering(names: List<String>, boards: List<Board>) {
+        assertEquals(names.size, boards.size)
+        boards.forEachIndexed { idx, ele -> assertEquals(names[idx], ele.name)}
+    }
+    @Test
+    fun changeOrder() {
+        val user = "user"
+        val boards = listOf(
+            Board("1", mutableSetOf(user)),
+            Board("2", mutableSetOf(user)),
+            Board("3", mutableSetOf(user)),
+        )
+        boards.forEach { BoardService.addBoard(it) }
+
+        assertOrdering(listOf("1", "2", "3"), BoardService.getBoards(user))
+
+        BoardService.changeOrder(user, 0, 2)
+
+        assertOrdering(listOf("2", "3", "1"), BoardService.getBoards(user))
     }
 }

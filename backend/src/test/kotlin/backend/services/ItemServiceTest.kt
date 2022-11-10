@@ -111,5 +111,26 @@ internal class ItemServiceTest {
 
         assertTrue(done)
     }
+
+    private fun assertOrdering(names: List<String>, items: List<Item>) {
+        assertEquals(names.size, items.size)
+        items.forEachIndexed { idx, ele -> assertEquals(names[idx], ele.text)}
+    }
+    @Test
+    fun changeOrder() {
+        val boardId = UUID.randomUUID()
+        val items = listOf(
+            Item("1", boardId=boardId),
+            Item("2", boardId=boardId),
+            Item("3", boardId=boardId),
+        )
+        items.forEach { ItemService.addItem(it) }
+
+        assertOrdering(listOf("1", "2", "3"), ItemService.getAllItems(boardId))
+
+        ItemService.changeOrder(boardId, 0, 2)
+
+        assertOrdering(listOf("2", "3", "1"), ItemService.getAllItems(boardId))
+    }
 }
 
