@@ -1,13 +1,13 @@
 package frontend
 
 import frontend.interfaces.IView
+import frontend.services.AuthService
 import frontend.services.BoardService
 import frontend.services.ItemService
 import frontend.utils.ApplicationState
 import kotlinx.coroutines.runBlocking
 import models.Board
 import models.Item
-import frontend.services.AuthService
 import java.util.*
 
 class Model {
@@ -27,8 +27,8 @@ class Model {
         //         by default when a user creates an account
         if (boards.isEmpty()) {
             runBlocking {
-                BoardService.addBoard(Board("All", mutableSetOf(AuthService.user.localId)))
-                BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user.localId)))
+                BoardService.addBoard(Board("All", mutableSetOf(AuthService.user!!.localId)))
+                BoardService.addBoard(Board("Personal", mutableSetOf(AuthService.user!!.localId)))
                 boards = getBoards()
             }
         }
@@ -68,7 +68,6 @@ class Model {
         runBlocking {
             boards = BoardService.getBoards()
         }
-        boards = boards
         return boards
     }
 
@@ -101,6 +100,7 @@ class Model {
     }
 
     fun logout(){
-        println("Logged out!")
+        AuthService.logout()
+        app.changeScene("/views/login-view.fxml")
     }
 }

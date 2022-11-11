@@ -14,12 +14,15 @@ import kotlinx.serialization.json.JsonNames
 import kotlinx.serialization.json.decodeFromStream
 import java.lang.RuntimeException
 
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+
 object AuthService {
     private val json = Json { ignoreUnknownKeys = true }
 
     private lateinit var settings: AuthSettings
     private lateinit var client: HttpClient
-    lateinit var user: FirebaseRet
+    var user: FirebaseRet? = null
     var token: Token? = null
 
     fun init() {
@@ -32,6 +35,11 @@ object AuthService {
             }
         }
         AuthenticationManager.init(client)
+
+        val tokenString = Settings.get("auth.token", "")
+        if (tokenString != "") {
+            token = json.decodeFromString<Token>(tokenString)
+        }
     }
 
     private fun endpoint(action: String): String {
@@ -52,6 +60,7 @@ object AuthService {
             append("id_token", googleToken.idToken)
             append("providerId", "google.com")
         }.formUrlEncode()
+
         user = firebaseSignInWithOAuth(body)
     }
 
@@ -61,7 +70,9 @@ object AuthService {
             contentType(ContentType.Application.Json)
             setBody("""{"refresh_token":"${token.refreshToken}","grant_type":"refresh_token"}""")
         }
-        AuthService.token = result.body()
+        this.token = result.body()
+
+        Settings.put("auth.token", json.encodeToString(this.token))
     }
 
     private suspend fun firebaseSignInWithOAuth(postBody: String): FirebaseRet {
@@ -69,8 +80,17 @@ object AuthService {
             contentType(ContentType.Application.Json)
             setBody("""{"postBody":"$postBody","requestUri":"http://localhost","returnSecureToken":true}""")
         }
-        token = result.body()
+        this.token = result.body()
+
+        Settings.put("auth.token", json.encodeToString(this.token))
+
         return result.body()
+    }
+
+    fun logout() {
+        Settings.put("auth.token", "")
+        this.token = null
+        this.user = null
     }
 
     @Serializable

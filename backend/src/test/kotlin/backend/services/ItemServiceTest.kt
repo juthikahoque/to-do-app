@@ -1,12 +1,11 @@
 package backend.services
 
-import kotlinx.serialization.Serializable
-import models.*
+import models.Item
+import models.Label
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.sql.Connection
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
@@ -212,6 +211,27 @@ internal class ItemServiceTest {
         val done = ItemService.markItemAsDone(newItem)
 
         assertTrue(done)
+    }
+
+    private fun assertOrdering(names: List<String>, items: List<Item>) {
+        assertEquals(names.size, items.size)
+        items.forEachIndexed { idx, ele -> assertEquals(names[idx], ele.text)}
+    }
+    @Test
+    fun changeOrder() {
+        val boardId = UUID.randomUUID()
+        val items = listOf(
+            Item("1", boardId=boardId),
+            Item("2", boardId=boardId),
+            Item("3", boardId=boardId),
+        )
+        items.forEach { ItemService.addItem(it) }
+
+        assertOrdering(listOf("1", "2", "3"), ItemService.getAllItems(boardId))
+
+        ItemService.changeOrder(boardId, 0, 2)
+
+        assertOrdering(listOf("2", "3", "1"), ItemService.getAllItems(boardId))
     }
 
     @Test

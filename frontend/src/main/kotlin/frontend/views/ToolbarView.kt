@@ -20,10 +20,6 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
         }
     }
 
-    private val spacer = Pane().apply{
-        HBox.setHgrow(this, Priority.ALWAYS)
-    }
-
     private val inviteGroup:VBox = VBox().apply {
         padding = Insets(0.0, 10.0, 10.0, 10.0)
         spacing = 10.0
@@ -68,8 +64,14 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
         left = VBox(searchField, sortFilterGroup).apply {
             HBox.setHgrow(this, Priority.NEVER)
         }
+
+        //add a pane that always grow to make the UI responsive
+        val spacer = Pane().apply{
+            HBox.setHgrow(this, Priority.ALWAYS)
+        }
         center = spacer
         right = inviteGroup
         padding = Insets(10.0)
+        HBox.setHgrow(this, Priority.ALWAYS)
     }
 }

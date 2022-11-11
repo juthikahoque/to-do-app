@@ -18,6 +18,10 @@ import kotlinx.coroutines.*
 class LoginController {
     init {
         AuthService.init()
+
+        if (AuthService.token != null) {
+            loggedIn()
+        }
     }
 
     var authJob: Job? = null
@@ -43,36 +47,41 @@ class LoginController {
                     yield()
                 }
             }
+            loggedIn()
+        }
+    }
 
-            val client = HttpClient() {
-                expectSuccess = true
-                install(Auth) {
-                    bearer {
-                        loadTokens {
-                            BearerTokens(AuthService.token!!.idToken, AuthService.token!!.refreshToken)
+    private fun loggedIn() {
+        val token = AuthService.token!!
+        val client = HttpClient() {
+            expectSuccess = true
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        BearerTokens(token.idToken, token.refreshToken)
+                    }
+                    refreshTokens {
+                        runBlocking {
+                            AuthService.refresh()
                         }
-                        refreshTokens {
-                            runBlocking {
-                                AuthService.refresh()
-                            }
-                            BearerTokens(AuthService.token!!.idToken, AuthService.token!!.refreshToken)
-                        }
+                        BearerTokens(token.idToken, token.refreshToken)
                     }
                 }
-                install(ContentNegotiation) {
-                    json()
-                }
-                defaultRequest {
-                    url("http://127.0.0.1:8080")
-                }
             }
-
-            BoardService.init(client)
-            ItemService.init(client)
-
-            // then bring up home base
-            Platform.runLater { app.switchToMain() }
+            install(ContentNegotiation) {
+                json()
+            }
+            defaultRequest {
+                url("http://127.0.0.1:8080")
+            }
         }
+
+        BoardService.init(client)
+        ItemService.init(client)
+
+        // then bring up home base
+        Platform.runLater { app.switchToMain() }
+        // app.changeScene("/views/main-view.fxml")
     }
 
     @FXML

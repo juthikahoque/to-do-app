@@ -19,8 +19,14 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation "io.ktor:ktor-server-status-pages:$ktor_version"
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-    implementation('ch.qos.logback:logback-classic:1.4.1')
+
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
+    testImplementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+
+
+    implementation('ch.qos.logback:logback-classic:1.4.1')
+
     implementation("org.xerial:sqlite-jdbc:3.39.3.0")
 
     // Firebase
