@@ -28,7 +28,7 @@ object ItemService {
                 priority INT,
                 done BOOLEAN,
                 boardId TEXT,
-                ordering INT NOT NULL UNIQUE,
+                ordering INT NOT NULL,
                 FOREIGN KEY(boardId) REFERENCES boards(id));
         """.trimIndent())
 

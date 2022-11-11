@@ -55,17 +55,17 @@ object ItemService {
             append("date", startDate.toString())
             append("date", endDate?.toString() ?: "")
         }.formUrlEncode()
-        val result = client.get("board/${bid}/items?date=${headers}")
+        val result = client.get("board/${bid}/items?${headers}")
         return result.body()
     }
 
     suspend fun filterByLabels(bid: UUID, labels: MutableSet<Label>) : List<Item> {
         val headers = Parameters.build {
             for(label in labels) {
-                append("priority", label.value)
+                append("label", label.value)
             }
         }.formUrlEncode()
-        val result = client.get("board/${bid}/items?label=${headers}")
+        val result = client.get("board/${bid}/items?${headers}")
         return result.body()
     }
     suspend fun filterByPriorities(bid: UUID, priorities: MutableSet<Int>) : List<Item> {
@@ -74,7 +74,7 @@ object ItemService {
                 append("priority", priority.toString())
             }
         }.formUrlEncode()
-        val result = client.get("board/${bid}/items?priority=${headers}")
+        val result = client.get("board/${bid}/items?${headers}")
 
         return result.body()
     }

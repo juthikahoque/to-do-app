@@ -26,30 +26,31 @@ fun Route.itemRouting() {
                 val filterByLabel = call.request.queryParameters.getAll("label")
                 val filterByDate = call.request.queryParameters.getAll("date")
 
-
                 if (filterByPriority != null) {
                     val priorities = mutableSetOf<Int>()
                     for(s in filterByPriority) {
                         priorities.add(s.toInt())
                         println(s)
                     }
+                    call.response.status(HttpStatusCode.OK)
                     call.respond(ItemService.filterByPriority(priorities, boardId))
                 } else if (filterByLabel != null) {
                     val labels = mutableSetOf<Label>()
                     for(label in filterByLabel) {
                         labels.add(Label(label))
                     }
+                    call.response.status(HttpStatusCode.OK)
                     call.respond(ItemService.filterByLabel(labels, boardId))
                 } else if (filterByDate != null) {
                     val startDate = LocalDateTime.parse(filterByDate[0])
                     val endDate = if(filterByDate[1] != "") LocalDateTime.parse(filterByDate[1]) else null
+                    call.response.status(HttpStatusCode.OK)
                     call.respond(ItemService.filterByDate(startDate, boardId, endDate))
                 } else {
                     println("null req")
                     call.response.status(HttpStatusCode.OK)
                     call.respond(ItemService.getAllItems(boardId))
                 }
-                call.response.status(HttpStatusCode.OK)
             }
             get("{id?}") {
                 val id = UUID.fromString(call.parameters["id"])
