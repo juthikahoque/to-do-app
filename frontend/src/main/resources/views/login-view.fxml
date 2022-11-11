@@ -1,23 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="frontend.controllers.LoginController" stylesheets="@login-view.css">
+<BorderPane prefHeight="250.0" prefWidth="350.0" stylesheets="@login-view.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.controllers.LoginController">
+  <bottom>
+      <HBox alignment="CENTER_RIGHT" prefHeight="19.0" prefWidth="350.0" BorderPane.alignment="CENTER_RIGHT">
+          <Button fx:id="serverStatus" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0"
+                  styleClass="serverStatus" onAction="#checkServerStatus"/>
 
-    <Button 
-        fx:id="googleSignInButton" 
-        onAction="#onLoginWithGoogle" 
-        styleClass="googleSignInButton"
-    />
+          <TextField fx:id="serverUrl" prefHeight="25.0" prefWidth="150.0" text="http://127.0.0.1:8080"/>
+      </HBox>
+  </bottom>
+  <center>
+      <VBox alignment="CENTER" prefHeight="196.0" prefWidth="350.0" spacing="20.0" BorderPane.alignment="CENTER">
+          <BorderPane.margin>
+              <Insets/>
+          </BorderPane.margin>
+          <Button fx:id="googleSignInButton" defaultButton="true" onAction="#onLoginWithGoogle" prefHeight="45.0"
+                  prefWidth="190.0" styleClass="googleSignInButton"/>
 
-    <Button
-        text="Cancel"
-        fx:id="cancelLogin"
-        onAction="#cancelLogin"
-        styleClass="cancelLoginButton"
-        visible="false"
-    />
-</VBox>
+          <Button fx:id="cancelLogin" cancelButton="true" onAction="#cancelLogin" styleClass="cancelLoginButton"
+                  text="Cancel"/>
+      </VBox>
+  </center>
+</BorderPane>
