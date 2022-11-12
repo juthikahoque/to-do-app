@@ -22,21 +22,20 @@ object ItemService {
         statement.executeUpdate(
             """
             CREATE TABLE IF NOT EXISTS items (
-                id INT NOT NULL PRIMARY KEY,
+                id TEXT NOT NULL PRIMARY KEY,
                 text VARCHAR(1000),
-                dueDate DATETIME,
+                dueDate TEXT,
                 priority INT,
                 done BOOLEAN,
-                boardId INT,
+                boardId TEXT,
                 ordering INT NOT NULL,
-                FOREIGN KEY(boardId) REFERENCES boards(id))
-        """.trimIndent()
-        )
+                FOREIGN KEY(boardId) REFERENCES boards(id));
+        """.trimIndent())
 
         statement.executeUpdate(
             """
             CREATE TABLE IF NOT EXISTS items_labels (
-                itemId INT NOT NULL,
+                itemId TEXT NOT NULL,
                 label TEXT NOT NULL,
                 PRIMARY KEY (itemId, label),
                 FOREIGN KEY (itemId) REFERENCES items(id)
@@ -235,6 +234,161 @@ object ItemService {
             changeOrderSQL.forEach { it.executeUpdate() }
         } catch (ex: SQLException) {
             error(ex.message?:"sql delete item failed")
+        }
+    }
+
+    fun filterByDate(startDateTime: LocalDateTime, boardId: UUID, endDateTime: LocalDateTime? = null, actualSortBy: String? = "dueDate"): List<Item> {
+        try {
+            var sortBy = actualSortBy ?: "dueDate"
+            val startDate = startDateTime.toLocalDate()
+            val endDate = if(endDateTime != null) endDateTime.toLocalDate() else startDate.plusDays(1)
+
+            if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
+                throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
+            }
+
+            val getItems = conn.prepareStatement("SELECT * FROM items WHERE dueDate >= ? AND dueDate < ? AND boardId = ? ORDER BY $sortBy ASC")
+
+            getItems.setString(1, startDate.toString())
+            getItems.setString(2, endDate.toString())
+            getItems.setString(3, boardId.toString())
+
+            val res = getItems.executeQuery()
+
+            val itemsList = mutableListOf<Item>()
+            while (res.next()) {
+                itemsList.add(getItemFromRes(res))
+            }
+            res.close()
+            return itemsList
+        } catch (ex: SQLException) {
+            error("filtering by dates not working")
+        }
+    }
+
+    fun filterByLabel(labels: MutableSet<Label>, boardId: UUID, actualSortBy: String? = "label") : List<Item> {
+        try {
+            val sortBy = actualSortBy ?: "label"
+            val itemsList = mutableListOf<Item>()
+            if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
+                throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
+            }
+            if(labels.size > 0) {
+                var sql = """
+                    SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId 
+                    WHERE items.boardId = ? AND (label = ?
+                """.trimIndent()
+
+                for(i in 1 until labels.size) {
+                    sql += "OR label = ?"
+                }
+                sql += ") ORDER BY $sortBy ASC"
+
+                val getItems = conn.prepareStatement(sql)
+                getItems.setString(1, boardId.toString())
+                for(i in labels.indices) {
+                    getItems.setString(i + 2, labels.elementAt(i).value)
+                }
+
+                val res = getItems.executeQuery()
+
+                while (res.next()) {
+                    val curItem = getItemFromRes(res)
+                    if(!itemsList.contains(curItem)) {
+                        itemsList.add(curItem)
+                    }
+                }
+                res.close()
+            }
+
+            return itemsList
+        } catch (ex: SQLException) {
+            error("filter by label failed")
+        }
+    }
+
+    fun filterByPriority(priorities: MutableSet<Int>, boardId: UUID, actualSortBy: String? = "priority"): List<Item> {
+        try {
+            val sortBy = actualSortBy ?: "priority"
+            val itemsList = mutableListOf<Item>()
+            if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
+                throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
+            }
+            if(priorities.size > 0) {
+                var sql = "SELECT * FROM items WHERE boardId = ? AND (priority = ?"
+                for(i in 1 until priorities.size) {
+                    sql += "OR priority = ?"
+                }
+                sql += ") ORDER BY $sortBy ASC"
+                val getItems = conn.prepareStatement(sql)
+                getItems.setString(1, boardId.toString())
+                for(i in priorities.indices) {
+                    getItems.setInt(i + 2, priorities.elementAt(i))
+                }
+
+                val res = getItems.executeQuery()
+
+                while (res.next()) {
+                    val curItem = getItemFromRes(res)
+                    if(!itemsList.contains(curItem)) {
+                        itemsList.add(curItem)
+                    }
+                }
+                res.close()
+            }
+            return itemsList
+        } catch (ex: SQLException) {
+            error("filter by priority failed")
+        }
+    }
+
+    fun sortItems(boardId: UUID, sortBy: String, actualOrder: String? = "ASC"): List<Item> {
+        try {
+            val order = actualOrder ?: "ASC"
+            if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
+                throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
+            }
+            if(order != "ASC" && order != "DESC") {
+                throw error("invalid order entry, enter one of: ASC, DESC")
+            }
+            val itemsList = mutableListOf<Item>()
+            var getItems : PreparedStatement = if(sortBy == "label") {
+                conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE items.boardId = ? ORDER BY label $order")
+            } else {
+                conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY $sortBy $order")
+            }
+            getItems.setString(1, boardId.toString())
+
+            val res = getItems.executeQuery()
+
+            while (res.next()) {
+                val curItem = getItemFromRes(res)
+                if(!itemsList.contains(curItem)) {
+                    itemsList.add(curItem)
+                }
+            }
+            res.close()
+            return itemsList
+        } catch(ex: SQLException) {
+            error("sorting didn't work")
+        }
+    }
+
+    fun searchByText(boardId: UUID, text: String): List<Item> {
+        try {
+            val getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? AND text LIKE '%$text%'")
+            getItems.setString(1, boardId.toString())
+
+            val res = getItems.executeQuery()
+
+            val itemsList = mutableListOf<Item>()
+            while (res.next()) {
+                itemsList.add(getItemFromRes(res))
+            }
+            res.close()
+            return itemsList
+        } catch (ex: SQLException) {
+            error("searching by text didn't work")
         }
     }
 }

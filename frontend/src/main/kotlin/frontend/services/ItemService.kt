@@ -1,11 +1,12 @@
 package frontend.services
 
 import java.util.UUID
+import models.*
 import io.ktor.client.request.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.http.*
-import models.Item
+import java.time.LocalDateTime
 
 object ItemService {
     private lateinit var client: HttpClient
@@ -55,4 +56,34 @@ object ItemService {
             parameter("to", to)
         }
     }
+
+    suspend fun filterByDates(bid: UUID, startDate: LocalDateTime, endDate: LocalDateTime? = null): List<Item> {
+        val headers = Parameters.build {
+            append("date", startDate.toString())
+            append("date", endDate?.toString() ?: "")
+        }.formUrlEncode()
+        val result = client.get("board/${bid}/items?${headers}")
+        return result.body()
+    }
+
+    suspend fun filterByLabels(bid: UUID, labels: MutableSet<Label>) : List<Item> {
+        val headers = Parameters.build {
+            for(label in labels) {
+                append("label", label.value)
+            }
+        }.formUrlEncode()
+        val result = client.get("board/${bid}/items?${headers}")
+        return result.body()
+    }
+    suspend fun filterByPriorities(bid: UUID, priorities: MutableSet<Int>) : List<Item> {
+        val headers = Parameters.build {
+            for(priority in priorities) {
+                append("priority", priority.toString())
+            }
+        }.formUrlEncode()
+        val result = client.get("board/${bid}/items?${headers}")
+
+        return result.body()
+    }
+
 }
