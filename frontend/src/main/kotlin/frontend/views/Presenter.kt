@@ -33,6 +33,8 @@ class Presenter(private val model: Model): StackPane(), IView {
 
     init {
         HBox.setHgrow(board, Priority.ALWAYS)
+        HBox.setHgrow(boardContainer, Priority.ALWAYS)
+        //HBox.setHgrow(this, Priority.ALWAYS)
         model.addView(this)
     }
 }
