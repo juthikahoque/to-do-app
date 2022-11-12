@@ -119,26 +119,26 @@ internal class ItemServiceTest {
 
         // items between today and tomorrow with boardId 1
         var sameDueDate = items.filter { it.text == "item1" }
-        var filteredItems = ItemService.filterByDate(LocalDateTime.now(), boardId1)
+        var filteredItems = ItemService.filterByDate(currentDate, boardId1)
         assertEquals(sameDueDate, filteredItems)
 
         // items between tomorrow and the day after with boardId 1
         sameDueDate = items.filter { it.text == "item2" }
-        filteredItems = ItemService.filterByDate(LocalDateTime.now().plusDays(1), boardId1)
+        filteredItems = ItemService.filterByDate(currentDate.plusDays(1), boardId1)
         assertEquals(sameDueDate, filteredItems)
 
         // items with today's duedate and boardId 3
-        filteredItems = ItemService.filterByDate(LocalDateTime.now(), boardId3)
+        filteredItems = ItemService.filterByDate(currentDate, boardId3)
         assertEquals(filteredItems.size, 0)
 
         // all items with boardId1
         sameDueDate = listOf(items[0], items[2], items[1])
-        filteredItems = ItemService.filterByDate(LocalDateTime.now(), boardId1, LocalDateTime.now().plusDays(3))
+        filteredItems = ItemService.filterByDate(currentDate, boardId1, currentDate.plusDays(3))
         assertEquals(sameDueDate, filteredItems)
 
         // all items with boardId 2
         sameDueDate = listOf(items[4], items[3])
-        filteredItems = ItemService.filterByDate(LocalDateTime.now(), boardId2, LocalDateTime.now().plusDays(3))
+        filteredItems = ItemService.filterByDate(currentDate, boardId2, currentDate.plusDays(3))
         assertEquals(sameDueDate, filteredItems)
 
     }
