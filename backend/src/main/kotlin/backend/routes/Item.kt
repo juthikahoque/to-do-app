@@ -15,10 +15,6 @@ import java.time.LocalDateTime
 
 fun Route.itemRouting() {
     authenticate {
-        route("/items") {
-
-        }
-
         route("/board/{bid?}/items") {
             get {
                 val boardId = UUID.fromString(call.parameters["bid"])
@@ -37,47 +33,22 @@ fun Route.itemRouting() {
 
                 if (filterByPriority != null) {
                     val priorities = mutableSetOf<Int>()
-                    for(s in filterByPriority) {
-                        priorities.add(s.toInt())
-                        println(s)
-                    }
-                    if(sortBy != null) {
-                        call.response.status(HttpStatusCode.OK)
-                        call.respond(ItemService.filterByPriority(priorities, boardId, sortBy))
-                    } else {
-                        call.response.status(HttpStatusCode.OK)
-                        call.respond(ItemService.filterByPriority(priorities, boardId))
-                    }
+                    filterByPriority.forEach { priorities.add(it.toInt()) }
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(ItemService.filterByPriority(priorities, boardId, sortBy))
                 } else if (filterByLabel != null) {
                     val labels = mutableSetOf<Label>()
-                    for(label in filterByLabel) {
-                        labels.add(Label(label))
-                    }
-                    if(sortBy != null) {
-                        call.response.status(HttpStatusCode.OK)
-                        call.respond(ItemService.filterByLabel(labels, boardId, sortBy))
-                    } else {
-                        call.response.status(HttpStatusCode.OK)
-                        call.respond(ItemService.filterByLabel(labels, boardId))
-                    }
+                    filterByLabel.forEach { labels.add(Label(it)) }
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(ItemService.filterByLabel(labels, boardId, sortBy))
                 } else if (filterByDate != null) {
                     val startDate = LocalDateTime.parse(filterByDate[0])
                     val endDate = if(filterByDate[1] != "") LocalDateTime.parse(filterByDate[1]) else null
-                    if(sortBy != null) {
-                        call.response.status(HttpStatusCode.OK)
-                        call.respond(ItemService.filterByDate(startDate, boardId, endDate, sortBy))
-                    } else {
-                        call.response.status(HttpStatusCode.OK)
-                        call.respond(ItemService.filterByDate(startDate, boardId, endDate))
-                    }
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(ItemService.filterByDate(startDate, boardId, endDate, sortBy))
                 } else if (sortBy != null) {
-                    if (orderBy != null) {
-                        call.response.status(HttpStatusCode.OK)
-                        call.respond(ItemService.sortItems(boardId, sortBy, orderBy))
-                    } else {
-                        call.response.status(HttpStatusCode.OK)
-                        call.respond(ItemService.sortItems(boardId, sortBy))
-                    }
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(ItemService.sortItems(boardId, sortBy, orderBy))
                 } else if (search != null) {
                     call.response.status(HttpStatusCode.OK)
                     call.respond(ItemService.searchByText(boardId, search))

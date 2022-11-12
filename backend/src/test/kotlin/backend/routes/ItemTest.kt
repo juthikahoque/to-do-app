@@ -91,7 +91,7 @@ class ItemTest {
 
         items.forEach { ItemService.addItem(it) }
 
-        var samePriority = items.filter { it.priority == 1 && it.boardId == boardId1 }
+        var samePriority = items.filter { it.priority == 1 }
 
         val client = configureTest("priority")
         var headers = Parameters.build {

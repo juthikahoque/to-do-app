@@ -235,8 +235,9 @@ object ItemService {
         }
     }
 
-    fun filterByDate(startDateTime: LocalDateTime, boardId: UUID, endDateTime: LocalDateTime? = null, sortBy: String = "dueDate"): List<Item> {
+    fun filterByDate(startDateTime: LocalDateTime, boardId: UUID, endDateTime: LocalDateTime? = null, actualSortBy: String? = "dueDate"): List<Item> {
         try {
+            var sortBy = actualSortBy ?: "dueDate"
             val startDate = startDateTime.toLocalDate()
             val endDate = if(endDateTime != null) endDateTime.toLocalDate() else startDate.plusDays(1)
 
@@ -263,8 +264,9 @@ object ItemService {
         }
     }
 
-    fun filterByLabel(labels: MutableSet<Label>, boardId: UUID, sortBy: String = "label") : List<Item> {
+    fun filterByLabel(labels: MutableSet<Label>, boardId: UUID, actualSortBy: String? = "label") : List<Item> {
         try {
+            val sortBy = actualSortBy ?: "label"
             val itemsList = mutableListOf<Item>()
             if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
                 throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
@@ -303,8 +305,9 @@ object ItemService {
         }
     }
 
-    fun filterByPriority(priorities: MutableSet<Int>, boardId: UUID, sortBy: String = "priority"): List<Item> {
+    fun filterByPriority(priorities: MutableSet<Int>, boardId: UUID, actualSortBy: String? = "priority"): List<Item> {
         try {
+            val sortBy = actualSortBy ?: "priority"
             val itemsList = mutableListOf<Item>()
             if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
                 throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
@@ -337,8 +340,9 @@ object ItemService {
         }
     }
 
-    fun sortItems(boardId: UUID, sortBy: String, order: String = "ASC"): List<Item> {
+    fun sortItems(boardId: UUID, sortBy: String, actualOrder: String? = "ASC"): List<Item> {
         try {
+            val order = actualOrder ?: "ASC"
             if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
                 throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
             }
