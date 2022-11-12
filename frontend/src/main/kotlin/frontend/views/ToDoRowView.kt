@@ -14,6 +14,7 @@ class ToDoRowView(item: Item): VBox() {
     }
     private val titleLabel = Label(item.text).apply{
         minWidth = 200.0
+        maxWidth = 600.0
     }
     private val dueDateLabel = Label().apply {
         val formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy")

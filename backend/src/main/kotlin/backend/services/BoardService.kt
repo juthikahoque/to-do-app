@@ -32,7 +32,7 @@ object BoardService {
             CREATE TABLE IF NOT EXISTS boards_users (
                 boardId TEXT NOT NULL,
                 userId TEXT NOT NULL,
-                ordering INT NOT NULL UNIQUE,
+                ordering INT NOT NULL,
                 PRIMARY KEY (boardId, userId),
                 FOREIGN KEY (boardId) REFERENCES boards(id)
             )

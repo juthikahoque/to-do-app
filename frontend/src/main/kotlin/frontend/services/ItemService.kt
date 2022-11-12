@@ -50,6 +50,13 @@ object ItemService {
         if (result.status != HttpStatusCode.NoContent) error("failed to delete item")
     }
 
+    suspend fun orderItem(bid: UUID, from: Int, to: Int) {
+        val result = client.put("board/$bid/items/order") {
+            parameter("from", from)
+            parameter("to", to)
+        }
+    }
+
     suspend fun filterByDates(bid: UUID, startDate: LocalDateTime, endDate: LocalDateTime? = null): List<Item> {
         val headers = Parameters.build {
             append("date", startDate.toString())

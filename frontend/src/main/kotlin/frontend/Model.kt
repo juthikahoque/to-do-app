@@ -99,6 +99,15 @@ class Model {
         notifyObservers()
     }
 
+    fun changeOrder(from:Int, to:Int){
+        println("this is being called")
+        runBlocking {
+            ItemService.orderItem(boards[currentBoardIdx].id, from, to)
+        }
+        notifyObservers()
+    }
+
+
     fun logout(){
         AuthService.logout()
         app.changeScene("/views/login-view.fxml")
