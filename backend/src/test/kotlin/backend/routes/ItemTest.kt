@@ -46,10 +46,11 @@ class ItemTest {
     fun testDueDateRoute() = testApplication {
 
         val boardId1 = UUID.randomUUID()
+        val currentDate = LocalDateTime.of(2022, 11, 11, 14, 53)
         val items = listOf(
-            Item(text = "item1", dueDate = LocalDateTime.now(), boardId = boardId1),
-            Item(text = "item2", dueDate = LocalDateTime.now().plusDays(1), boardId = boardId1),
-            Item(text = "item1", dueDate = LocalDateTime.now().plusHours(5), boardId = boardId1),
+            Item(text = "item1", dueDate = currentDate, boardId = boardId1),
+            Item(text = "item2", dueDate = currentDate.plusDays(1), boardId = boardId1),
+            Item(text = "item1", dueDate = currentDate.plusHours(5), boardId = boardId1),
         )
         items.forEach { ItemService.addItem(it) }
 
