@@ -109,24 +109,57 @@ class ItemTest {
     fun testLabelsRoute() = testApplication {
         val boardId1 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "CS 346", priority = 0, labels = mutableSetOf(Label("CS 346"), Label("CS 341")), boardId = boardId1),
             Item(text = "CS 346", priority = 1, labels = mutableSetOf(Label("CS 346")), boardId = boardId1),
+            Item(text = "CS 346", priority = 0, labels = mutableSetOf(Label("CS 346"), Label("CS 341")), boardId = boardId1),
             Item(text = "CS 341", priority = 0, labels = mutableSetOf(Label("CS 341")), boardId = boardId1),
         )
 
         items.forEach { ItemService.addItem(it) }
 
-        var sameLabels = items.filter { it.text == "CS 346" }
+        var sameLabels = listOf(items[1], items[0])
 
         val client = configureTest("labels")
         val headers = Parameters.build {
             append("label", "CS 346")
+            append("sortBy", "priority")
         }.formUrlEncode()
 
         var result = client.get("board/${boardId1}/items?${headers}")
 
         assertEquals(HttpStatusCode.OK, result.status)
         assertEquals(sameLabels, result.body<List<Item>>())
+
+    }
+
+    @Test
+    fun testSorting() = testApplication {
+        val boardId1 = UUID.randomUUID()
+        val items = listOf(
+            Item(text = "CS 346", priority = 0, dueDate = LocalDateTime.now(), labels = mutableSetOf(Label("CS 346"), Label("CS 341")), boardId = boardId1),
+            Item(text = "CS 346", priority = 1, dueDate = LocalDateTime.now().plusDays(1), labels = mutableSetOf(Label("CS 346")), boardId = boardId1),
+            Item(text = "CS 341", priority = 0, dueDate = LocalDateTime.now().plusHours(1), labels = mutableSetOf(Label("CS 341")), boardId = boardId1),
+        )
+
+        items.forEach{ ItemService.addItem(it) }
+
+        val client = configureTest("sorting")
+
+        var headers = Parameters.build {
+            append("sortBy", "priority")
+        }.formUrlEncode()
+        var expected = listOf(items[0], items[2], items[1])
+        var result = client.get("board/${boardId1}/items?${headers}")
+        assertEquals(HttpStatusCode.OK, result.status)
+        assertEquals(expected, result.body<List<Item>>())
+
+        headers = Parameters.build {
+            append("sortBy", "priority")
+            append("orderBy", "DESC")
+        }.formUrlEncode()
+        expected = listOf(items[1], items[0], items[2])
+        result = client.get("board/${boardId1}/items?${headers}")
+        assertEquals(HttpStatusCode.OK, result.status)
+        assertEquals(expected, result.body<List<Item>>())
 
     }
 

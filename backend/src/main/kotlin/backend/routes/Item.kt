@@ -22,9 +22,15 @@ fun Route.itemRouting() {
         route("/board/{bid?}/items") {
             get {
                 val boardId = UUID.fromString(call.parameters["bid"])
+
+                // for filtering
                 val filterByPriority = call.request.queryParameters.getAll("priority")
                 val filterByLabel = call.request.queryParameters.getAll("label")
                 val filterByDate = call.request.queryParameters.getAll("date")
+
+                // for sorting
+                val sortBy = call.request.queryParameters["sortBy"]
+                val orderBy = call.request.queryParameters["orderBy"]
 
                 if (filterByPriority != null) {
                     val priorities = mutableSetOf<Int>()
@@ -32,20 +38,43 @@ fun Route.itemRouting() {
                         priorities.add(s.toInt())
                         println(s)
                     }
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.filterByPriority(priorities, boardId))
+                    if(sortBy != null) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ItemService.filterByPriority(priorities, boardId, sortBy))
+                    } else {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ItemService.filterByPriority(priorities, boardId))
+                    }
                 } else if (filterByLabel != null) {
                     val labels = mutableSetOf<Label>()
                     for(label in filterByLabel) {
                         labels.add(Label(label))
                     }
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.filterByLabel(labels, boardId))
+                    if(sortBy != null) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ItemService.filterByLabel(labels, boardId, sortBy))
+                    } else {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ItemService.filterByLabel(labels, boardId))
+                    }
                 } else if (filterByDate != null) {
                     val startDate = LocalDateTime.parse(filterByDate[0])
                     val endDate = if(filterByDate[1] != "") LocalDateTime.parse(filterByDate[1]) else null
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.filterByDate(startDate, boardId, endDate))
+                    if(sortBy != null) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ItemService.filterByDate(startDate, boardId, endDate, sortBy))
+                    } else {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ItemService.filterByDate(startDate, boardId, endDate))
+                    }
+                } else if (sortBy != null) {
+                    if (orderBy != null) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ItemService.sortItems(boardId, sortBy, orderBy))
+                    } else {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ItemService.sortItems(boardId, sortBy))
+                    }
                 } else {
                     println("null req")
                     call.response.status(HttpStatusCode.OK)

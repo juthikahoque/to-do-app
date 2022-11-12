@@ -261,38 +261,38 @@ internal class ItemServiceTest {
 
         items.forEach{ ItemService.addItem(it) }
 
-        var res = ItemService.sortByDueDates(boardId1, "ASC")
+        var res = ItemService.sortItems(boardId1, "dueDate","ASC")
 
         assertEquals(res.size, 3)
         assertEquals(res[0], items[0])
         assertEquals(res[1], items[2])
         assertEquals(res[2], items[1])
 
-        res = ItemService.sortByDueDates(boardId1, "DESC")
+        res = ItemService.sortItems(boardId1, "dueDate", "DESC")
         assertEquals(res.size, 3)
         assertEquals(res[0], items[1])
         assertEquals(res[1], items[2])
         assertEquals(res[2], items[0])
 
-        res = ItemService.sortByLabels(boardId1, "ASC")
+        res = ItemService.sortItems(boardId1, "label", "ASC")
         assertEquals(res.size, 3)
         assertEquals(res[0], items[0])
         assertEquals(res[1], items[2])
         assertEquals(res[2], items[1])
 
-        res = ItemService.sortByLabels(boardId1, "DESC")
+        res = ItemService.sortItems(boardId1, "label", "DESC")
         assertEquals(res.size, 3)
         assertEquals(res[0], items[0])
         assertEquals(res[1], items[1])
         assertEquals(res[2], items[2])
 
-        res = ItemService.sortByPriority(boardId1, "ASC")
+        res = ItemService.sortItems(boardId1, "priority", "ASC")
         assertEquals(res.size, 3)
         assertEquals(res[0], items[0])
         assertEquals(res[1], items[2])
         assertEquals(res[2], items[1])
 
-        res = ItemService.sortByPriority(boardId1, "DESC")
+        res = ItemService.sortItems(boardId1, "priority", "DESC")
         assertEquals(res.size, 3)
         assertEquals(res[0], items[1])
         assertEquals(res[1], items[0])

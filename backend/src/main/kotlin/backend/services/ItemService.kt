@@ -337,16 +337,22 @@ object ItemService {
         }
     }
 
-    fun sortByPriority(boardId: UUID, order: String): List<Item> {
+    fun sortItems(boardId: UUID, sortBy: String, order: String = "ASC"): List<Item> {
         try {
+            if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
+                throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
+            }
+            if(order != "ASC" && order != "DESC") {
+                throw error("invalid order entry, enter one of: ASC, DESC")
+            }
             val itemsList = mutableListOf<Item>()
-            var getItems : PreparedStatement
-            if(order == "ASC") {
-                getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY priority ASC")
+            var getItems : PreparedStatement = if(sortBy == "label") {
+                conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE items.boardId = ? ORDER BY label $order")
             } else {
-                getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY priority DESC")
+                conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY $sortBy $order")
             }
             getItems.setString(1, boardId.toString())
+
             val res = getItems.executeQuery()
 
             while (res.next()) {
@@ -357,61 +363,8 @@ object ItemService {
             }
             res.close()
             return itemsList
-        } catch (ex: SQLException) {
-            error("not updated")
+        } catch(ex: SQLException) {
+            error("sorting didn't work")
         }
     }
-    fun sortByDueDates(boardId: UUID, order: String): List<Item> {
-        try {
-            val itemsList = mutableListOf<Item>()
-
-            var getItems : PreparedStatement
-            if(order == "ASC") {
-                getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY dueDate ASC")
-                getItems.setString(1, boardId.toString())
-            } else {
-                getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY dueDate DESC")
-                getItems.setString(1, boardId.toString())
-            }
-            val res = getItems.executeQuery()
-
-            while (res.next()) {
-                val curItem = getItemFromRes(res)
-                if(!itemsList.contains(curItem)) {
-                    itemsList.add(curItem)
-                }
-            }
-            res.close()
-            return itemsList
-        } catch (ex: SQLException) {
-            error("sorting by due dates not working")
-        }
-    }
-
-    fun sortByLabels(boardId: UUID, order: String): List<Item> {
-        try {
-            val itemsList = mutableListOf<Item>()
-
-            var getItems : PreparedStatement
-            if(order == "ASC") {
-                getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE items.boardId = ? ORDER BY label ASC")
-            } else {
-                getItems = conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE items.boardId = ? ORDER BY label DESC")
-            }
-            getItems.setString(1, boardId.toString())
-            val res = getItems.executeQuery()
-
-            while (res.next()) {
-                val curItem = getItemFromRes(res)
-                if(!itemsList.contains(curItem)) {
-                    itemsList.add(curItem)
-                }
-            }
-            res.close()
-            return itemsList
-        } catch (ex: SQLException) {
-            error("sorting by labels not working")
-        }
-    }
-
 }
