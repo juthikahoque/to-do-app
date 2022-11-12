@@ -367,4 +367,22 @@ object ItemService {
             error("sorting didn't work")
         }
     }
+
+    fun searchByText(boardId: UUID, text: String): List<Item> {
+        try {
+            val getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? AND text LIKE '%$text%'")
+            getItems.setString(1, boardId.toString())
+
+            val res = getItems.executeQuery()
+
+            val itemsList = mutableListOf<Item>()
+            while (res.next()) {
+                itemsList.add(getItemFromRes(res))
+            }
+            res.close()
+            return itemsList
+        } catch (ex: SQLException) {
+            error("searching by text didn't work")
+        }
+    }
 }

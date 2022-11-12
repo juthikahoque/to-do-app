@@ -299,5 +299,24 @@ internal class ItemServiceTest {
         assertEquals(res[2], items[2])
 
     }
+
+    @Test
+    fun searching() {
+        val boardId1 = UUID.randomUUID()
+        val items = listOf(
+            Item(text = "item1", boardId = boardId1),
+            Item(text = "item2", boardId = boardId1),
+            Item(text = "item1", boardId = boardId1)
+        )
+        items.forEach { ItemService.addItem(it) }
+
+        var expectedResult = items.filter { it.text == "item1" }
+        var searchResult = ItemService.searchByText(boardId1, "item1")
+        assertEquals(expectedResult, searchResult)
+
+        searchResult = ItemService.searchByText(boardId1, "item")
+        assertEquals(items, searchResult)
+
+    }
 }
 

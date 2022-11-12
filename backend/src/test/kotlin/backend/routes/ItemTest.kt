@@ -163,4 +163,28 @@ class ItemTest {
 
     }
 
+    @Test
+    fun testSearch() = testApplication {
+        val boardId1 = UUID.randomUUID()
+        val items = listOf(
+            Item(text = "item1", boardId = boardId1),
+            Item(text = "item2", boardId = boardId1),
+            Item(text = "item1", boardId = boardId1)
+        )
+        items.forEach { ItemService.addItem(it) }
+
+        val client = configureTest("searching")
+
+        var headers = Parameters.build {
+            append("search", "item1")
+        }.formUrlEncode()
+
+        var expectedResult = items.filter { it.text == "item1" }
+        var result = client.get("board/${boardId1}/items?${headers}")
+
+        assertEquals(HttpStatusCode.OK, result.status)
+        assertEquals(expectedResult, result.body<List<Item>>())
+
+    }
+
 }

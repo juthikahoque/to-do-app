@@ -32,6 +32,9 @@ fun Route.itemRouting() {
                 val sortBy = call.request.queryParameters["sortBy"]
                 val orderBy = call.request.queryParameters["orderBy"]
 
+                // for searching
+                val search = call.request.queryParameters["search"]
+
                 if (filterByPriority != null) {
                     val priorities = mutableSetOf<Int>()
                     for(s in filterByPriority) {
@@ -75,8 +78,10 @@ fun Route.itemRouting() {
                         call.response.status(HttpStatusCode.OK)
                         call.respond(ItemService.sortItems(boardId, sortBy))
                     }
+                } else if (search != null) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(ItemService.searchByText(boardId, search))
                 } else {
-                    println("null req")
                     call.response.status(HttpStatusCode.OK)
                     call.respond(ItemService.getAllItems(boardId))
                 }
