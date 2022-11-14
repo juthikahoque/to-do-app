@@ -23,6 +23,7 @@ import kotlin.coroutines.CoroutineContext
 
 
 class LoginController : CoroutineScope {
+
     var authJob: Job? = null
 
     override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
@@ -43,8 +44,6 @@ class LoginController : CoroutineScope {
 
     @FXML
     fun initialize() {
-        AuthService.init()
-
         serverUrl.textProperty().addListener { _, _, _ ->
             statusChecker.playFromStart()
         }
@@ -56,9 +55,10 @@ class LoginController : CoroutineScope {
         }
         checkServerStatus()
 
-        if (AuthService.token != null) {
-            login()
-        }
+        googleSignInButton.isDisable = false
+        cancelLogin.isVisible = false
+
+        login()
     }
 
     @FXML
@@ -83,7 +83,8 @@ class LoginController : CoroutineScope {
 
     private fun login() {
         if (!serverStatus.isDisable) return
-        if (AuthService.user == null) return
+//        if (AuthService.user == null) return
+        if (AuthService.token == null) return
         println("logged in with good server")
 
         val token = AuthService.token!!
