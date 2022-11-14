@@ -18,20 +18,18 @@ import kotlinx.serialization.json.decodeFromStream
 object AuthService {
     private val json = Json { ignoreUnknownKeys = true }
 
-    private lateinit var settings: AuthSettings
-    private lateinit var client: HttpClient
+    private var settings: AuthSettings = json.decodeFromStream(
+        this::class.java.classLoader.getResourceAsStream("auth-settings.json")!!
+    )
+    private var client: HttpClient = HttpClient {
+        install(ContentNegotiation) {
+            json(json)
+        }
+    }
     var user: FirebaseRet? = null
     var token: Token? = null
 
-    fun init() {
-        val configString = this::class.java.classLoader.getResourceAsStream("auth-settings.json")!!
-        settings = json.decodeFromStream(configString)
-
-        client = HttpClient {
-            install(ContentNegotiation) {
-                json(json)
-            }
-        }
+    init {
         AuthenticationManager.init(client)
 
         val tokenString = Settings.get("auth.token", "")

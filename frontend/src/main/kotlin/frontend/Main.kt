@@ -1,6 +1,6 @@
 package frontend
 
-import frontend.controllers.LoginController
+import frontend.services.WindowPreferences
 import frontend.views.Presenter
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
@@ -9,24 +9,28 @@ import javafx.stage.Stage
 
 lateinit var app: Main
 
-class Main: Application() {
+class Main : Application() {
 
     private lateinit var stage: Stage
 
+    private lateinit var windowPreferences: WindowPreferences
+
     override fun start(stage: Stage) {
         app = this
-
-        val fxmlLoader = FXMLLoader(LoginController::class.java.getResource("/views/login-view.fxml"))
-        val scene = Scene(fxmlLoader.load(), 320.0, 240.0)
-        stage.title = "To-Do App"
-        stage.scene = scene
-        stage.show()
-
         this.stage = stage
+
+        stage.title = "To-Do App"
+
+        windowPreferences = WindowPreferences(stage)
+
+        changeScene("login")
+        stage.show()
     }
 
     fun switchToMain() {
+        val sceneName = "main"
 
+        stage.hide()
         // create an instance of the model
         val model = Model()
 
@@ -34,19 +38,21 @@ class Main: Application() {
         val presenter = Presenter(model)
 
         // set the scene
-        val scene = Scene(presenter, 800.0, 600.0)
-
-        // set the stage
-        stage.title = "To-Do App"
-        stage.minWidth = 800.0
-        stage.minHeight = 600.0
+        val scene = Scene(presenter)
         stage.scene = scene
+
+        windowPreferences.changeScene(sceneName)
         stage.show()
     }
 
     fun changeScene(sceneName: String) {
-        val fxmlLoader = FXMLLoader(Main::class.java.getResource(sceneName))
-        val scene = Scene(fxmlLoader.load(), 320.0, 240.0)
+        stage.hide()
+
+        val fxmlLoader = FXMLLoader(Main::class.java.getResource("/views/$sceneName-view.fxml"))
+        val scene = Scene(fxmlLoader.load())
         stage.scene = scene
+
+        windowPreferences.changeScene(sceneName)
+        stage.show()
     }
 }

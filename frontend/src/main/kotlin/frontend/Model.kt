@@ -110,6 +110,6 @@ class Model {
 
     fun logout(){
         AuthService.logout()
-        app.changeScene("/views/login-view.fxml")
+        app.changeScene("login")
     }
 }

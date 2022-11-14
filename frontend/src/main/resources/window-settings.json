@@ -1,0 +1,14 @@
+{
+  "main": {
+    "minHeight": 600.0,
+    "minWidth": 800.0,
+    "maxHeight": 1.7976931348623157E308,
+    "maxWidth": 1.7976931348623157E308
+  },
+  "login": {
+    "minHeight": 300.0,
+    "minWidth": 350.0,
+    "maxHeight": 1.7976931348623157E308,
+    "maxWidth": 1.7976931348623157E308
+  }
+}
