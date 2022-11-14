@@ -9,13 +9,11 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNames
 import kotlinx.serialization.json.decodeFromStream
-import java.lang.RuntimeException
-
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 object AuthService {
     private val json = Json { ignoreUnknownKeys = true }
@@ -91,6 +89,15 @@ object AuthService {
         Settings.put("auth.token", "")
         this.token = null
         this.user = null
+    }
+
+    suspend fun serverStatusCheck(url: String): Boolean {
+        try {
+            val result = client.get("$url/health")
+            return result.status == HttpStatusCode.OK
+        } catch (ex: Exception) {
+            return false
+        }
     }
 
     @Serializable

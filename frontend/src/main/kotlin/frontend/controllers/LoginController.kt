@@ -10,21 +10,22 @@ import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
-import javafx.application.Platform
+import javafx.animation.PauseTransition
+import javafx.event.ActionEvent
+import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.control.Button
+import javafx.scene.control.TextField
+import javafx.util.Duration
 import kotlinx.coroutines.*
+import kotlinx.coroutines.javafx.JavaFx
+import kotlin.coroutines.CoroutineContext
 
-class LoginController {
-    init {
-        AuthService.init()
 
-        if (AuthService.token != null) {
-            loggedIn()
-        }
-    }
-
+class LoginController : CoroutineScope {
     var authJob: Job? = null
+
+    override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
 
     @FXML
     lateinit var googleSignInButton: Button
@@ -33,11 +34,40 @@ class LoginController {
     lateinit var cancelLogin: Button
 
     @FXML
+    lateinit var serverStatus: Button
+
+    @FXML
+    lateinit var serverUrl: TextField
+
+    private val statusChecker = PauseTransition(Duration.seconds(1.0))
+
+    @FXML
+    fun initialize() {
+        AuthService.init()
+
+        serverUrl.textProperty().addListener { _, _, _ ->
+            statusChecker.playFromStart()
+        }
+        statusChecker.onFinished = EventHandler { _: ActionEvent? ->
+            launch {
+                serverStatus.isDisable = AuthService.serverStatusCheck(serverUrl.text)
+                login()
+            }
+        }
+        checkServerStatus()
+
+        if (AuthService.token != null) {
+            login()
+        }
+    }
+
+    @FXML
     private fun onLoginWithGoogle() {
         googleSignInButton.isDisable = true
         cancelLogin.isVisible = true
 
-        authJob = GlobalScope.launch {
+
+        authJob = launch {
             try {
                 AuthService.googleAuth()
             } catch (e: Throwable) {
@@ -47,11 +77,15 @@ class LoginController {
                     yield()
                 }
             }
-            loggedIn()
+            login()
         }
     }
 
-    private fun loggedIn() {
+    private fun login() {
+        if (!serverStatus.isDisable) return
+        if (AuthService.user == null) return
+        println("logged in with good server")
+
         val token = AuthService.token!!
         val client = HttpClient() {
             expectSuccess = true
@@ -72,7 +106,7 @@ class LoginController {
                 json()
             }
             defaultRequest {
-                url("http://127.0.0.1:8080")
+                url(serverUrl.text)
             }
         }
 
@@ -80,7 +114,7 @@ class LoginController {
         ItemService.init(client)
 
         // then bring up home base
-        Platform.runLater { app.switchToMain() }
+        app.switchToMain()
         // app.changeScene("/views/main-view.fxml")
     }
 
@@ -91,4 +125,10 @@ class LoginController {
         googleSignInButton.isDisable = false
         cancelLogin.isVisible = false
     }
+
+    @FXML
+    private fun checkServerStatus() {
+        statusChecker.playFrom(Duration.seconds(1.0))
+    }
+
 }

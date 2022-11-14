@@ -6,6 +6,7 @@ module frontend {
     // resources
     opens icons.google_signin_buttons;
     opens icons.sort_icons;
+    opens icons.status;
 
     requires shared;
     requires kotlinx.coroutines.core.jvm;
@@ -24,4 +25,5 @@ module frontend {
     requires io.ktor.server.core;
     requires io.ktor.client.auth;
     requires java.prefs;
+    requires kotlinx.coroutines.javafx;
 }

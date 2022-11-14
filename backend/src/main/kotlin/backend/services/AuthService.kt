@@ -25,10 +25,10 @@ class FirebaseAuthenticationProvider internal constructor(name: String?) : Authe
             print(fbToken.uid)
             context.principal(AuthUser(fbToken.uid))
         } catch (cause: FirebaseAuthException) {
-            print("failed to verify")
+            print("failed to verify: ${cause.message}")
             context.challenge("firebase", AuthenticationFailedCause.InvalidCredentials, challengeFunction)
         } catch (cause: Throwable) {
-            print("failed to verify")
+            print("failed to verify: ${cause.message}")
             context.challenge("firebase", AuthenticationFailedCause.InvalidCredentials, challengeFunction)
         }
     }
