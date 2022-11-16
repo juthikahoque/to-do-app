@@ -7,6 +7,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -30,11 +31,15 @@ object AuthService {
     var token: Token? = null
 
     init {
-        AuthenticationManager.init(client)
+        OAuthManager.init(client)
 
         val tokenString = Settings.get("auth.token", "")
         if (tokenString != "") {
             token = json.decodeFromString<Token>(tokenString)
+            runBlocking {
+                refresh() // refresh the token to avoid expired token on first login
+                user = getUserInfo()
+            }
         }
     }
 
@@ -43,7 +48,7 @@ object AuthService {
     }
 
     suspend fun googleAuth() {
-        val googleToken = AuthenticationManager.authenticateUser(
+        val googleToken = OAuthManager.authenticateUser(
             authUrl = settings.google.authUri, // Config.domain,
             tokenUrl = settings.google.tokenUri,
             clientId = settings.google.clientId, // Config.clientId,
@@ -81,6 +86,15 @@ object AuthService {
         Settings.put("auth.token", json.encodeToString(this.token))
 
         return result.body()
+    }
+
+    private suspend fun getUserInfo(): FirebaseRet {
+        val result = client.post(endpoint("accounts:lookup")) {
+            contentType(ContentType.Application.Json)
+            setBody("""{"idToken":"${token!!.idToken}"}""")
+        }
+        println(result.body<String>())
+        return result.body<AccountInfoResponse>().users.first()
     }
 
     fun logout() {
@@ -130,6 +144,12 @@ object AuthService {
         val refreshToken: String = "",
         val expiresIn: String = "",
         val needConfirmation: Boolean = false,
+    )
+
+    @Serializable
+    class AccountInfoResponse(
+        val kind: String,
+        val users: List<FirebaseRet>,
     )
 
     @Serializable
