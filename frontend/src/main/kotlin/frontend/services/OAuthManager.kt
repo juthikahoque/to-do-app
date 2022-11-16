@@ -25,8 +25,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 
-
-object AuthenticationManager {
+object OAuthManager {
 
     private lateinit var client: HttpClient
 
@@ -149,21 +148,21 @@ object AuthenticationManager {
         sr.nextBytes(code)
         return Base64.getUrlEncoder().withoutPadding().encodeToString(code)
     }
-}
 
-@Serializable
-data class TokenResponse(
-    @SerialName("access_token")
-    val accessToken: String,
-    @SerialName("refresh_token")
-    val refreshToken: String,
-    @SerialName("id_token")
-    val idToken: String,
-    val scope: String,
-    @SerialName("expires_in")
-    val expiresIn: Int,
-    @SerialName("token_type")
-    val tokenType: String,
-)
+    @Serializable
+    data class TokenResponse(
+        @SerialName("access_token")
+        val accessToken: String,
+        @SerialName("refresh_token")
+        val refreshToken: String,
+        @SerialName("id_token")
+        val idToken: String,
+        val scope: String,
+        @SerialName("expires_in")
+        val expiresIn: Int,
+        @SerialName("token_type")
+        val tokenType: String,
+    )
+}
 
 
