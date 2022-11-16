@@ -22,13 +22,13 @@ class FirebaseAuthenticationProvider internal constructor(name: String?) : Authe
         }
         try {
             val fbToken = FirebaseService.auth().verifyIdToken(token)
-            print(fbToken.uid)
+            println(fbToken.uid)
             context.principal(AuthUser(fbToken.uid))
         } catch (cause: FirebaseAuthException) {
-            print("failed to verify: ${cause.message}")
+            println("failed to verify: ${cause.message}")
             context.challenge("firebase", AuthenticationFailedCause.InvalidCredentials, challengeFunction)
         } catch (cause: Throwable) {
-            print("failed to verify: ${cause.message}")
+            println("failed to verify: ${cause.message}")
             context.challenge("firebase", AuthenticationFailedCause.InvalidCredentials, challengeFunction)
         }
     }

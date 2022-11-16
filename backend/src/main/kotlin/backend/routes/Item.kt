@@ -2,16 +2,17 @@ package backend.routes
 
 import backend.services.ItemService
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import models.Item
 import models.Label
-import java.util.*
+import java.io.File
 import java.time.LocalDateTime
+import java.util.*
 
 fun Route.itemRouting() {
     authenticate {
@@ -57,7 +58,7 @@ fun Route.itemRouting() {
                     call.respond(ItemService.getAllItems(boardId))
                 }
             }
-            get("{id?}") {
+            get("{id}") {
                 val id = UUID.fromString(call.parameters["id"])
                 call.respond(ItemService.getItem(id))
             }
@@ -80,11 +81,12 @@ fun Route.itemRouting() {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(item)
             }
-            delete("{id?}") {
+            delete("{id}") {
                 val id = UUID.fromString(call.parameters["id"])
                 ItemService.deleteItem(id)
                 call.response.status(HttpStatusCode.NoContent)
             }
+
             put("order") {
                 val boardId = UUID.fromString(call.parameters["bid"])
                 val from = call.request.queryParameters["from"]?.toInt()
@@ -97,6 +99,47 @@ fun Route.itemRouting() {
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "requires [from] and [to] query parameters")
                 }
+            }
+
+            // upload file
+            post("{id}/file") {
+                val id = UUID.fromString(call.parameters["id"])
+                val multipart = call.receiveMultipart()
+
+                multipart.forEachPart { part ->
+                    if (part is PartData.FileItem) {
+                        // retrieve file name of upload
+                        val name = part.originalFileName!!
+                        ItemService.addAttachment(id, name, part.streamProvider())
+                    }
+                    // make sure to dispose of the part after use to prevent leaks
+                    part.dispose()
+                }
+
+                call.respond(HttpStatusCode.OK)
+            }
+
+            // download file
+            get("{id}/file/{name}") {
+                val id = call.parameters["id"]
+                // get filename from request url
+                val filename = call.parameters["name"]
+                // construct reference to file
+                // ideally this would use a different filename
+                val file = File("data/$id/$filename")
+                if(file.exists()) {
+                    call.respondFile(file)
+                }
+                else call.respond(HttpStatusCode.NotFound)
+            }
+
+            delete("{id}/file/{name}") {
+                val id = UUID.fromString(call.parameters["id"])
+                // get filename from request url
+                val filename = call.parameters["name"]!!
+                ItemService.deleteAttachment(id, filename)
+
+                call.respond(HttpStatusCode.NoContent)
             }
         }
     }

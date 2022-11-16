@@ -76,4 +76,4 @@ outTmp/
 kotlin-ide/
 .vscode
 **/bin
-*.db
+/backend/data/
