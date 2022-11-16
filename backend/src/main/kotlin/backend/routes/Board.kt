@@ -19,7 +19,7 @@ fun Route.boardRouting() {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BoardService.getBoards(user.id))
             }
-            get("{id?}") {
+            get("{id}") {
                 val id = UUID.fromString(call.parameters["id"])
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BoardService.getBoard(id))
@@ -43,7 +43,7 @@ fun Route.boardRouting() {
                 }
 
             }
-            delete("{id?}") {
+            delete("{id}") {
                 val id = UUID.fromString(call.parameters["id"])
                 BoardService.deleteBoard(id)
                 call.response.status(HttpStatusCode.NoContent)

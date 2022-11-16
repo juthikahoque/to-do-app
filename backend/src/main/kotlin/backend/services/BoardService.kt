@@ -312,7 +312,6 @@ object BoardService {
             conn.prepareStatement("UPDATE boards_users SET ordering = ? WHERE userId = ? AND ordering = -1"),
         )
     }
-
     fun changeOrder(userId: String, from: Int, to: Int) {
         try {
             changeOrderSQL[0].setString(1, userId)

@@ -88,7 +88,7 @@ class LoginController : CoroutineScope {
         println("logged in with good server")
 
         val token = AuthService.token!!
-        val client = HttpClient() {
+        val client = HttpClient {
             expectSuccess = true
             install(Auth) {
                 bearer {

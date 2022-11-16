@@ -1,17 +1,18 @@
 package backend.services
 
 import models.*
+import java.io.File
+import java.io.InputStream
 import java.sql.Connection
-import java.sql.*
+import java.sql.PreparedStatement
+import java.sql.ResultSet
 import java.sql.SQLException
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
-
 object ItemService {
-
 
     private lateinit var conn: Connection
 
@@ -41,6 +42,17 @@ object ItemService {
                 FOREIGN KEY (itemId) REFERENCES items(id)
             )
         """.trimIndent()
+        )
+
+        statement.executeUpdate(
+            """
+            CREATE TABLE IF NOT EXISTS items_attachments (
+                itemId TEXT NOT NULL,
+                path TEXT NOT NULL,
+                PRIMARY KEY (itemId, path),
+                FOREIGN KEY (itemId) REFERENCES items(id)
+            )
+            """.trimIndent()
         )
 
     }
@@ -75,7 +87,7 @@ object ItemService {
             }
             return item
         } catch (ex: SQLException) {
-            error(ex.message?:"sql add item failed")
+            appError(ex.message ?: "sql add item failed")
         }
     }
 
@@ -89,17 +101,20 @@ object ItemService {
             deleteLabels.setString(1, id.toString())
             deleteLabels.executeUpdate()
 
+            // delete attachments
+            deleteAttachment(id, "%")
+
             // delete from items table
             deleteItems.setString(1, id.toString())
             val rowItems = deleteItems.executeUpdate()
 
             return rowItems != 0
         } catch (ex: SQLException) {
-            error(ex.message?:"sql delete item failed")
+            appError(ex.message ?: "sql delete item failed")
         }
     }
 
-    fun getItemLabels(id: UUID) : MutableSet<Label> {
+    private fun getItemLabels(id: UUID): MutableSet<Label> {
         try {
             val getLabelsWithId = conn.prepareStatement("SELECT * FROM items_labels WHERE itemId = ?")
             getLabelsWithId.setString(1, id.toString())
@@ -112,15 +127,35 @@ object ItemService {
             }
             return labels
         } catch (ex: SQLException) {
-            error(ex.message?:"sql get item labels failed")
+            appError(ex.message?:"sql get item labels failed")
         }
     }
 
-    fun getItemFromRes(res: ResultSet) : Item {
+    private val getItemAttachment by lazy {
+        conn.prepareStatement("""SELECT * FROM items_attachments WHERE itemId = ?""")
+    }
+    private fun getItemAttachments(id: UUID): MutableSet<Attachment> {
+        try {
+            getItemAttachment.setString(1, id.toString())
+            val results = getItemAttachment.executeQuery()
+            val attachments = mutableSetOf<Attachment>()
+            while (results.next()) {
+                val path = results.getString("path")
+                attachments.add(Attachment(path))
+            }
+            return attachments
+        } catch (ex: SQLException) {
+            appError(ex.message?:"sql get attachments failed")
+        }
+    }
+
+    private fun getItemFromRes(res: ResultSet): Item {
         val itemId = UUID.fromString(res.getString("id"))
 
         // get item labels
-        val labels: MutableSet<Label> = getItemLabels(itemId)
+        val labels = getItemLabels(itemId)
+        val attachments = getItemAttachments(itemId)
+
         val dueDateStr = res.getString("dueDate")
 
         return Item(
@@ -130,7 +165,8 @@ object ItemService {
             labels = labels,
             priority = res.getInt("priority"),
             id = itemId,
-            done = res.getBoolean("done")
+            done = res.getBoolean("done"),
+            attachments = attachments,
         )
     }
 
@@ -145,10 +181,10 @@ object ItemService {
                 res.close()
                 return item
             } else {
-                error("item with id $id was not found")
+                appError("item with id $id was not found", AppError.NotFound)
             }
         } catch (ex: SQLException) {
-            error(ex.message?:"sql get item by id failed")
+            appError(ex.message ?: "sql get item by id failed")
         }
     }
 
@@ -165,13 +201,14 @@ object ItemService {
             res.close()
             return itemsList
         } catch (ex: SQLException) {
-            error(ex.message?:"sql get all item failed")
+            appError(ex.message ?: "sql get all item failed")
         }
     }
 
     fun updateItem(new: Item): Item {
         try {
-            val updateItem = conn.prepareStatement("UPDATE items SET text = ?, dueDate = ?, priority = ?, done = ? WHERE id = ?")
+            val updateItem =
+                conn.prepareStatement("UPDATE items SET text = ?, dueDate = ?, priority = ?, done = ? WHERE id = ?")
             updateItem.setString(1, new.text)
             updateItem.setString(2, new.dueDate.toString())
             updateItem.setInt(3, new.priority)
@@ -193,7 +230,7 @@ object ItemService {
 
             return getItem(new.id)
         } catch (ex: SQLException) {
-            error(ex.message?:"sql update item failed")
+            appError(ex.message ?: "sql update item failed")
         }
     }
 
@@ -206,7 +243,7 @@ object ItemService {
             val updated = updateItem.executeUpdate()
             return updated != 0
         } catch (ex: SQLException) {
-            error(ex.message?:"sql mark item as done failed")
+            appError(ex.message ?: "sql mark item as done failed")
         }
     }
 
@@ -233,18 +270,64 @@ object ItemService {
 
             changeOrderSQL.forEach { it.executeUpdate() }
         } catch (ex: SQLException) {
-            error(ex.message?:"sql delete item failed")
+            appError(ex.message ?: "sql change order failed")
+        }
+    }
+
+    private val addAttachment by lazy {
+        conn.prepareStatement("""INSERT INTO items_attachments (itemId, path) VALUES (?, ?)""")
+    }
+    fun addAttachment(itemId: UUID, name: String, data: InputStream) {
+        try {
+            // save file
+            val file = File("data/$itemId/$name")
+            file.parentFile.mkdirs()
+            data.use { input ->
+                // copy the stream to the file with buffering
+                file.outputStream().buffered().use {
+                    // note that this is blocking
+                    input.copyTo(it)
+                }
+            }
+
+            // add to db
+            addAttachment.setString(1, itemId.toString())
+            addAttachment.setString(2, name)
+
+            addAttachment.executeUpdate()
+        } catch (ex: SQLException) {
+            appError(ex.message?:"sql add attachments failed")
+        }
+    }
+
+    private val deleteAttachment by lazy {
+        conn.prepareStatement("""DELETE FROM items_attachments WHERE itemId = ? AND path LIKE ?""")
+    }
+    fun deleteAttachment(itemId: UUID, name: String) {
+        try {
+            if (name == "%") { // delete all
+                File("data/$itemId").deleteRecursively()
+            } else {
+                File("data/$itemId/$name").delete()
+            }
+
+            deleteAttachment.setString(1, itemId.toString())
+            deleteAttachment.setString(2, name)
+
+            deleteAttachment.executeUpdate() // == 0 if no item exist
+        } catch (ex: SQLException) {
+            appError(ex.message?:"sql delete attachment failed")
         }
     }
 
     fun filterByDate(startDateTime: LocalDateTime, boardId: UUID, endDateTime: LocalDateTime? = null, actualSortBy: String? = "dueDate"): List<Item> {
         try {
-            var sortBy = actualSortBy ?: "dueDate"
+            val sortBy = actualSortBy ?: "dueDate"
             val startDate = startDateTime.toLocalDate()
             val endDate = if(endDateTime != null) endDateTime.toLocalDate() else startDate.plusDays(1)
 
             if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
-                throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
+                error("invalid sortBy entry, enter one of: dueDate, priority or label")
             }
 
             val getItems = conn.prepareStatement("SELECT * FROM items WHERE dueDate >= ? AND dueDate < ? AND boardId = ? ORDER BY $sortBy ASC")
@@ -271,7 +354,7 @@ object ItemService {
             val sortBy = actualSortBy ?: "label"
             val itemsList = mutableListOf<Item>()
             if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
-                throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
+                error("invalid sortBy entry, enter one of: dueDate, priority or label")
             }
             if(labels.size > 0) {
                 var sql = """
@@ -312,7 +395,7 @@ object ItemService {
             val sortBy = actualSortBy ?: "priority"
             val itemsList = mutableListOf<Item>()
             if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
-                throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
+                error("invalid sortBy entry, enter one of: dueDate, priority or label")
             }
             if(priorities.size > 0) {
                 var sql = "SELECT * FROM items WHERE boardId = ? AND (priority = ?"
@@ -346,13 +429,13 @@ object ItemService {
         try {
             val order = actualOrder ?: "ASC"
             if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
-                throw error("invalid sortBy entry, enter one of: dueDate, priority or label")
+                error("invalid sortBy entry, enter one of: dueDate, priority or label")
             }
             if(order != "ASC" && order != "DESC") {
-                throw error("invalid order entry, enter one of: ASC, DESC")
+                error("invalid order entry, enter one of: ASC, DESC")
             }
             val itemsList = mutableListOf<Item>()
-            var getItems : PreparedStatement = if(sortBy == "label") {
+            val getItems : PreparedStatement = if(sortBy == "label") {
                 conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE items.boardId = ? ORDER BY label $order")
             } else {
                 conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY $sortBy $order")

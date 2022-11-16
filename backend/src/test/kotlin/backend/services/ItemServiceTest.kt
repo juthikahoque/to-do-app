@@ -6,6 +6,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.io.File
 import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.util.*
@@ -318,5 +319,25 @@ internal class ItemServiceTest {
         assertEquals(items, searchResult)
 
     }
-}
 
+    @Test
+    fun attachments() {
+        // test add
+        val boardId = UUID.randomUUID()
+        val item = Item("1", boardId = boardId)
+
+        ItemService.addItem(item)
+
+        ItemService.addAttachment(item.id, "attachment", File("build.gradle").inputStream())
+
+        val res = ItemService.getItem(item.id)
+
+        assertEquals(1, res.attachments.size)
+        assertEquals("attachment", res.attachments.first().name)
+        assert(File("data/${item.id}/attachment").exists())
+
+        // Test delete
+        ItemService.deleteAttachment(item.id, "attachment")
+        assertFalse(File("data/${item.id}/attachment").exists())
+    }
+}
