@@ -31,6 +31,7 @@ class Model {
     private var currSearch:Set<Item> //result of current search string
 
     var showCreateBoard = false
+    var showAddUsersModalView = false
 
     init {
         runBlocking {
@@ -139,6 +140,11 @@ class Model {
 
     fun setCreateBoardMenu(toOpen:Boolean) {
         showCreateBoard = toOpen
+        notifyObservers()
+    }
+    
+    fun setShowAddUserModal(toOpen: Boolean) {
+        showAddUsersModalView = toOpen
         notifyObservers()
     }
 

@@ -4,6 +4,7 @@ import frontend.app
 import frontend.services.AuthService
 import frontend.services.BoardService
 import frontend.services.ItemService
+import frontend.services.UserService
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
@@ -113,6 +114,7 @@ class LoginController : CoroutineScope {
 
         BoardService.init(client)
         ItemService.init(client)
+        UserService.init(client)
 
         // then bring up home base
         app.switchToMain()
