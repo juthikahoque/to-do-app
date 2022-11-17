@@ -28,13 +28,19 @@
 }
 
 .serverStatus {
-    -fx-graphic: url('/icons/status/problem.png');
+    -fx-background-image: url('/icons/status/server-x.png');
+    -fx-background-size: 20px 20px;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
     -fx-padding: 0;
     padding: 0;
 }
 
 .serverStatus:disabled {
-    -fx-graphic: url('/icons/status/success.png');
+    -fx-background-image: url('/icons/status/server-ok.png');
+    -fx-background-size: 20px 20px;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
     -fx-padding: 0;
     padding: 0;
 }
