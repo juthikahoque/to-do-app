@@ -55,7 +55,7 @@ class ItemTest {
         items.forEach { ItemService.addItem(it) }
 
         // items between today and tomorrow with boardId 1
-        val sameDueDate = items.filter { it.text == "item1" }
+            val sameDueDate = items.filter { it.text == "item1" }
 
         val client = configureTest("duedate")
         var headers = Parameters.build {

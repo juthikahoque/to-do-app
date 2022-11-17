@@ -14,9 +14,16 @@ import javafx.scene.paint.Color
 
 class BoardView(private val model: Model): VBox(), IView {
 
-    private var createToDoHeader = Label("Create To-Do item:")
+    private var createToDoHeader = Label("Create To-Do item:").apply {
+        padding = Insets(0.0, 0.0, 10.0, 0.0)
+        font = Font(16.0)
+    }
     private var createToDoRowView = CreateToDoRowView(model)
-    private var myToDosHeader = Label("My To-Dos:")
+
+    private var myToDosHeader = Label("My To-Dos:").apply {
+        padding = Insets(20.0, 0.0, 10.0, 0.0)
+        font = Font("Regular", 16.0)
+    }
 
     private var dragFromIndex = -1
     private var dragToIndex = -1
@@ -32,19 +39,14 @@ class BoardView(private val model: Model): VBox(), IView {
     override fun updateView(){
         children.clear()
 
-        createToDoHeader.padding = Insets(0.0, 0.0, 10.0, 0.0)
-        createToDoHeader.font = Font(16.0)
-        children.add(createToDoHeader)
+        children.addAll(createToDoHeader, createToDoRowView, myToDosHeader)
+        noteList.items.clear()
 
-        children.add(createToDoRowView)
-
-        myToDosHeader.padding = Insets(20.0, 0.0, 10.0, 0.0)
-        myToDosHeader.font = Font("Regular", 16.0)
-        children.add(myToDosHeader)
+        val allNotes = model.getItems(model.getCurrentBoard().id)
 
         if (model.getApplicationState() == ApplicationState.Ready) {
-            noteList.items.clear()
-            for ((index, item) in model.getItems(model.getCurrentBoard().id).withIndex()) {
+            for (item in model.getCurrentItems()) {
+                val index = allNotes.indexOf(item)
                 noteList.items.add(ToDoRowView(item).apply{
                     setOnDragDetected {
                         startFullDrag()
@@ -69,7 +71,7 @@ class BoardView(private val model: Model): VBox(), IView {
 
                     setOnMouseDragReleased {
                         if(dragToIndex != -1){
-                            model.changeOrder(dragFromIndex, dragToIndex)
+                            model.changeItemOrder(dragFromIndex, dragToIndex)
                             dragFromIndex = -1
                             dragToIndex = -1
                         }

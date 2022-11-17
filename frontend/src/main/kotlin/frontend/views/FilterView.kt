@@ -1,5 +1,8 @@
 package frontend.views
 
+import frontend.Model
+import frontend.interfaces.IView
+import io.ktor.server.util.*
 import javafx.geometry.Insets
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.DatePicker
@@ -7,14 +10,34 @@ import javafx.scene.control.Label
 import javafx.scene.control.ToggleButton
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
+import java.time.LocalDate
+import java.util.*
 
 //View for the filtering by due date, labels and priorities
-class FilterView():VBox(){
+class FilterView(private val model: Model):VBox(), IView{
+
+    private var oldestDate = LocalDate.MIN
+
+    private var selectedDates:Pair<LocalDate, LocalDate?> = Pair(oldestDate, null)
 
     private val dateFilter = HBox().apply {
-        val from = DatePicker().apply { prefWidth = 125.0 }
+        val from = DatePicker().apply {
+            prefWidth = 125.0
+            setOnAction {
+                selectedDates = selectedDates.copy(first = value)
+                model.filterByDates(selectedDates)
+            }
+
+        }
         val toLabel = Label(" to ").apply { translateY = 5.0 }
-        val to = DatePicker().apply { prefWidth = 125.0 }
+        val to = DatePicker().apply {
+            prefWidth = 125.0
+            setOnAction {
+                selectedDates = selectedDates.copy(second = value)
+                model.filterByDates(selectedDates)
+
+            }
+        }
         children.addAll(from, toLabel, to)
     }
 
@@ -27,20 +50,25 @@ class FilterView():VBox(){
         spacing = 10.0
     }
 
+    private val selectedPriorites = mutableSetOf<Int>()
+
     private val priorityGroup = HBox().apply{
         val priorityView = PriorityTagView(0)
         val labels = listOf("Low", "Medium", "High")
         for((index, label) in labels.withIndex()){
             val toggle = ToggleButton(label).apply{
-                background = Background(BackgroundFill(Color.LIGHTGRAY, CornerRadii(5.0), Insets(0.0)))
+                background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
                 val backgroundColor = priorityView.getColor(index)
                 setOnAction {
                     if(isSelected){
                         background = Background(BackgroundFill(backgroundColor, CornerRadii(5.0), Insets(0.0)))
+                        selectedPriorites.add(index)
                     }
                     else{
                         background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+                        if(selectedPriorites.contains(index)) { selectedPriorites.remove(index) }
                     }
+                    model.filterByPriorities(selectedPriorites)
                 }
             }
             children.add(toggle)
@@ -55,10 +83,11 @@ class FilterView():VBox(){
         setOnAction {
             if(value == "Due Date"){
                 updateOptions(dateFilter)
+                model.filterByDates(selectedDates)
             }
             else if(value == "Priority"){
                 updateOptions(priorityGroup)
-
+                model.filterByPriorities(selectedPriorites)
             }
 
             else if(value == "Labels"){
@@ -67,20 +96,18 @@ class FilterView():VBox(){
         }
     }
 
-    private val options = HBox(filterChoice).apply {
+    private val filterOptions = HBox(filterChoice).apply {
         spacing = 5.0
     }
-
-
     private fun updateOptions(newChild: Region){
-        if(options.children.size > 1){
-            options.children.removeAt(1)
+        if(filterOptions.children.size > 1){
+            filterOptions.children.removeAt(1)
         }
-        options.children.add(newChild)
+        filterOptions.children.add(newChild)
     }
 
     private fun showOptions(show:Boolean){
-        if(show) children.add(options) else children.remove(options)
+        if(show) children.add(filterOptions) else children.remove(filterOptions)
     }
 
     private val filterButton = ToggleButton("Filter").apply {
@@ -88,11 +115,22 @@ class FilterView():VBox(){
         prefWidth = 125.0
         setOnAction {
             showOptions(isSelected)
-            background = if(isSelected){
-                Background(BackgroundFill(Color.DARKGRAY, CornerRadii(5.0), Insets(0.0)))
+            if(isSelected){
+                background =  Background(BackgroundFill(Color.DARKGRAY, CornerRadii(5.0), Insets(0.0)))
+                //re-apply the old filters
+                if(filterOptions.children.contains(priorityGroup)) {
+                    model.filterByPriorities(selectedPriorites)
+                }
+
+                //filtering by date
+                else if(filterOptions.children.contains(dateFilter)){
+                    model.filterByDates(selectedDates)
+                }
             }
             else{
-                Background(BackgroundFill(Color.LIGHTGRAY, CornerRadii(5.0), Insets(0.0)))
+                background = Background(BackgroundFill(Color.LIGHTGRAY, CornerRadii(5.0), Insets(0.0)))
+                //switch off all filters
+                model.filterByPriorities(emptySet<Int>().toMutableSet())
             }
         }
     }
@@ -100,5 +138,21 @@ class FilterView():VBox(){
     init {
         children.addAll(filterButton)
         spacing = 5.0
+    }
+
+    override fun updateView(){
+        //filtering by priority
+        if(filterOptions.children.contains(priorityGroup)) {
+            model.filterByPriorities(selectedPriorites, false)
+        }
+
+        //filtering by date
+        else if(filterOptions.children.contains(dateFilter)){
+            model.filterByDates(selectedDates, false)
+        }
+        //default case, set filtered set as all current itemss
+        else{
+            model.filterByPriorities(emptySet<Int>().toMutableSet(), false)
+        }
     }
 }

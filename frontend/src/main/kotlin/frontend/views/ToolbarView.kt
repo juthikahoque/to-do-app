@@ -16,7 +16,7 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
         minWidth = 400.0
         HBox.setHgrow(this, Priority.NEVER)
         textProperty().addListener { _, _, newValue ->
-            //TODO: Backend searching
+            model.searchItems(newValue)
         }
     }
 
@@ -44,9 +44,9 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
         promptText = "Username"
     }
 
-    private val sort = SortView()
+    private val sort = SortView(model)
 
-    private val filter = FilterView()
+    private val filter = FilterView(model)
 
     private val sortFilterGroup = HBox().apply {
         padding = Insets(10.0, 0.0, 0.0, 0.0)
@@ -56,7 +56,7 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
 
 
     override fun updateView() {
-        //TODO("Not yet implemented")
+        model.searchItems(searchField.text, false)
     }
 
     init {
@@ -73,5 +73,9 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
         right = inviteGroup
         padding = Insets(10.0)
         HBox.setHgrow(this, Priority.ALWAYS)
+
+        model.addSearchFilterSort(filter)
+        model.addSearchFilterSort(sort)
+        model.addSearchFilterSort(this)
     }
 }

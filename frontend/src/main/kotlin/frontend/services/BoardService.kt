@@ -26,7 +26,7 @@ object BoardService {
 
     suspend fun getBoards(): List<Board> {
         val result = client.get("board")
-        print(result.body<String>())
+        //print(result.body<String>())
         return result.body()
     }
 

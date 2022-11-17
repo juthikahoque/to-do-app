@@ -28,7 +28,6 @@ object ItemService {
 
     suspend fun getItems(bid: UUID): List<Item> {
         val result = client.get("board/${bid}/items")
-
         return result.body()
     }
 
@@ -54,14 +53,15 @@ object ItemService {
         if (result.status != HttpStatusCode.NoContent) error("failed to delete item")
     }
 
-    suspend fun orderItem(bid: UUID, from: Int, to: Int) {
+    suspend fun orderItem(bid: UUID, from: Int, to: Int):Set<Item> {
         val result = client.put("board/$bid/items/order") {
             parameter("from", from)
             parameter("to", to)
         }
+        return result.body()
     }
 
-    suspend fun filterByDates(bid: UUID, startDate: LocalDateTime, endDate: LocalDateTime? = null): List<Item> {
+    suspend fun filterByDates(bid: UUID, startDate: LocalDateTime, endDate: LocalDateTime? = null): Set<Item> {
         val headers = Parameters.build {
             append("date", startDate.toString())
             append("date", endDate?.toString() ?: "")
@@ -70,7 +70,7 @@ object ItemService {
         return result.body()
     }
 
-    suspend fun filterByLabels(bid: UUID, labels: MutableSet<Label>) : List<Item> {
+    suspend fun filterByLabels(bid: UUID, labels: MutableSet<Label>) : Set<Item> {
         val headers = Parameters.build {
             for(label in labels) {
                 append("label", label.value)
@@ -79,14 +79,30 @@ object ItemService {
         val result = client.get("board/${bid}/items?${headers}")
         return result.body()
     }
-    suspend fun filterByPriorities(bid: UUID, priorities: MutableSet<Int>) : List<Item> {
+    suspend fun filterByPriorities(bid: UUID, priorities: MutableSet<Int>) : Set<Item> {
         val headers = Parameters.build {
-            for(priority in priorities) {
+            for (priority in priorities) {
                 append("priority", priority.toString())
             }
         }.formUrlEncode()
         val result = client.get("board/${bid}/items?${headers}")
+        return result.body()
+    }
 
+    suspend fun sort(bid: UUID, sortBy:String, orderBy:String): Set<Item>{
+        val headers = Parameters.build {
+            append("sortBy", sortBy)
+            append("orderBy", orderBy)
+        }.formUrlEncode()
+        val result = client.get("board/${bid}/items?${headers}")
+        return result.body()
+    }
+
+    suspend fun search(bid:UUID, searchString:String): Set<Item> {
+        val headers = Parameters.build {
+            append("search", searchString)
+        }.formUrlEncode()
+        val result = client.get("board/${bid}/items?${headers}")
         return result.body()
     }
 
