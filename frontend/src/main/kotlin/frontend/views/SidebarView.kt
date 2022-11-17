@@ -16,9 +16,10 @@ import javafx.scene.text.Font
 class SidebarView(private val model: Model): BorderPane(), IView {
 
 
-    private val username = HBox(Label("Current User").apply {
-        textFill = Color.WHITE
-        font = Font( 25.0)
+    private val username = HBox(Label().apply {
+        text = model.getUsername()
+        textFill = Color.LIGHTBLUE
+        font = Font( 20.0)
     })
 
     private val group = ToggleGroup().apply {

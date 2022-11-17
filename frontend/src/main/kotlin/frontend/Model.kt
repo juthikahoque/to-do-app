@@ -85,6 +85,10 @@ class Model {
         return boards[currentBoardIdx]
     }
 
+    fun getUsername(): String? {
+        return AuthService.user?.displayName
+    }
+
     fun updateCurrentBoard(idx: Int) {
         if (idx != currentBoardIdx) {
             currentBoardIdx = idx
