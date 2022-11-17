@@ -4,6 +4,7 @@ import frontend.app
 import frontend.services.AuthService
 import frontend.services.BoardService
 import frontend.services.ItemService
+import frontend.services.Settings
 import frontend.services.UserService
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -12,6 +13,7 @@ import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import javafx.animation.PauseTransition
+import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
@@ -21,7 +23,6 @@ import javafx.util.Duration
 import kotlinx.coroutines.*
 import kotlinx.coroutines.javafx.JavaFx
 import kotlin.coroutines.CoroutineContext
-
 
 class LoginController : CoroutineScope {
 
@@ -49,17 +50,17 @@ class LoginController : CoroutineScope {
             statusChecker.playFromStart()
         }
         statusChecker.onFinished = EventHandler { _: ActionEvent? ->
-            launch {
-                serverStatus.isDisable = AuthService.serverStatusCheck(serverUrl.text)
-                login()
-            }
+            checkServerStatus()
         }
+
+        serverUrl.text = Settings.get("serverUrl", "http://127.0.0.1:8080")
+
         checkServerStatus()
 
         googleSignInButton.isDisable = false
         cancelLogin.isVisible = false
 
-        login()
+        Platform.runLater { googleSignInButton.requestFocus() }
     }
 
     @FXML
@@ -131,7 +132,13 @@ class LoginController : CoroutineScope {
 
     @FXML
     private fun checkServerStatus() {
-        statusChecker.playFrom(Duration.seconds(1.0))
+        launch {
+            serverStatus.isDisable = AuthService.serverStatusCheck(serverUrl.text)
+            if (serverStatus.isDisable) {
+                Settings.put("serverUrl", serverUrl.text)
+                Platform.runLater { googleSignInButton.requestFocus() }
+            }
+            login()
+        }
     }
-
 }
