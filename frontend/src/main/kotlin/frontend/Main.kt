@@ -19,7 +19,7 @@ class Main : Application() {
         app = this
         this.stage = stage
 
-        stage.title = "To-Do App"
+        stage.title = "2+Do"
 
         windowPreferences = WindowPreferences(stage)
 
