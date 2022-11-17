@@ -82,8 +82,6 @@ class BoardView(private val model: Model): VBox(), IView {
         } else {
             children.add(Label("Loading..."))
         }
-
-        isVisible = !model.showCreateBoard
     }
 
     init {
