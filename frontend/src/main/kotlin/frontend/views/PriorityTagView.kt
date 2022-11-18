@@ -9,9 +9,9 @@ import javafx.scene.paint.Color
 class PriorityTagView(priorityLevel: Int): HBox() {
     fun getColor(priorityLevel: Int): Color {
         return when (priorityLevel) {
-            0 -> Color.web("#00FF00")
-            1 -> Color.web("#FFA500")
-            2 -> Color.web("#FF0000")
+            0 -> Color.web("#2af7a5")
+            1 -> Color.web("#f7942a")
+            2 -> Color.web("#f72a50")
             else -> Color.web("#FFFFFF")
         }
     }
