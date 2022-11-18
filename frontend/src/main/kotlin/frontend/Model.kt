@@ -5,15 +5,16 @@ import frontend.services.AuthService
 import frontend.services.BoardService
 import frontend.services.ItemService
 import frontend.utils.ApplicationState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.runBlocking
 import models.Board
 import models.Item
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.ArrayList
 
-class Model {
+class Model: CoroutineScope {
     private val searchFilterSort: ArrayList<IView> = ArrayList()
     private val views: ArrayList<IView> = ArrayList()
     private var boards: List<Board>
@@ -138,12 +139,12 @@ class Model {
     fun addToDoItem(item: Item) {
         runBlocking {
             ItemService.addItem(item.boardId, item)
+            //add item, notify mutators, apply the settings and then notify displaying views
+            currItems = getItems(getCurrentBoard().id).toMutableList()
+            notifySearchFilterSort()
+            applySearchFilterSort()
+            notifyObservers()
         }
-        //add item, notify mutators, apply the settings and then notify displaying views
-        currItems = getItems(getCurrentBoard().id).toMutableList()
-        notifySearchFilterSort()
-        applySearchFilterSort()
-        notifyObservers()
     }
 
     fun setCreateBoardMenu(toOpen:Boolean) {
@@ -167,9 +168,9 @@ class Model {
     fun changeItemOrder(from:Int, to:Int){
         runBlocking {
             currSort = ItemService.orderItem(boards[currentBoardIdx].id, from, to)
+            applySearchFilterSort()
+            notifyObservers()
         }
-        applySearchFilterSort()
-        notifyObservers()
     }
 
     fun filterByPriorities(priorities: MutableSet<Int>, notify:Boolean = true) {
@@ -281,4 +282,22 @@ class Model {
         AuthService.logout()
         app.changeScene("login")
     }
+
+    fun updateItem(item: Item) {
+        runBlocking {
+            ItemService.updateItem(item.boardId, item)
+            currItems = getItems(getCurrentBoard().id).toMutableList()
+            notifyObservers()
+        }
+    }
+
+    fun deleteItem(item: Item) {
+        runBlocking {
+            ItemService.deleteItem(item.boardId, item.id)
+            currItems = getItems(getCurrentBoard().id).toMutableList()
+            notifyObservers()
+        }
+    }
+
+    override val coroutineContext = Dispatchers.JavaFx
 }

@@ -26,7 +26,7 @@ class CreateBoardView(private val model: Model): VBox() {
 
     private val createButton = Button("Create").apply{
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
-        setOnMouseClicked {
+        setOnAction {
             if (nameInput.text == "") {
                 println("No board name entered! This is probably an error!")
                 model.addBoard(Board("NO NAME", mutableSetOf(AuthService.user!!.localId)))
@@ -34,11 +34,12 @@ class CreateBoardView(private val model: Model): VBox() {
                 model.addBoard(Board(nameInput.text, mutableSetOf(AuthService.user!!.localId)))
             }
         }
+        isDefaultButton = true
     }
 
     private val cancelButton = Button("Cancel").apply{
         background = Background(BackgroundFill(Color.INDIANRED, CornerRadii(2.5), null))
-        setOnMouseClicked {
+        setOnAction {
             nameInput.text = ""
             model.setCreateBoardMenu(false)
         }

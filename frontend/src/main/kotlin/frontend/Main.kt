@@ -5,6 +5,7 @@ import frontend.views.Presenter
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
+import javafx.scene.input.KeyCombination
 import javafx.stage.Stage
 
 lateinit var app: Main
@@ -14,6 +15,8 @@ class Main : Application() {
     private lateinit var stage: Stage
 
     private lateinit var windowPreferences: WindowPreferences
+
+    private val hotkeys = mutableMapOf<KeyCombination, Runnable>()
 
     override fun start(stage: Stage) {
         app = this
@@ -41,6 +44,11 @@ class Main : Application() {
         val scene = Scene(presenter)
         stage.scene = scene
 
+        for (hotkey in hotkeys) {
+            scene.accelerators[hotkey.key] = hotkey.value
+        }
+        hotkeys.clear()
+
         windowPreferences.changeScene(sceneName)
         stage.show()
     }
@@ -52,7 +60,16 @@ class Main : Application() {
         val scene = Scene(fxmlLoader.load())
         stage.scene = scene
 
+        for (hotkey in hotkeys) {
+            scene.accelerators[hotkey.key] = hotkey.value
+        }
+        hotkeys.clear()
+
         windowPreferences.changeScene(sceneName)
         stage.show()
+    }
+
+    fun addHotkey(key: KeyCombination, func: () -> Unit) {
+        hotkeys[key] = Runnable { func() }
     }
 }

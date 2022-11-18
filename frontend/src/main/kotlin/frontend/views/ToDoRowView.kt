@@ -1,16 +1,22 @@
 package frontend.views
 
+import frontend.Model
 import javafx.geometry.Insets
-import javafx.scene.control.*
-import javafx.scene.layout.*
-import javafx.scene.text.TextAlignment
+import javafx.scene.control.CheckBox
+import javafx.scene.control.Label
+import javafx.scene.layout.ColumnConstraints
+import javafx.scene.layout.GridPane
+import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
 import models.Item
 import java.time.format.DateTimeFormatter
 
-class ToDoRowView(item: Item): VBox() {
-
+class ToDoRowView(val item: Item, model: Model): VBox() {
     private val completedCheckBox = CheckBox().apply {
         isSelected = item.done
+        setOnAction {
+            model.updateItem(item.copy(done = isSelected))
+        }
     }
     private val titleLabel = Label(item.text).apply{
         minWidth = 200.0
