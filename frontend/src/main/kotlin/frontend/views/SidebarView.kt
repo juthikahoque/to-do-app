@@ -104,10 +104,10 @@ class SidebarView(private val model: Model): BorderPane(), IView {
         bottom = VBox(newBoardButton, logoutButton)
         model.addView(this)
 
-        app.addHotkey(KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN)) {
+        app.addHotkey(KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)) {
             model.setCreateBoardMenu(true)
         }
-        app.addHotkey(KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN)) {
+        app.addHotkey(KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN)) {
             boardArea.children.firstOrNull()?.requestFocus()
         }
     }

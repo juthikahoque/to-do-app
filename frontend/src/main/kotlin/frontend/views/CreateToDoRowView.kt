@@ -117,7 +117,7 @@ class CreateToDoRowView(private val model: Model) : HBox(), IView {
         }
         model.addView(this)
 
-        app.addHotkey(KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN)) {
+        app.addHotkey(KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)) {
             titleInput.requestFocus()
         }
 

@@ -68,11 +68,11 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
         model.addSearchFilterSort(this)
         model.addView(this)
 
-        app.addHotkey(KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN)) {
+        app.addHotkey(KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN)) {
             searchField.requestFocus()
         }
 
-        app.addHotkey(KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN)) {
+        app.addHotkey(KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN)) {
             if (model.getCurrentBoard().name != "All") {
                 model.setShowAddUserModal(true)
             }
