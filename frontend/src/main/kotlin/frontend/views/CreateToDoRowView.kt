@@ -1,9 +1,13 @@
 package frontend.views
 
 import frontend.Model
+import frontend.app
 import frontend.interfaces.IView
 import javafx.geometry.Pos
 import javafx.scene.control.*
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
@@ -12,7 +16,7 @@ import models.Item
 import models.Label
 import java.time.LocalDate
 
-class CreateToDoRowView(private val model: Model): HBox(), IView {
+class CreateToDoRowView(private val model: Model) : HBox(), IView {
 
     private val titleInput = TextField()
     private val datePicker = DatePicker()
@@ -26,6 +30,24 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         isVisible = !model.showCreateBoard
         datePicker.value = LocalDate.now()
         priorityChoiceBox.selectionModel.selectFirst()
+    }
+
+    private fun createTodo() {
+        val title = titleInput.text
+        val date = datePicker.value.atStartOfDay()
+        val boardId = model.getCurrentBoard().id
+        //val labels = Label(labelsComboBox.value)
+        val priority = priorityChoiceBox.selectionModel.selectedItem
+
+        val todo = Item(
+            title,
+            date,
+            boardId,
+            mutableSetOf<Label>(),
+            priority,
+        )
+        model.addToDoItem(todo)
+        titleInput.requestFocus()
     }
 
     init {
@@ -63,21 +85,8 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         createButton.prefWidth = 75.0
 
         // handle create button click
-        createButton.setOnMouseClicked {
-            val title = titleInput.text
-            val date = datePicker.value.atStartOfDay()
-            val boardId = model.getCurrentBoard().id
-            //val labels = Label(labelsComboBox.value)
-            val priority = priorityChoiceBox.selectionModel.selectedItem
-
-            val todo = Item(
-                title,
-                date,
-                boardId,
-                mutableSetOf<Label>(),
-                priority,
-            )
-            model.addToDoItem(todo)
+        createButton.setOnAction {
+            createTodo()
         }
 
         gridPane.alignment = Pos.TOP_LEFT
@@ -90,15 +99,34 @@ class CreateToDoRowView(private val model: Model): HBox(), IView {
         gridPane.add(assignedToComboBox, 5, 0)
         gridPane.add(createButton, 6, 0)
 
-
         //add a spacer to make the UI responsive
         val spacer = Pane().apply {
             setHgrow(this, Priority.ALWAYS)
         }
 
-        children.addAll(titleInput, datePicker, priorityChoiceBox, labelsComboBox, assignedToComboBox, spacer, createButton).apply{
+        children.addAll(
+            titleInput,
+            datePicker,
+            priorityChoiceBox,
+            labelsComboBox,
+            assignedToComboBox,
+            spacer,
+            createButton
+        ).apply {
             spacing = 10.0
         }
         model.addView(this)
+
+        app.addHotkey(KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN)) {
+            titleInput.requestFocus()
+        }
+
+        app.addHotkey(KeyCodeCombination(KeyCode.ENTER)) {
+            if (titleInput.isFocused || datePicker.isFocused || priorityChoiceBox.isFocused ||
+                labelsComboBox.isFocused || assignedToComboBox.isFocused || createButton.isFocused
+            ) {
+                createTodo()
+            }
+        }
     }
 }

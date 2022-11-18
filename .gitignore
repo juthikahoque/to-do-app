@@ -77,3 +77,4 @@ kotlin-ide/
 .vscode
 **/bin
 /backend/data/
+*.db

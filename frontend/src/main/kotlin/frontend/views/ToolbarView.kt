@@ -1,10 +1,14 @@
 package frontend.views
 
 import frontend.Model
+import frontend.app
 import frontend.interfaces.IView
 import javafx.geometry.Insets
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
 import javafx.scene.layout.*
 
 //View for the toolbar, includes a search bar
@@ -17,7 +21,6 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
         HBox.setHgrow(this, Priority.NEVER)
         textProperty().addListener { _, _, newValue ->
             model.searchItems(newValue)
-
         }
     }
 
@@ -64,5 +67,15 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
         model.addSearchFilterSort(sort)
         model.addSearchFilterSort(this)
         model.addView(this)
+
+        app.addHotkey(KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN)) {
+            searchField.requestFocus()
+        }
+
+        app.addHotkey(KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN)) {
+            if (model.getCurrentBoard().name != "All") {
+                model.setShowAddUserModal(true)
+            }
+        }
     }
 }

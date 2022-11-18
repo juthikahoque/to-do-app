@@ -47,9 +47,7 @@ object ItemService {
     }
 
     suspend fun deleteItem(bid: UUID, id: UUID) {
-        val result = client.delete("board/${bid}/items") {
-            url(id.toString())
-        }
+        val result = client.delete("board/$bid/items/$id")
         if (result.status != HttpStatusCode.NoContent) error("failed to delete item")
     }
 
