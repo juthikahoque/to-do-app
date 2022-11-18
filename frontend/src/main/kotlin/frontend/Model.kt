@@ -94,7 +94,7 @@ class Model {
         if (idx != currentBoardIdx) {
             currentBoardIdx = idx
             applicationState = ApplicationState.Loading
-            getItems(boards[currentBoardIdx].id)
+            currItems = getItems(boards[currentBoardIdx].id)
             applicationState = ApplicationState.Ready
             notifyObservers()
         }
@@ -115,10 +115,18 @@ class Model {
         notifyObservers()
     }
 
-    fun getItems(boardId: UUID): List<Item> {
-        lateinit var allItems: List<Item>
-        runBlocking {
-            allItems = ItemService.getItems(boardId).toMutableList()
+    private fun getItems(boardId: UUID): MutableList<Item> {
+        var allItems = mutableListOf<Item>()
+        if (currentBoardIdx == 0) {
+            runBlocking {
+                for (i in 1 until boards.size) {
+                    allItems += ItemService.getItems(boards[i].id).toMutableList()
+                }
+            }
+        } else {
+            runBlocking {
+                allItems += ItemService.getItems(boardId).toMutableList()
+            }
         }
         return allItems
     }
@@ -165,8 +173,18 @@ class Model {
     }
 
     fun filterByPriorities(priorities: MutableSet<Int>, notify:Boolean = true) {
-        runBlocking {
-            currFilter = ItemService.filterByPriorities(boards[currentBoardIdx].id, priorities)
+        if (currentBoardIdx == 0) {
+            runBlocking {
+                var allFilters = mutableSetOf<Item>()
+                for (i in 1 until boards.size) {
+                    allFilters += ItemService.filterByPriorities(boards[i].id, priorities)
+                }
+                currFilter = allFilters
+            }
+        } else {
+            runBlocking {
+                currFilter = ItemService.filterByPriorities(boards[currentBoardIdx].id, priorities)
+            }
         }
 
         //notify all observer only if we're not notifying just the mutators
@@ -177,8 +195,19 @@ class Model {
     }
 
     fun filterByDates(dates:Pair<LocalDate,LocalDate?>, notify:Boolean = true) {
-        runBlocking {
-            currFilter = ItemService.filterByDates(boards[currentBoardIdx].id, dates.first.atStartOfDay(), dates.second?.atStartOfDay())
+        if (currentBoardIdx == 0) {
+            runBlocking {
+                var allFilters = mutableSetOf<Item>()
+                for (i in 1 until boards.size) {
+                    allFilters += ItemService.filterByDates(boards[i].id, dates.first.atStartOfDay(), dates.second?.atStartOfDay())
+                }
+                val sortedAllFilters = allFilters.sortedBy { it.dueDate }
+                currFilter = sortedAllFilters.toMutableSet()
+            }
+        } else {
+            runBlocking {
+                currFilter = ItemService.filterByDates(boards[currentBoardIdx].id, dates.first.atStartOfDay(), dates.second?.atStartOfDay())
+            }
         }
 
         //notify all observer only if we're not notifying just the mutators
@@ -189,8 +218,34 @@ class Model {
     }
 
     fun sortItems(sortBy:String, orderBy:String, notify:Boolean = true){
-        runBlocking {
-            currSort = ItemService.sort(getCurrentBoard().id, sortBy, orderBy)
+        if (currentBoardIdx == 0) {
+            runBlocking {
+                var allSorted = mutableSetOf<Item>()
+                for (i in 1 until boards.size) {
+                    allSorted += ItemService.sort(boards[i].id, sortBy, orderBy)
+                }
+
+                var mergedSorted = allSorted
+                if (sortBy == "priority") {
+                    mergedSorted = if (orderBy == "DESC") {
+                        allSorted.sortedByDescending { it.priority }.toMutableSet()
+                    } else {
+                        allSorted.sortedBy { it.priority }.toMutableSet()
+                    }
+                } else if (sortBy == "dueDate") {
+                    mergedSorted = if (orderBy == "DESC") {
+                        allSorted.sortedByDescending { it.dueDate }.toMutableSet()
+                    } else {
+                        allSorted.sortedBy { it.dueDate }.toMutableSet()
+                    }
+                }
+                currSort = mergedSorted
+            }
+        } else {
+            print("$sortBy, $orderBy")
+            runBlocking {
+                currSort = ItemService.sort(getCurrentBoard().id, sortBy, orderBy)
+            }
         }
 
         //notify all observer only if we're not notifying just the mutators
@@ -201,8 +256,18 @@ class Model {
     }
 
     fun searchItems(searchString:String, notify:Boolean = true){
-        runBlocking {
-            currSearch = ItemService.search(getCurrentBoard().id, searchString)
+        if (currentBoardIdx == 0) {
+            runBlocking {
+                var allSorted = mutableSetOf<Item>()
+                for (i in 1 until boards.size) {
+                    allSorted += ItemService.search(boards[i].id, searchString)
+                }
+                currSearch = allSorted
+            }
+        } else {
+            runBlocking {
+                currSearch = ItemService.search(getCurrentBoard().id, searchString)
+            }
         }
 
         //notify all observer only if we're not notifying just the mutators

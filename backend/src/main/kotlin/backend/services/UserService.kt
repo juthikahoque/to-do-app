@@ -21,7 +21,6 @@ object UserService {
 
     fun getAllUsersByEmails(emails: List<String>): List<User> {
         val res = mutableListOf<User>()
-        print("HERE?????")
         for (email in emails) {
             try {
                 res.add(getUserByEmail(email))
@@ -30,7 +29,6 @@ object UserService {
                 println(ex.message)
             }
         }
-        print("printing result: $res")
         return res
     }
 
