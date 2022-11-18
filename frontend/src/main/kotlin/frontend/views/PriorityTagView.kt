@@ -6,7 +6,7 @@ import javafx.scene.control.*
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 
-class PriorityTagView(priorityLevel: Int): HBox() {
+class PriorityTagView(priorityLevel: Int, showColor: Boolean=true): HBox() {
     fun getColor(priorityLevel: Int): Color {
         return when (priorityLevel) {
             0 -> Color.web("#2af7a5")
@@ -28,7 +28,11 @@ class PriorityTagView(priorityLevel: Int): HBox() {
         label.prefWidth = 50.0
         label.alignment = Pos.CENTER
 
-        val backgroundColor = getColor(priorityLevel)
+        val backgroundColor = if (showColor) {
+            getColor(priorityLevel)
+        } else {
+            getColor(-1)
+        }
 
         label.background = Background(BackgroundFill(backgroundColor, CornerRadii(5.0), Insets(0.0)))
         children.add(label)

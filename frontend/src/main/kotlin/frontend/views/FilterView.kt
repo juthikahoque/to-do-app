@@ -65,7 +65,7 @@ class FilterView(private val model: Model):VBox(), IView{
 
     private val selectedPriorites = mutableSetOf<Int>()
     private val priorityGroup = HBox().apply{
-        val priorityView = PriorityTagView(0)
+        val priorityView = PriorityTagView(0, true)
         val labels = listOf("Low", "Medium", "High")
         for((index, label) in labels.withIndex()){
             val toggle = ToggleButton(label).apply{

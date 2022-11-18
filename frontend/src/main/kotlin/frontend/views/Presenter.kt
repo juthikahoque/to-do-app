@@ -36,6 +36,15 @@ class Presenter(private val model: Model): StackPane(), IView {
 
             children.add(applicationStackPane)
             addUserModalView.requestFocus()
+        } else if (model.showEditItemModal) {
+            val editItemModal = EditItemModalView(model, model.itemToEdit!!)
+            val editItemBorderPane = BorderPane()
+            editItemBorderPane.background = Background(BackgroundFill(Color.rgb(50, 50, 50, 0.8), CornerRadii(0.9), Insets(0.0)))
+            editItemBorderPane.center = editItemModal
+            applicationStackPane.children.addAll(applicationContainer, editItemBorderPane)
+
+            children.add(applicationStackPane)
+            editItemModal.requestFocus()
         } else {
             applicationStackPane.children.add(applicationContainer)
 

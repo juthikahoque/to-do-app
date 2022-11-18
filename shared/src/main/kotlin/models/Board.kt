@@ -6,7 +6,7 @@ import java.util.*
 
 @Serializable
 data class Board(
-    val name: String = "",
+    var name: String = "",
     val users: MutableSet<String> = mutableSetOf(),
     val labels: MutableSet<Label> = mutableSetOf(),
     val updated_at: @Serializable(with = DateTimeSerializer::class) LocalDateTime = LocalDateTime.now(),
