@@ -12,7 +12,7 @@ lateinit var app: Main
 
 class Main : Application() {
 
-    private lateinit var stage: Stage
+    lateinit var stage: Stage
 
     private lateinit var windowPreferences: WindowPreferences
 

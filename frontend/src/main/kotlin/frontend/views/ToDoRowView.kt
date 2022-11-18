@@ -12,7 +12,7 @@ import models.Item
 import java.time.format.DateTimeFormatter
 
 class ToDoRowView(val item: Item, model: Model): VBox() {
-    private val completedCheckBox = CheckBox().apply {
+    val completedCheckBox = CheckBox().apply {
         isSelected = item.done
         setOnAction {
             model.updateItem(item.copy(done = isSelected))

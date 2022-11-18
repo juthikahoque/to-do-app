@@ -14,7 +14,7 @@ import models.Item
 import java.time.LocalDate
 import java.util.*
 
-class Model: CoroutineScope {
+class Model : CoroutineScope {
     private val searchFilterSort: ArrayList<IView> = ArrayList()
     private val views: ArrayList<IView> = ArrayList()
     private var boards: List<Board>
@@ -27,9 +27,9 @@ class Model: CoroutineScope {
     // on all the items in individual sets. This allows us to display and add notes with
     // all the settings applied at the same time.
 
-    private var currFilter:Set<Item> //result of current filter setting
-    private var currSort:Set<Item> //result of current sort setting
-    private var currSearch:Set<Item> //result of current search string
+    private var currFilter: List<Item> //result of current filter setting
+    private var currSort: List<Item> //result of current sort setting
+    private var currSearch: List<Item> //result of current search string
 
     var showCreateBoard = false
     var showAddUsersModalView = false
@@ -50,9 +50,9 @@ class Model: CoroutineScope {
         }
 
         currItems = getItems(getCurrentBoard().id).toMutableList()
-        currFilter = currItems.toMutableSet()
-        currSearch = currItems.toMutableSet()
-        currSort = currItems.toMutableSet()
+        currFilter = currItems
+        currSearch = currItems
+        currSort = currItems
         applicationState = ApplicationState.Ready
     }
 
@@ -69,12 +69,12 @@ class Model: CoroutineScope {
 
     // Since sort/filter/search mutate the notes to be displayed,
     // we may need to notify them before notifying the other observers
-    fun addSearchFilterSort(view:IView){
+    fun addSearchFilterSort(view: IView) {
         searchFilterSort.add(view)
     }
 
-    private fun notifySearchFilterSort(){
-        for(view in searchFilterSort){
+    private fun notifySearchFilterSort() {
+        for (view in searchFilterSort) {
             view.updateView()
         }
     }
@@ -95,7 +95,7 @@ class Model: CoroutineScope {
         if (idx != currentBoardIdx) {
             currentBoardIdx = idx
             applicationState = ApplicationState.Loading
-            currItems = getItems(boards[currentBoardIdx].id)
+            currItems = getItems(boards[currentBoardIdx].id).toMutableList()
             applicationState = ApplicationState.Ready
             notifyObservers()
         }
@@ -108,7 +108,7 @@ class Model: CoroutineScope {
         return boards
     }
 
-    fun addBoard(board: Board){
+    fun addBoard(board: Board) {
         runBlocking {
             BoardService.addBoard(board)
         }
@@ -117,7 +117,7 @@ class Model: CoroutineScope {
     }
 
     private fun getItems(boardId: UUID): MutableList<Item> {
-        var allItems = mutableListOf<Item>()
+        val allItems = mutableListOf<Item>()
         if (currentBoardIdx == 0) {
             runBlocking {
                 for (i in 1 until boards.size) {
@@ -132,7 +132,7 @@ class Model: CoroutineScope {
         return allItems
     }
 
-    fun getCurrentItems():List<Item>{
+    fun getCurrentItems(): List<Item> {
         return currItems
     }
 
@@ -147,11 +147,11 @@ class Model: CoroutineScope {
         }
     }
 
-    fun setCreateBoardMenu(toOpen:Boolean) {
+    fun setCreateBoardMenu(toOpen: Boolean) {
         showCreateBoard = toOpen
         notifyObservers()
     }
-    
+
     fun setShowAddUserModal(toOpen: Boolean) {
         showAddUsersModalView = toOpen
         notifyObservers()
@@ -159,13 +159,13 @@ class Model: CoroutineScope {
 
     //apply all three of search, filter and sort at the same time
     //by taking the intersection of their individual sets
-    private fun applySearchFilterSort(){
-        val filterAndSort= currSort.intersect(currFilter)
-        val searchSortAndFilter = filterAndSort.intersect(currSearch)
+    private fun applySearchFilterSort() {
+        val filterAndSort = currSort.intersect(currFilter.toSet())
+        val searchSortAndFilter = filterAndSort.intersect(currSearch.toSet())
         currItems = searchSortAndFilter.toMutableList()
     }
 
-    fun changeItemOrder(from:Int, to:Int){
+    fun changeItemOrder(from: Int, to: Int) {
         runBlocking {
             currSort = ItemService.orderItem(boards[currentBoardIdx].id, from, to)
             applySearchFilterSort()
@@ -173,10 +173,10 @@ class Model: CoroutineScope {
         }
     }
 
-    fun filterByPriorities(priorities: MutableSet<Int>, notify:Boolean = true) {
+    fun filterByPriorities(priorities: MutableSet<Int>, notify: Boolean = true) {
         if (currentBoardIdx == 0) {
             runBlocking {
-                var allFilters = mutableSetOf<Item>()
+                val allFilters = mutableListOf<Item>()
                 for (i in 1 until boards.size) {
                     allFilters += ItemService.filterByPriorities(boards[i].id, priorities)
                 }
@@ -189,56 +189,68 @@ class Model: CoroutineScope {
         }
 
         //notify all observer only if we're not notifying just the mutators
-        if(notify) {
+        if (notify) {
             applySearchFilterSort()
             notifyObservers()
         }
     }
 
-    fun filterByDates(dates:Pair<LocalDate,LocalDate?>, notify:Boolean = true) {
+    fun filterByDates(dates: Pair<LocalDate, LocalDate?>, notify: Boolean = true) {
         if (currentBoardIdx == 0) {
             runBlocking {
-                var allFilters = mutableSetOf<Item>()
+                val allFilters = mutableSetOf<Item>()
                 for (i in 1 until boards.size) {
-                    allFilters += ItemService.filterByDates(boards[i].id, dates.first.atStartOfDay(), dates.second?.atStartOfDay())
+                    allFilters += ItemService.filterByDates(
+                        boards[i].id,
+                        dates.first.atStartOfDay(),
+                        dates.second?.atStartOfDay()
+                    )
                 }
-                val sortedAllFilters = allFilters.sortedBy { it.dueDate }
-                currFilter = sortedAllFilters.toMutableSet()
+                currFilter = allFilters.sortedBy { it.dueDate }
             }
         } else {
             runBlocking {
-                currFilter = ItemService.filterByDates(boards[currentBoardIdx].id, dates.first.atStartOfDay(), dates.second?.atStartOfDay())
+                currFilter = ItemService.filterByDates(
+                    boards[currentBoardIdx].id,
+                    dates.first.atStartOfDay(),
+                    dates.second?.atStartOfDay()
+                )
             }
         }
 
         //notify all observer only if we're not notifying just the mutators
-        if(notify) {
+        if (notify) {
             applySearchFilterSort()
             notifyObservers()
         }
     }
 
-    fun sortItems(sortBy:String, orderBy:String, notify:Boolean = true){
+    fun sortItems(sortBy: String, orderBy: String, notify: Boolean = true) {
         if (currentBoardIdx == 0) {
             runBlocking {
-                var allSorted = mutableSetOf<Item>()
+                val allSorted = mutableListOf<Item>()
                 for (i in 1 until boards.size) {
                     allSorted += ItemService.sort(boards[i].id, sortBy, orderBy)
                 }
 
-                var mergedSorted = allSorted
-                if (sortBy == "priority") {
-                    mergedSorted = if (orderBy == "DESC") {
-                        allSorted.sortedByDescending { it.priority }.toMutableSet()
-                    } else {
-                        allSorted.sortedBy { it.priority }.toMutableSet()
+                val mergedSorted = when (sortBy) {
+                    "priority" -> {
+                        if (orderBy == "DESC") {
+                            allSorted.sortedByDescending { it.priority }
+                        } else {
+                            allSorted.sortedBy { it.priority }
+                        }
                     }
-                } else if (sortBy == "dueDate") {
-                    mergedSorted = if (orderBy == "DESC") {
-                        allSorted.sortedByDescending { it.dueDate }.toMutableSet()
-                    } else {
-                        allSorted.sortedBy { it.dueDate }.toMutableSet()
+
+                    "dueDate" -> {
+                        if (orderBy == "DESC") {
+                            allSorted.sortedByDescending { it.dueDate }
+                        } else {
+                            allSorted.sortedBy { it.dueDate }
+                        }
                     }
+
+                    else -> allSorted
                 }
                 currSort = mergedSorted
             }
@@ -250,16 +262,20 @@ class Model: CoroutineScope {
         }
 
         //notify all observer only if we're not notifying just the mutators
-        if(notify) {
+        if (notify) {
             applySearchFilterSort()
             notifyObservers()
         }
     }
 
-    fun searchItems(searchString:String, notify:Boolean = true){
+    fun customOrderEnabled(): Boolean {
+        return (getCurrentBoard().name != "All" && currItems == getItems(getCurrentBoard().id))
+    }
+
+    fun searchItems(searchString: String, notify: Boolean = true) {
         if (currentBoardIdx == 0) {
             runBlocking {
-                var allSorted = mutableSetOf<Item>()
+                val allSorted = mutableListOf<Item>()
                 for (i in 1 until boards.size) {
                     allSorted += ItemService.search(boards[i].id, searchString)
                 }
@@ -272,13 +288,13 @@ class Model: CoroutineScope {
         }
 
         //notify all observer only if we're not notifying just the mutators
-        if(notify) {
-           applySearchFilterSort()
-           notifyObservers()
-       }
+        if (notify) {
+            applySearchFilterSort()
+            notifyObservers()
+        }
     }
 
-    fun logout(){
+    fun logout() {
         AuthService.logout()
         app.changeScene("login")
     }
@@ -295,6 +311,14 @@ class Model: CoroutineScope {
         runBlocking {
             ItemService.deleteItem(item.boardId, item.id)
             currItems = getItems(getCurrentBoard().id).toMutableList()
+            notifyObservers()
+        }
+    }
+
+    fun resetSort() {
+        runBlocking {
+            currItems = getItems(getCurrentBoard().id).toMutableList()
+            currSort = currItems
             notifyObservers()
         }
     }

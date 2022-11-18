@@ -35,29 +35,37 @@ class AddUsersModalView(private val model: Model): BorderPane() {
     private val nameInput = TextField().apply {
         promptText = "User Email..."
         prefWidth = 200.0
+
+        setOnAction {
+            addUser()
+        }
+    }
+
+    private fun addUser() {
+        lateinit var users: List<User>
+        runBlocking {
+            users = UserService.getUserByEmail(nameInput.text)
+        }
+
+        if (users.isEmpty()) {
+            errorMessage.text = "An invalid email was provided."
+        } else if (model.getCurrentBoard().users.contains(users[0].userId)) {
+            errorMessage.text = "This user already has access to this board."
+        } else if (listOfUsers.contains(users[0])) {
+            errorMessage.text = "This user is already set to be added."
+        }  else {
+            errorMessage.text = ""
+            listOfUsers.add(users[0])
+        }
+
+        updateView()
     }
 
     private val addButton = Button("Add").apply {
         setDisabled(nameInput.text.isEmpty())
         prefWidth = 60.0
-        setOnMouseClicked {
-            lateinit var users: List<User>
-            runBlocking {
-                users = UserService.getUserByEmail(nameInput.text)
-            }
-
-            if (users.isEmpty()) {
-                errorMessage.text = "An invalid email was provided."
-            } else if (model.getCurrentBoard().users.contains(users[0].userId)) {
-                errorMessage.text = "This user already has access to this board."
-            } else if (listOfUsers.contains(users[0])) {
-                errorMessage.text = "This user is already set to be added."
-            }  else {
-                errorMessage.text = ""
-                listOfUsers.add(users[0])
-            }
-
-            updateView()
+        setOnAction {
+            addUser()
         }
     }
 
@@ -70,8 +78,8 @@ class AddUsersModalView(private val model: Model): BorderPane() {
 
     private val confirmButton = Button("Confirm").apply{
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
-        setOnMouseClicked {
 
+        setOnAction {
             for (user in listOfUsers) {
                 model.getCurrentBoard().users.add(user.userId)
             }
@@ -86,7 +94,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
 
     private val cancelButton = Button("Cancel").apply{
         background = Background(BackgroundFill(Color.INDIANRED, CornerRadii(2.5), null))
-        setOnMouseClicked {
+        setOnAction {
             model.setShowAddUserModal(false)
         }
     }
@@ -96,14 +104,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
     }
 
     private fun updateView() {
-        addAndListUsersVbox.children.clear()
-        addAndListUsersVbox.children.add(nameInputHbox)
-        addAndListUsersVbox.children.add(errorMessage)
-        addAndListUsersVbox.children.add(usersToAddLabel)
-        for (user in listOfUsers) {
-            addAndListUsersVbox.children.add(Label(user.name))
-        }
-        center = addAndListUsersVbox
+
     }
 
     init {
@@ -111,7 +112,16 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         maxWidth = 300.0
         maxHeight = 300.0
         background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+
+        addAndListUsersVbox.children.clear()
+        addAndListUsersVbox.children.add(nameInputHbox)
+        addAndListUsersVbox.children.add(errorMessage)
+        addAndListUsersVbox.children.add(usersToAddLabel)
+        for (user in listOfUsers) {
+            addAndListUsersVbox.children.add(Label(user.name))
+        }
         top = header
+        center = addAndListUsersVbox
         bottom = buttons
         updateView()
     }

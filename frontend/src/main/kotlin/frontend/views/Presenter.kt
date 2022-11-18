@@ -24,17 +24,23 @@ class Presenter(private val model: Model): StackPane(), IView {
             createBoardBorderPane.background = Background(BackgroundFill(Color.rgb(50, 50, 50, 0.8), CornerRadii(0.9), Insets(0.0)))
             createBoardBorderPane.center = createBoardView
             applicationStackPane.children.addAll(applicationContainer, createBoardBorderPane)
+
+            children.add(applicationStackPane)
+            createBoardView.requestFocus()
         } else if (model.showAddUsersModalView) {
             val addUserModalView = AddUsersModalView(model)
             val addUserBorderPane = BorderPane()
             addUserBorderPane.background = Background(BackgroundFill(Color.rgb(50, 50, 50, 0.8), CornerRadii(0.9), Insets(0.0)))
             addUserBorderPane.center = addUserModalView
             applicationStackPane.children.addAll(applicationContainer, addUserBorderPane)
+
+            children.add(applicationStackPane)
+            addUserModalView.requestFocus()
         } else {
             applicationStackPane.children.add(applicationContainer)
-        }
 
-        children.add(applicationStackPane)
+            children.add(applicationStackPane)
+        }
     }
 
     init {

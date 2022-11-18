@@ -60,17 +60,18 @@ class SortView(private val model: Model):VBox(), IView{
         prefWidth = 125.0
         setOnAction {
             showOptions(isSelected)
-            background = if(isSelected){
+            background = if(isSelected) {
                 Background(BackgroundFill(Color.DARKGRAY, CornerRadii(5.0), Insets(0.0)))
             }
             else{
+                model.resetSort()
                 Background(BackgroundFill(Color.LIGHTGRAY, CornerRadii(5.0), Insets(0.0)))
             }
         }
     }
 
     private fun showOptions(show:Boolean){
-        if(show) children.add(options) else children.remove(options)
+        if (show) children.add(options) else children.remove(options)
     }
 
     override fun updateView() {
@@ -80,5 +81,4 @@ class SortView(private val model: Model):VBox(), IView{
         spacing = 5.0
         children.addAll(sortButton)
     }
-
 }
