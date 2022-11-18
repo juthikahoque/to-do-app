@@ -24,26 +24,37 @@ class CreateToDoRowView(private val model: Model) : HBox(), IView {
     private val labelsComboBox = ComboBox<String>()
     private val assignedToComboBox = ComboBox<String>()
     private val createButton = Button("Create")
-    private val gridPane = GridPane()
+
+    var labelList = model.getCurrentBoard().labels
 
     override fun updateView() {
         isVisible = !model.showCreateBoard
         datePicker.value = LocalDate.now()
         priorityChoiceBox.selectionModel.selectFirst()
+
+        labelsComboBox.items.clear()
+        labelList = model.getCurrentBoard().labels
+        for(labels in labelList){
+            labelsComboBox.items.add(labels.value)
+        }
     }
 
     private fun createTodo() {
         val title = titleInput.text
         val date = datePicker.value.atStartOfDay()
         val boardId = model.getCurrentBoard().id
-        //val labels = Label(labelsComboBox.value)
+        val labels = if(labelsComboBox.value != null){
+            mutableSetOf(Label(labelsComboBox.value))
+        } else{
+            mutableSetOf<Label>()
+        }
         val priority = priorityChoiceBox.selectionModel.selectedItem
 
         val todo = Item(
             title,
             date,
             boardId,
-            mutableSetOf<Label>(),
+            labels,
             priority,
         )
         model.addToDoItem(todo)
@@ -69,7 +80,8 @@ class CreateToDoRowView(private val model: Model) : HBox(), IView {
         // combobox for labels
         labelsComboBox.promptText = "Select label(s)"
         labelsComboBox.isEditable = true
-        labelsComboBox.items.add("Label 1")
+        //labelsComboBox.items.add("Label 1")
+        //labelsComboBox.
         /*for (label in model.getCurrentBoard().labels) {
             labelsComboBox.items.add(label.value)
         }*/
@@ -86,19 +98,16 @@ class CreateToDoRowView(private val model: Model) : HBox(), IView {
 
         // handle create button click
         createButton.setOnAction {
+            if(labelsComboBox.value!=  null && labelsComboBox.value.isNotBlank()){
+                val newLabel = Label(labelsComboBox.value)
+                if(!labelList.contains(newLabel)){
+                    labelList.add(newLabel)
+                    model.updateBoard(model.getCurrentBoard().copy(labels = labelList))
+                }
+            }
+
             createTodo()
         }
-
-        gridPane.alignment = Pos.TOP_LEFT
-        gridPane.hgap = 5.0
-
-        gridPane.add(titleInput, 1, 0)
-        gridPane.add(datePicker, 2, 0)
-        gridPane.add(priorityChoiceBox, 3, 0)
-        gridPane.add(labelsComboBox, 4, 0)
-        gridPane.add(assignedToComboBox, 5, 0)
-        gridPane.add(createButton, 6, 0)
-
         //add a spacer to make the UI responsive
         val spacer = Pane().apply {
             setHgrow(this, Priority.ALWAYS)
