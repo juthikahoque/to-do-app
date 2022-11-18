@@ -41,7 +41,9 @@ class Main : Application() {
         val presenter = Presenter(model)
 
         // set the scene
-        val scene = Scene(presenter)
+        val scene = Scene(presenter, 800.0, 600.0)
+        scene.stylesheets.add(Main::class.java.getResource("/css/styles.css").toExternalForm())
+
         stage.scene = scene
 
         for (hotkey in hotkeys) {

@@ -1,0 +1,41 @@
+.button {
+    -fx-background-color: #ADD8E6;
+    -fx-background-radius: 4;
+}
+.text-field {
+    -fx-background-radius: 4;
+}
+.toggle-button {
+    -fx-background-color: #ADD8E6;
+}
+
+.list-cell:even {
+    -fx-background-color: #f7f7f7;
+}
+.list-cell:odd {
+    -fx-background-color: #f7f7f7;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: #ADD8E6;
+}
+
+.list-cell:filled:hover .label {
+    -fx-text-fill: white;
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: #ADD8E6;
+}
+
+.list-cell:filled:selected .label {
+    -fx-text-fill: black;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #ADD8E6;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
