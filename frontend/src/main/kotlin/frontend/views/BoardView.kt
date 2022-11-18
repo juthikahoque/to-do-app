@@ -128,12 +128,12 @@ class BoardView(private val model: Model) : VBox(), IView {
         padding = Insets(10.0)
         model.addView(this)
 
-        app.addHotkey(KeyCodeCombination(KeyCode.I, KeyCombination.CONTROL_DOWN)) {
+        app.addHotkey(KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN)) {
             noteList.requestFocus()
             noteList.selectionModel.select(0)
         }
 
-        app.addHotkey(KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN)) {
+        app.addHotkey(KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN)) {
             if (noteList.isFocused) {
                 val item = noteList.focusModel.focusedItem.item
                 selectIdx = noteList.focusModel.focusedIndex
@@ -149,13 +149,13 @@ class BoardView(private val model: Model) : VBox(), IView {
             }
         }
 
-        app.addHotkey(KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN)) {
+        app.addHotkey(KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN)) {
             if (noteList.isFocused) {
                 copiedItem = noteList.selectionModel.selectedItem.item.copy()
             }
         }
 
-        app.addHotkey(KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN)) {
+        app.addHotkey(KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN)) {
             val item = copiedItem
             if (noteList.isFocused && item != null) {
                 model.addToDoItem(item.copy(
