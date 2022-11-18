@@ -6,6 +6,7 @@ import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import models.Item
@@ -26,10 +27,18 @@ class ToDoRowView(val item: Item, model: Model): VBox() {
         val formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy")
         text = item.dueDate?.format(formatter)
     }
-    private val tagLabel = Label().apply {
-        // TODO: right now only handling one label
-        text = if (item.labels.size == 0) "" else item.labels.first().value
+    private val labelVal = if (item.labels.size == 0) "" else item.labels.first().value
+
+    val tags = if(labelVal != ""){
+        VBox(PriorityTagView(item.priority), LabelView(labelVal)).apply {
+            spacing = 5.0
+        }
+    } else{
+        VBox(PriorityTagView(item.priority), Label()).apply {
+            translateY = 5.0
+        }
     }
+
     private val assignedToLabel = Label("Me")
 
 
@@ -39,9 +48,8 @@ class ToDoRowView(val item: Item, model: Model): VBox() {
         add(completedCheckBox, 1, 0)
         add(titleLabel, 2, 0)
         add(dueDateLabel, 3, 0)
-        add(PriorityTagView(item.priority), 4, 0)
-        add(tagLabel, 5, 0)
-        add(assignedToLabel, 6, 0)
+        add(tags, 4, 0)
+        add(assignedToLabel, 5, 0)
 
         val alwaysGrow = ColumnConstraints().apply {
             hgrow = Priority.ALWAYS

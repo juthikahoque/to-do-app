@@ -41,17 +41,29 @@ class FilterView(private val model: Model):VBox(), IView{
         children.addAll(from, toLabel, to)
     }
 
+    private val selectedLabels = mutableSetOf<models.Label>()
     private val labelFilter = HBox().apply {
         //TODO: Get real labels
-        val labels = listOf("Label1", "Label2", "Label3")
-        for (label in labels) {
-            children.add(ToggleButton(label))
+        for (label in model.getCurrentBoard().labels) {
+            children.add(ToggleButton(label.value).apply{
+                background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+                setOnAction {
+                    if(isSelected){
+                        background = Background(BackgroundFill(Color.LIGHTBLUE, CornerRadii(5.0), Insets(0.0)))
+                        selectedLabels.add(label)
+                    }
+                    else{
+                        background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+                        if(selectedLabels.contains(label)) { selectedLabels.remove(label) }
+                    }
+                    model.filterByLabels(selectedLabels)
+                }
+            })
         }
         spacing = 10.0
     }
 
     private val selectedPriorites = mutableSetOf<Int>()
-
     private val priorityGroup = HBox().apply{
         val priorityView = PriorityTagView(0)
         val labels = listOf("Low", "Medium", "High")
@@ -141,6 +153,30 @@ class FilterView(private val model: Model):VBox(), IView{
     }
 
     override fun updateView(){
+        //show any new labels
+        labelFilter.children.clear()
+        for (label in model.getCurrentBoard().labels) {
+            labelFilter.children.add(ToggleButton(label.value).apply{
+                isSelected = selectedLabels.contains(label)
+                background = if(isSelected) {
+                    Background(BackgroundFill(Color.LIGHTBLUE, CornerRadii(5.0), Insets(0.0)))
+                }else{
+                    Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+                }
+                setOnAction {
+                    if(isSelected){
+                        background = Background(BackgroundFill(Color.LIGHTBLUE, CornerRadii(5.0), Insets(0.0)))
+                        selectedLabels.add(label)
+                    }
+                    else{
+                        background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+                        if(selectedLabels.contains(label)) { selectedLabels.remove(label) }
+                    }
+                    model.filterByLabels(selectedLabels)
+                }
+            })
+        }
+
         //filtering by priority
         if(filterOptions.children.contains(priorityGroup)) {
             model.filterByPriorities(selectedPriorites, false)
@@ -150,7 +186,12 @@ class FilterView(private val model: Model):VBox(), IView{
         else if(filterOptions.children.contains(dateFilter)){
             model.filterByDates(selectedDates, false)
         }
-        //default case, set filtered set as all current itemss
+
+        else if(filterOptions.children.contains(labelFilter)){
+            model.filterByLabels(selectedLabels, false)
+        }
+
+        //default case, set filtered set as all current items
         else{
             model.filterByPriorities(emptySet<Int>().toMutableSet(), false)
         }

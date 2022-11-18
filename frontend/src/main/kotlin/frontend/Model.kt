@@ -11,6 +11,7 @@ import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.runBlocking
 import models.Board
 import models.Item
+import models.Label
 import java.time.LocalDate
 import java.util.*
 
@@ -91,12 +92,20 @@ class Model : CoroutineScope {
         return AuthService.user?.displayName
     }
 
+    fun updateBoard( newBoard: Board){
+        runBlocking {
+            BoardService.updateBoard(newBoard)
+        }
+
+    }
+
     fun updateCurrentBoard(idx: Int) {
         if (idx != currentBoardIdx) {
             currentBoardIdx = idx
             applicationState = ApplicationState.Loading
             currItems = getItems(boards[currentBoardIdx].id).toMutableList()
             applicationState = ApplicationState.Ready
+            notifySearchFilterSort()
             notifyObservers()
         }
     }
@@ -185,6 +194,28 @@ class Model : CoroutineScope {
         } else {
             runBlocking {
                 currFilter = ItemService.filterByPriorities(boards[currentBoardIdx].id, priorities)
+            }
+        }
+
+        //notify all observer only if we're not notifying just the mutators
+        if (notify) {
+            applySearchFilterSort()
+            notifyObservers()
+        }
+    }
+
+    fun filterByLabels(labels: MutableSet<Label>, notify: Boolean = true) {
+        if (currentBoardIdx == 0) {
+            runBlocking {
+                val allFilters = mutableListOf<Item>()
+                for (i in 1 until boards.size) {
+                    allFilters += ItemService.filterByLabels(boards[i].id, labels)
+                }
+                currFilter = allFilters
+            }
+        } else {
+            runBlocking {
+                currFilter = ItemService.filterByLabels(boards[currentBoardIdx].id, labels)
             }
         }
 
