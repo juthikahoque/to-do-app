@@ -11,6 +11,7 @@ import frontend.utils.ApplicationState
 import javafx.collections.FXCollections
 import javafx.scene.control.ListView
 import javafx.scene.paint.Color
+import models.Item
 
 class BoardView(private val model: Model): VBox(), IView {
 
@@ -42,38 +43,37 @@ class BoardView(private val model: Model): VBox(), IView {
         children.addAll(createToDoHeader, createToDoRowView, myToDosHeader)
         noteList.items.clear()
 
-        val allNotes = model.getItems(model.getCurrentBoard().id)
-
         if (model.getApplicationState() == ApplicationState.Ready) {
-            for (item in model.getCurrentItems()) {
-                val index = allNotes.indexOf(item)
+            model.getCurrentItems().forEachIndexed { index, item ->
                 noteList.items.add(ToDoRowView(item).apply{
-                    setOnDragDetected {
-                        startFullDrag()
-                        dragFromIndex = index
-                    }
+                    if (model.getCurrentBoard().name != "All") {
+                        setOnDragDetected {
+                            startFullDrag()
+                            dragFromIndex = index
+                        }
 
-                    setOnMouseDragOver {
-                        if(index != dragFromIndex){
-                            item.apply {
-                                border = Border(BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))
+                        setOnMouseDragOver {
+                            if(index != dragFromIndex){
+                                item.apply {
+                                    border = Border(BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))
+                                }
+                                dragToIndex = index
                             }
-                            dragToIndex = index
                         }
-                    }
 
-                    setOnMouseDragExited {
-                        dragToIndex = -1
-                        item.apply{
-                            border = Border(BorderStroke(Color.TRANSPARENT, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))
-                        }
-                    }
-
-                    setOnMouseDragReleased {
-                        if(dragToIndex != -1){
-                            model.changeItemOrder(dragFromIndex, dragToIndex)
-                            dragFromIndex = -1
+                        setOnMouseDragExited {
                             dragToIndex = -1
+                            item.apply{
+                                border = Border(BorderStroke(Color.TRANSPARENT, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))
+                            }
+                        }
+
+                        setOnMouseDragReleased {
+                            if(dragToIndex != -1){
+                                model.changeItemOrder(dragFromIndex, dragToIndex)
+                                dragFromIndex = -1
+                                dragToIndex = -1
+                            }
                         }
                     }
                 })
