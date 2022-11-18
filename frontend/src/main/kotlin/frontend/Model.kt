@@ -34,6 +34,8 @@ class Model : CoroutineScope {
 
     var showCreateBoard = false
     var showAddUsersModalView = false
+    var showEditItemModal = false
+    var itemToEdit: Item? = null
 
     init {
         runBlocking {
@@ -165,6 +167,13 @@ class Model : CoroutineScope {
         showAddUsersModalView = toOpen
         notifyObservers()
     }
+
+    fun setShowEditItemModal(toOpen: Boolean, item: Item?) {
+        showEditItemModal = toOpen
+        itemToEdit = item
+        notifyObservers()
+    }
+
 
     //apply all three of search, filter and sort at the same time
     //by taking the intersection of their individual sets
@@ -353,6 +362,7 @@ class Model : CoroutineScope {
             notifyObservers()
         }
     }
+
 
     override val coroutineContext = Dispatchers.JavaFx
 }

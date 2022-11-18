@@ -48,6 +48,7 @@ class ToDoRowView(val item: Item, model: Model): VBox() {
         add(completedCheckBox, 1, 0)
         add(titleLabel, 2, 0)
         add(dueDateLabel, 3, 0)
+        //add(PriorityTagView(item.priority, true), 4, 0)
         add(tags, 4, 0)
         add(assignedToLabel, 5, 0)
 
@@ -73,5 +74,8 @@ class ToDoRowView(val item: Item, model: Model): VBox() {
     init {
         padding = Insets(5.0, 0.0, 5.0, 0.0)
         children.add(gridPane)
+        setOnMouseClicked {
+            model.setShowEditItemModal(true, item)
+        }
     }
 }

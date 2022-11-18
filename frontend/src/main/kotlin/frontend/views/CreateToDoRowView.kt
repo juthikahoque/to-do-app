@@ -28,7 +28,6 @@ class CreateToDoRowView(private val model: Model) : HBox(), IView {
     var labelList = model.getCurrentBoard().labels
 
     override fun updateView() {
-        isVisible = !model.showCreateBoard
         datePicker.value = LocalDate.now()
         priorityChoiceBox.selectionModel.selectFirst()
 
