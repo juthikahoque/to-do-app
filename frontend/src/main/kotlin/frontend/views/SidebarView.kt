@@ -3,6 +3,7 @@ package frontend.views
 import frontend.Model
 import frontend.app
 import frontend.services.AuthService
+import frontend.services.BoardService
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
@@ -19,6 +20,7 @@ import javafx.scene.text.Font
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.javafx.JavaFx
+import kotlinx.coroutines.launch
 import models.Board
 import kotlin.coroutines.CoroutineContext
 
@@ -30,6 +32,10 @@ import kotlin.coroutines.CoroutineContext
  */
 class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
+
+    private var dragFromIndex = -1
+    private var dragToIndex = -1
+    private var selectIdx = 0
 
     private val username = HBox(Label().apply {
         text = AuthService.user?.displayName
@@ -97,8 +103,71 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
 
                     button.prefWidthProperty().bind(widthProperty())
 
-                    padding = Insets(1.0)
+                    padding = if (dragFromIndex != -1 && isSelected) {
+                        Insets(1.0, 1.0, 1.0, 15.0)
+                    } else {
+                        Insets(1.0)
+                    }
+
+                    setOnDragDetected {
+                        if (item == null || item == model.allBoard) return@setOnDragDetected
+                        val index = items.indexOf(item)
+                        startFullDrag()
+                        dragFromIndex = index
+                        dragToIndex = index
+                    }
+
+                    setOnMouseDragOver {
+                        if (item == null || item == model.allBoard) return@setOnMouseDragOver
+                        val index = items.indexOf(item)
+                        if (index == dragToIndex || dragFromIndex == -1) return@setOnMouseDragOver
+                        // move all item between dragToIndex and index
+                        val old = items[dragToIndex]
+
+                        val dir = if (dragToIndex > index) -1 else 1
+                        while (dragToIndex != index) {
+                            items[dragToIndex] = items[dragToIndex + dir]
+                            dragToIndex += dir
+                        }
+
+                        items[index] = old
+                        dragToIndex = index
+
+                        selectionModel.select(index)
+                    }
                 }
+            }
+        }
+        // re-order on drag release
+        setOnMouseDragReleased {
+            if (dragFromIndex != -1 && dragFromIndex != dragToIndex) {
+                selectIdx = dragToIndex
+                launch {
+                    // due to first item being all board, 2nd item has index 0,
+                    // indexes are 1 higher than they are supposed to be
+                    BoardService.orderBoard(dragFromIndex - 1, dragToIndex - 1)
+                    model.updateBoards()
+                    dragFromIndex = -1
+                }
+            }
+        }
+        // cancel re-ordering if mouse leaves boardList
+        setOnMouseExited {
+            if (dragFromIndex != -1) {
+                if (dragToIndex != dragFromIndex) {
+                    val old = items[dragToIndex]
+                    val dir = if (dragToIndex > dragFromIndex) -1 else 1
+                    while (dragToIndex != dragFromIndex) {
+                        items[dragToIndex] = items[dragToIndex + dir]
+                        dragToIndex += dir
+                    }
+                    items[dragFromIndex] = old
+                    selectionModel.select(dragFromIndex)
+                } else {
+                    refresh()
+                }
+                // reset drag
+                dragFromIndex = -1
             }
         }
     }
