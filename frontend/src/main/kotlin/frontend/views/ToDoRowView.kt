@@ -6,20 +6,19 @@ import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
-import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import models.Item
 import java.time.format.DateTimeFormatter
 
-class ToDoRowView(val item: Item, model: Model): VBox() {
-    val completedCheckBox = CheckBox().apply {
+class ToDoRowView(private val item: Item, model: Model) : VBox() {
+    private val completedCheckBox = CheckBox().apply {
         isSelected = item.done
         setOnAction {
             model.updateItem(item.copy(done = isSelected))
         }
     }
-    private val titleLabel = Label(item.text).apply{
+    private val titleLabel = Label(item.text).apply {
         minWidth = 200.0
         maxWidth = 600.0
     }
@@ -29,11 +28,11 @@ class ToDoRowView(val item: Item, model: Model): VBox() {
     }
     private val labelVal = if (item.labels.size == 0) "" else item.labels.first().value
 
-    val tags = if(labelVal != ""){
+    private val tags = if (labelVal != "") {
         VBox(PriorityTagView(item.priority), LabelView(labelVal)).apply {
             spacing = 5.0
         }
-    } else{
+    } else {
         VBox(PriorityTagView(item.priority), Label()).apply {
             translateY = 5.0
         }
@@ -41,8 +40,7 @@ class ToDoRowView(val item: Item, model: Model): VBox() {
 
     private val assignedToLabel = Label("Me")
 
-
-    private val gridPane =  GridPane().apply {
+    private val gridPane = GridPane().apply {
         hgap = 10.0
         vgap = 5.0
         add(completedCheckBox, 1, 0)
@@ -70,12 +68,11 @@ class ToDoRowView(val item: Item, model: Model): VBox() {
         )
     }
 
-
     init {
         padding = Insets(5.0, 0.0, 5.0, 0.0)
         children.add(gridPane)
         setOnMouseClicked {
-            model.setShowEditItemModal(true, item)
+            model.additionalModalView.set(Presenter.editItem)
         }
     }
 }

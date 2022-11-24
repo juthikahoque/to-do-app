@@ -52,6 +52,8 @@ fun Application.configureErrorHandling() {
                     call.respond(HttpStatusCode.NotFound, cause.message ?: AppError.NotFound)
                 AppError.Unexpected ->
                     call.respond(HttpStatusCode.InternalServerError, cause.message ?: AppError.Unexpected)
+                AppError.BadRequest ->
+                    call.respond(HttpStatusCode.BadRequest, cause.message ?: AppError.BadRequest)
                 else ->
                     call.respond(HttpStatusCode.InternalServerError, cause.message ?: AppError.Unexpected)
             }

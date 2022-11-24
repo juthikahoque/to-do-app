@@ -1,5 +1,6 @@
 package backend.routes
 
+import backend.models.AuthUser
 import backend.services.ItemService
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -18,45 +19,43 @@ fun Route.itemRouting() {
     authenticate {
         route("/board/{bid?}/items") {
             get {
-                val boardId = UUID.fromString(call.parameters["bid"])
+                val user = call.principal<AuthUser>()!!
+                val boardId = call.parameters["bid"]!!
 
                 // for filtering
                 val filterByPriority = call.request.queryParameters.getAll("priority")
+                val priorities = mutableSetOf<Int>()
+                filterByPriority?.forEach { priorities.add(it.toInt()) }
+
                 val filterByLabel = call.request.queryParameters.getAll("label")
+                val labels = mutableSetOf<Label>()
+                filterByLabel?.forEach { labels.add(Label(it)) }
+
                 val filterByDate = call.request.queryParameters.getAll("date")
+                val startDate = if (!filterByDate?.get(0).isNullOrBlank()) LocalDateTime.parse(filterByDate?.get(0)) else null
+                val endDate = if (!filterByDate?.get(1).isNullOrBlank()) LocalDateTime.parse(filterByDate?.get(1)) else null
+
+                // for searching
+                val search = call.request.queryParameters["search"]
 
                 // for sorting
                 val sortBy = call.request.queryParameters["sortBy"]
                 val orderBy = call.request.queryParameters["orderBy"]
 
-                // for searching
-                val search = call.request.queryParameters["search"]
-
-                if (filterByPriority != null) {
-                    val priorities = mutableSetOf<Int>()
-                    filterByPriority.forEach { priorities.add(it.toInt()) }
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.filterByPriority(priorities, boardId, sortBy))
-                } else if (filterByLabel != null) {
-                    val labels = mutableSetOf<Label>()
-                    filterByLabel.forEach { labels.add(Label(it)) }
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.filterByLabel(labels, boardId, sortBy))
-                } else if (filterByDate != null) {
-                    val startDate = LocalDateTime.parse(filterByDate[0])
-                    val endDate = if(filterByDate[1] != "") LocalDateTime.parse(filterByDate[1]) else null
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.filterByDate(startDate, boardId, endDate, sortBy))
-                } else if (sortBy != null) {
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.sortItems(boardId, sortBy, orderBy))
-                } else if (search != null) {
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.searchByText(boardId, search))
-                } else {
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ItemService.getAllItems(boardId))
-                }
+                call.response.status(HttpStatusCode.OK)
+                call.respond(
+                    ItemService.getItems(
+                        if (boardId == "all") "" else boardId,
+                        user.id,
+                        startDate,
+                        endDate,
+                        labels,
+                        priorities,
+                        search,
+                        sortBy,
+                        orderBy
+                    )
+                )
             }
             get("{id}") {
                 val id = UUID.fromString(call.parameters["id"])
@@ -127,10 +126,9 @@ fun Route.itemRouting() {
                 // construct reference to file
                 // ideally this would use a different filename
                 val file = File("data/$id/$filename")
-                if(file.exists()) {
+                if (file.exists()) {
                     call.respondFile(file)
-                }
-                else call.respond(HttpStatusCode.NotFound)
+                } else call.respond(HttpStatusCode.NotFound)
             }
 
             delete("{id}/file/{name}") {

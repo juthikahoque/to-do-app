@@ -18,6 +18,7 @@ object ItemService {
     fun init(httpClient: HttpClient) {
         client = httpClient
     }
+
     suspend fun addItem(bid: UUID, item: Item): Item? {
         val result = client.post("board/${bid}/items") {
             contentType(ContentType.Application.Json)
@@ -26,8 +27,27 @@ object ItemService {
         return result.body()
     }
 
-    suspend fun getItems(bid: UUID): List<Item> {
-        val result = client.get("board/${bid}/items")
+    suspend fun getItems(
+        bid: String,
+        startDate: LocalDateTime? = null,
+        endDate: LocalDateTime? = null,
+        labels: MutableSet<Label> = mutableSetOf(),
+        priorities: MutableSet<Int> = mutableSetOf(),
+        search: String = "",
+        sortBy: String = "",
+        orderBy: String = "",
+    ): MutableList<Item> {
+        val result = client.get("board/${bid}/items") {
+            url {
+                if (startDate != null)  parameters.append("date", startDate.toString())
+                if (endDate != null)    parameters.append("date", endDate.toString())
+                for (p in priorities)   parameters.append("priority", p.toString())
+                for (l in labels)       parameters.append("label", l.value)
+                if (search != "")       parameters.append("search", search)
+                if (sortBy != "")       parameters.append("sortBy", sortBy)
+                if (orderBy != "")      parameters.append("orderBy", orderBy)
+            }
+        }
         return result.body()
     }
 
@@ -56,51 +76,6 @@ object ItemService {
             parameter("from", from)
             parameter("to", to)
         }
-        return result.body()
-    }
-
-    suspend fun filterByDates(bid: UUID, startDate: LocalDateTime, endDate: LocalDateTime? = null): MutableList<Item> {
-        val headers = Parameters.build {
-            append("date", startDate.toString())
-            append("date", endDate?.toString() ?: "")
-        }.formUrlEncode()
-        val result = client.get("board/${bid}/items?${headers}")
-        return result.body()
-    }
-
-    suspend fun filterByLabels(bid: UUID, labels: MutableSet<Label>) : MutableList<Item> {
-        val headers = Parameters.build {
-            for(label in labels) {
-                append("label", label.value)
-            }
-        }.formUrlEncode()
-        val result = client.get("board/${bid}/items?${headers}")
-        return result.body()
-    }
-    suspend fun filterByPriorities(bid: UUID, priorities: MutableSet<Int>) : MutableList<Item> {
-        val headers = Parameters.build {
-            for (priority in priorities) {
-                append("priority", priority.toString())
-            }
-        }.formUrlEncode()
-        val result = client.get("board/${bid}/items?${headers}")
-        return result.body()
-    }
-
-    suspend fun sort(bid: UUID, sortBy:String, orderBy:String): MutableList<Item>{
-        val headers = Parameters.build {
-            append("sortBy", sortBy)
-            append("orderBy", orderBy)
-        }.formUrlEncode()
-        val result = client.get("board/${bid}/items?${headers}")
-        return result.body()
-    }
-
-    suspend fun search(bid:UUID, searchString:String): MutableList<Item> {
-        val headers = Parameters.build {
-            append("search", searchString)
-        }.formUrlEncode()
-        val result = client.get("board/${bid}/items?${headers}")
         return result.body()
     }
 

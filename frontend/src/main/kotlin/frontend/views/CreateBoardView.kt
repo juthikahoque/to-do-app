@@ -33,6 +33,7 @@ class CreateBoardView(private val model: Model): VBox() {
             } else {
                 model.addBoard(Board(nameInput.text, mutableSetOf(AuthService.user!!.localId)))
             }
+            model.additionalModalView.set("")
         }
         isDefaultButton = true
     }
@@ -41,8 +42,9 @@ class CreateBoardView(private val model: Model): VBox() {
         background = Background(BackgroundFill(Color.INDIANRED, CornerRadii(2.5), null))
         setOnAction {
             nameInput.text = ""
-            model.setCreateBoardMenu(false)
+            model.additionalModalView.set("")
         }
+        isCancelButton = true
     }
 
     private val buttons = HBox(createButton, cancelButton).apply{

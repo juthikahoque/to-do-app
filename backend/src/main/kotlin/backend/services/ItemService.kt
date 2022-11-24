@@ -31,7 +31,8 @@ object ItemService {
                 boardId TEXT,
                 ordering INT NOT NULL,
                 FOREIGN KEY(boardId) REFERENCES boards(id));
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         statement.executeUpdate(
             """
@@ -127,13 +128,14 @@ object ItemService {
             }
             return labels
         } catch (ex: SQLException) {
-            appError(ex.message?:"sql get item labels failed")
+            appError(ex.message ?: "sql get item labels failed")
         }
     }
 
     private val getItemAttachment by lazy {
         conn.prepareStatement("""SELECT * FROM items_attachments WHERE itemId = ?""")
     }
+
     private fun getItemAttachments(id: UUID): MutableSet<Attachment> {
         try {
             getItemAttachment.setString(1, id.toString())
@@ -145,7 +147,7 @@ object ItemService {
             }
             return attachments
         } catch (ex: SQLException) {
-            appError(ex.message?:"sql get attachments failed")
+            appError(ex.message ?: "sql get attachments failed")
         }
     }
 
@@ -277,6 +279,7 @@ object ItemService {
     private val addAttachment by lazy {
         conn.prepareStatement("""INSERT INTO items_attachments (itemId, path) VALUES (?, ?)""")
     }
+
     fun addAttachment(itemId: UUID, name: String, data: InputStream) {
         try {
             // save file
@@ -296,13 +299,14 @@ object ItemService {
 
             addAttachment.executeUpdate()
         } catch (ex: SQLException) {
-            appError(ex.message?:"sql add attachments failed")
+            appError(ex.message ?: "sql add attachments failed")
         }
     }
 
     private val deleteAttachment by lazy {
         conn.prepareStatement("""DELETE FROM items_attachments WHERE itemId = ? AND path LIKE ?""")
     }
+
     fun deleteAttachment(itemId: UUID, name: String) {
         try {
             if (name == "%") { // delete all
@@ -316,154 +320,97 @@ object ItemService {
 
             deleteAttachment.executeUpdate() // == 0 if no item exist
         } catch (ex: SQLException) {
-            appError(ex.message?:"sql delete attachment failed")
+            appError(ex.message ?: "sql delete attachment failed")
         }
     }
 
-    fun filterByDate(startDateTime: LocalDateTime, boardId: UUID, endDateTime: LocalDateTime? = null, actualSortBy: String? = "dueDate"): List<Item> {
-        try {
-            val sortBy = actualSortBy ?: "dueDate"
-            val startDate = startDateTime.toLocalDate()
-            val endDate = if(endDateTime != null) endDateTime.toLocalDate() else startDate.plusDays(1)
-
-            if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
-                error("invalid sortBy entry, enter one of: dueDate, priority or label")
-            }
-
-            val getItems = conn.prepareStatement("SELECT * FROM items WHERE dueDate >= ? AND dueDate < ? AND boardId = ? ORDER BY $sortBy ASC")
-
-            getItems.setString(1, startDate.toString())
-            getItems.setString(2, endDate.toString())
-            getItems.setString(3, boardId.toString())
-
-            val res = getItems.executeQuery()
-
-            val itemsList = mutableListOf<Item>()
-            while (res.next()) {
-                itemsList.add(getItemFromRes(res))
-            }
-            res.close()
-            return itemsList
-        } catch (ex: SQLException) {
-            error("filtering by dates not working")
-        }
+    private fun getItemQuery(allBoard: Boolean, query: String, sort: String): PreparedStatement {
+        return if (allBoard)
+            conn.prepareStatement(
+                """
+                SELECT * FROM items 
+                INNER JOIN boards_users ON boards_users.boardId = items.boardId AND userId = ?
+                LEFT JOIN items_labels ON items_labels.itemId = items.id WHERE true
+                $query
+                GROUP BY id ORDER BY $sort
+            """.trimIndent()
+            )
+        else
+            conn.prepareStatement(
+                """
+                SELECT * FROM items
+                LEFT JOIN items_labels ON items_labels.itemId = items.id WHERE boardId = ?
+                $query
+                GROUP BY id ORDER BY $sort
+            """.trimIndent()
+            )
     }
 
-    fun filterByLabel(labels: MutableSet<Label>, boardId: UUID, actualSortBy: String? = "label") : List<Item> {
+    fun getItems(
+        boardId: String,
+        userId: String,
+        startDateTime: LocalDateTime?,
+        endDateTime: LocalDateTime?,
+        labels: MutableSet<Label>,
+        priorities: MutableSet<Int>,
+        search: String?,
+        actualSortBy: String?,
+        actualOrderBy: String?,
+    ): MutableList<Item> {
         try {
-            val sortBy = actualSortBy ?: "label"
-            val itemsList = mutableListOf<Item>()
-            if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
-                error("invalid sortBy entry, enter one of: dueDate, priority or label")
+            // check sort + order errors
+            val sortBy = actualSortBy ?: "ordering"
+            val order = actualOrderBy ?: "ASC"
+            if (sortBy != "dueDate" && sortBy != "priority" && sortBy != "label" && sortBy != "ordering") {
+                appError("invalid sortBy entry, enter one of: dueDate, priority, label, ordering", AppError.BadRequest)
             }
-            if(labels.size > 0) {
-                var sql = """
-                    SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId 
-                    WHERE items.boardId = ? AND (label = ?
-                """.trimIndent()
-
-                for(i in 1 until labels.size) {
-                    sql += "OR label = ?"
-                }
-                sql += ") ORDER BY $sortBy ASC"
-
-                val getItems = conn.prepareStatement(sql)
-                getItems.setString(1, boardId.toString())
-                for(i in labels.indices) {
-                    getItems.setString(i + 2, labels.elementAt(i).value)
-                }
-
-                val res = getItems.executeQuery()
-
-                while (res.next()) {
-                    val curItem = getItemFromRes(res)
-                    if(!itemsList.contains(curItem)) {
-                        itemsList.add(curItem)
-                    }
-                }
-                res.close()
+            if (order != "ASC" && order != "DESC") {
+                appError("invalid order entry, enter one of: ASC, DESC", AppError.BadRequest)
             }
 
-            return itemsList
-        } catch (ex: SQLException) {
-            error("filter by label failed")
-        }
-    }
-
-    fun filterByPriority(priorities: MutableSet<Int>, boardId: UUID, actualSortBy: String? = "priority"): List<Item> {
-        try {
-            val sortBy = actualSortBy ?: "priority"
-            val itemsList = mutableListOf<Item>()
-            if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
-                error("invalid sortBy entry, enter one of: dueDate, priority or label")
+            var query = ""
+            if (startDateTime != null) {
+                query += " AND (dueDate >= ? AND dueDate < ?)"
             }
-            if(priorities.size > 0) {
-                var sql = "SELECT * FROM items WHERE boardId = ? AND (priority = ?"
-                for(i in 1 until priorities.size) {
-                    sql += "OR priority = ?"
-                }
-                sql += ") ORDER BY $sortBy ASC"
-                val getItems = conn.prepareStatement(sql)
-                getItems.setString(1, boardId.toString())
-                for(i in priorities.indices) {
-                    getItems.setInt(i + 2, priorities.elementAt(i))
-                }
-
-                val res = getItems.executeQuery()
-
-                while (res.next()) {
-                    val curItem = getItemFromRes(res)
-                    if(!itemsList.contains(curItem)) {
-                        itemsList.add(curItem)
-                    }
-                }
-                res.close()
+            if (labels.size > 0) {
+                query += " AND (label = ?${" OR label = ?".repeat(labels.size - 1)})"
             }
-            return itemsList
-        } catch (ex: SQLException) {
-            error("filter by priority failed")
-        }
-    }
+            if (priorities.size > 0) {
+                query += " AND (priority = ?${" OR priority = ?".repeat(priorities.size - 1)})"
+            }
+            if (search != null) {
+                query += " AND (text LIKE ?)"
+            }
 
-    fun sortItems(boardId: UUID, sortBy: String, actualOrder: String? = "ASC"): List<Item> {
-        try {
-            val order = actualOrder ?: "ASC"
-            if(sortBy != "dueDate" && sortBy != "priority" && sortBy != "label") {
-                error("invalid sortBy entry, enter one of: dueDate, priority or label")
-            }
-            if(order != "ASC" && order != "DESC") {
-                error("invalid order entry, enter one of: ASC, DESC")
-            }
-            val itemsList = mutableListOf<Item>()
-            val getItems : PreparedStatement = if(sortBy == "label") {
-                conn.prepareStatement("SELECT * FROM items INNER JOIN items_labels ON items.id = items_labels.itemId WHERE items.boardId = ? ORDER BY label $order")
+            val sortStr = if (sortBy != "ordering") {
+                "$sortBy $order, ordering"
             } else {
-                conn.prepareStatement("SELECT * FROM items WHERE boardId = ? ORDER BY $sortBy $order")
+                "$sortBy $order"
             }
-            getItems.setString(1, boardId.toString())
 
-            val res = getItems.executeQuery()
+            val statement = getItemQuery(boardId.isEmpty(), query, sortStr)
+            var sqlIndex = 0
+            statement.setString(++sqlIndex, boardId.ifEmpty { userId })
 
-            while (res.next()) {
-                val curItem = getItemFromRes(res)
-                if(!itemsList.contains(curItem)) {
-                    itemsList.add(curItem)
-                }
+            // substitute values
+            if (startDateTime != null) {
+                val startDate = startDateTime.toLocalDate()
+                val endDate = if (endDateTime != null) endDateTime.toLocalDate() else startDate.plusDays(1)
+                statement.setString(++sqlIndex, startDate.toString())
+                statement.setString(++sqlIndex, endDate.toString())
             }
-            res.close()
-            return itemsList
-        } catch(ex: SQLException) {
-            error("sorting didn't work")
-        }
-    }
+            for (label in labels) {
+                statement.setString(++sqlIndex, label.value)
+            }
+            for (priority in priorities) {
+                statement.setInt(++sqlIndex, priority)
+            }
+            if (search != null) {
+                statement.setString(++sqlIndex, "%$search%")
+            }
 
-    fun searchByText(boardId: UUID, text: String): List<Item> {
-        try {
-            val getItems = conn.prepareStatement("SELECT * FROM items WHERE boardId = ? AND text LIKE '%$text%'")
-            getItems.setString(1, boardId.toString())
-
-            val res = getItems.executeQuery()
-
+            // get results
+            val res = statement.executeQuery()
             val itemsList = mutableListOf<Item>()
             while (res.next()) {
                 itemsList.add(getItemFromRes(res))
@@ -471,7 +418,21 @@ object ItemService {
             res.close()
             return itemsList
         } catch (ex: SQLException) {
-            error("searching by text didn't work")
+            appError(
+                """
+                get items failed with input:
+                    startDateTime = $startDateTime
+                    endDateTime = $endDateTime
+                    labels = $labels
+                    priorities = $priorities
+                    search = $search
+                    actualSortBy = $actualSortBy
+                    actualOrderBy = $actualOrderBy
+                error: ${ex.message}
+            """.trimIndent(), AppError.Unexpected
+            )
         }
+
     }
+
 }

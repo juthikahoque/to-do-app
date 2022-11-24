@@ -76,7 +76,7 @@ class EditItemModalView(private val model: Model, item: Item): VBox() {
                 ItemService.updateItem(item.boardId, item!!)
             }
 
-            model.setShowEditItemModal(false, null)
+            model.additionalModalView.set("")
             print("saved.")
         }
         isDefaultButton = true
@@ -85,8 +85,9 @@ class EditItemModalView(private val model: Model, item: Item): VBox() {
     private val cancelButton = Button("Cancel").apply{
         background = Background(BackgroundFill(Color.INDIANRED, CornerRadii(2.5), null))
         setOnAction {
-            model.setShowEditItemModal(false, null)
+            model.additionalModalView.set("")
         }
+        isCancelButton = true
     }
 
     private val buttons = HBox(saveButton, cancelButton).apply{

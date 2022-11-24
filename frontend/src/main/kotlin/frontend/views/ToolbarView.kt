@@ -2,7 +2,6 @@ package frontend.views
 
 import frontend.Model
 import frontend.app
-import frontend.interfaces.IView
 import javafx.geometry.Insets
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
@@ -14,21 +13,19 @@ import javafx.scene.layout.*
 //View for the toolbar, includes a search bar
 //invite button and options to filter/sort
 
-class ToolbarView(private val model: Model): BorderPane(), IView {
+class ToolbarView(private val model: Model) : BorderPane() {
     private val searchField = TextField().apply {
         promptText = "Search"
         minWidth = 400.0
         HBox.setHgrow(this, Priority.NEVER)
-        textProperty().addListener { _, _, newValue ->
-            model.searchItems(newValue)
-        }
     }
 
     private var inviteButton = Button("Invite").apply {
         minWidth = 75.0
         setOnAction {
-            model.setShowAddUserModal(true)
+            model.additionalModalView.set(Presenter.addUser)
         }
+        model.currentBoard.addListener { _, _, newValue -> isVisible = (newValue != model.allBoard) }
     }
 
     private val sort = SortView(model)
@@ -41,40 +38,30 @@ class ToolbarView(private val model: Model): BorderPane(), IView {
         children.addAll(sort, filter)
     }
 
-    override fun updateView() {
-        right = if (model.getCurrentBoard().name != "All") {
-            inviteButton
-        } else {
-            null
-        }
-        model.searchItems(searchField.text, false)
-    }
-
     init {
+        model.search.bind(searchField.textProperty())
+
         left = VBox(searchField, sortFilterGroup).apply {
             HBox.setHgrow(this, Priority.NEVER)
         }
 
         //add a pane that always grow to make the UI responsive
-        val spacer = Pane().apply{
+        val spacer = Pane().apply {
             HBox.setHgrow(this, Priority.ALWAYS)
         }
         center = spacer
         padding = Insets(10.0)
         HBox.setHgrow(this, Priority.ALWAYS)
 
-        model.addSearchFilterSort(filter)
-        model.addSearchFilterSort(sort)
-        model.addSearchFilterSort(this)
-        model.addView(this)
+        right = inviteButton
 
         app.addHotkey(KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN)) {
             searchField.requestFocus()
         }
 
         app.addHotkey(KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN)) {
-            if (model.getCurrentBoard().name != "All") {
-                model.setShowAddUserModal(true)
+            if (model.currentBoard.value != model.allBoard && model.additionalModalView.value.isEmpty()) {
+                model.additionalModalView.set(Presenter.addUser)
             }
         }
     }

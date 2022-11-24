@@ -1,8 +1,8 @@
 package frontend.views
 
 import frontend.Model
-import frontend.interfaces.IView
-import io.ktor.server.util.*
+import frontend.services.ItemService
+import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Insets
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.DatePicker
@@ -11,21 +11,31 @@ import javafx.scene.control.ToggleButton
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import java.time.LocalDate
-import java.util.*
 
 //View for the filtering by due date, labels and priorities
-class FilterView(private val model: Model):VBox(), IView{
+class FilterView(private val model: Model) : VBox() {
 
     private var oldestDate = LocalDate.MIN
 
-    private var selectedDates:Pair<LocalDate, LocalDate?> = Pair(oldestDate, null)
+    private var selectedDates: Pair<LocalDate, LocalDate?> = Pair(oldestDate, null)
+
+    private var filter = SimpleObjectProperty(model.noFilter)
 
     private val dateFilter = HBox().apply {
         val from = DatePicker().apply {
             prefWidth = 125.0
             setOnAction {
                 selectedDates = selectedDates.copy(first = value)
-                model.filterByDates(selectedDates)
+                filter.set { bid, sort, order, search ->
+                    ItemService.getItems(
+                        bid,
+                        startDate = selectedDates.first.atStartOfDay(),
+                        endDate = selectedDates.second?.atStartOfDay(),
+                        search =  search,
+                        sortBy =  sort,
+                        orderBy =  order
+                    )
+                }
             }
 
         }
@@ -34,8 +44,16 @@ class FilterView(private val model: Model):VBox(), IView{
             prefWidth = 125.0
             setOnAction {
                 selectedDates = selectedDates.copy(second = value)
-                model.filterByDates(selectedDates)
-
+                filter.set { bid, sort, order, search ->
+                    ItemService.getItems(
+                        bid,
+                        startDate = selectedDates.first.atStartOfDay(),
+                        endDate = selectedDates.second?.atStartOfDay(),
+                        search =  search,
+                        sortBy =  sort,
+                        orderBy =  order
+                    )
+                }
             }
         }
         children.addAll(from, toLabel, to)
@@ -43,44 +61,68 @@ class FilterView(private val model: Model):VBox(), IView{
 
     private val selectedLabels = mutableSetOf<models.Label>()
     private val labelFilter = HBox().apply {
-        //TODO: Get real labels
-        for (label in model.getCurrentBoard().labels) {
-            children.add(ToggleButton(label.value).apply{
-                background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
-                setOnAction {
-                    if(isSelected){
-                        background = Background(BackgroundFill(Color.LIGHTBLUE, CornerRadii(5.0), Insets(0.0)))
-                        selectedLabels.add(label)
-                    }
-                    else{
-                        background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
-                        if(selectedLabels.contains(label)) { selectedLabels.remove(label) }
-                    }
-                    model.filterByLabels(selectedLabels)
-                }
-            })
-        }
         spacing = 10.0
     }
+    private fun addLabelsToLabelFilter() {
+        labelFilter.children.setAll(model.currentBoard.value.labels.map { label ->
+            ToggleButton(label.value).apply {
+                isSelected = selectedLabels.contains(label)
+                background = if (isSelected) {
+                    Background(BackgroundFill(Color.LIGHTBLUE, CornerRadii(5.0), Insets(0.0)))
+                } else {
+                    Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+                }
+                setOnAction {
+                    if (isSelected) {
+                        background = Background(BackgroundFill(Color.LIGHTBLUE, CornerRadii(5.0), Insets(0.0)))
+                        selectedLabels.add(label)
+                    } else {
+                        background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+                        if (selectedLabels.contains(label)) {
+                            selectedLabels.remove(label)
+                        }
+                    }
+                    filter.set { bid, sort, order, search ->
+                        ItemService.getItems(
+                            bid,
+                            labels = selectedLabels,
+                            search =  search,
+                            sortBy =  sort,
+                            orderBy =  order
+                        )
+                    }
+                }
+            }
+        })
+    }
 
-    private val selectedPriorites = mutableSetOf<Int>()
-    private val priorityGroup = HBox().apply{
+    private val selectedPriorities = mutableSetOf<Int>()
+    private val priorityGroup = HBox().apply {
         val priorityView = PriorityTagView(0, true)
         val labels = listOf("Low", "Medium", "High")
-        for((index, label) in labels.withIndex()){
-            val toggle = ToggleButton(label).apply{
+        for ((index, label) in labels.withIndex()) {
+            val toggle = ToggleButton(label).apply {
                 background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
                 val backgroundColor = priorityView.getColor(index)
                 setOnAction {
-                    if(isSelected){
+                    if (isSelected) {
                         background = Background(BackgroundFill(backgroundColor, CornerRadii(5.0), Insets(0.0)))
-                        selectedPriorites.add(index)
-                    }
-                    else{
+                        selectedPriorities.add(index)
+                    } else {
                         background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
-                        if(selectedPriorites.contains(index)) { selectedPriorites.remove(index) }
+                        if (selectedPriorities.contains(index)) {
+                            selectedPriorities.remove(index)
+                        }
                     }
-                    model.filterByPriorities(selectedPriorites)
+                    filter.set { bid, sort, order, search ->
+                        ItemService.getItems(
+                            bid,
+                            priorities =  selectedPriorities,
+                            search =  search,
+                            sortBy =  sort,
+                            orderBy =  order
+                        )
+                    }
                 }
             }
             children.add(toggle)
@@ -93,17 +135,10 @@ class FilterView(private val model: Model):VBox(), IView{
         items.add("Priority")
         items.add("Labels")
         setOnAction {
-            if(value == "Due Date"){
-                updateOptions(dateFilter)
-                model.filterByDates(selectedDates)
-            }
-            else if(value == "Priority"){
-                updateOptions(priorityGroup)
-                model.filterByPriorities(selectedPriorites)
-            }
-
-            else if(value == "Labels"){
-                updateOptions(labelFilter)
+            when (value) {
+                "Due Date" -> updateOptions(dateFilter)
+                "Priority" -> updateOptions(priorityGroup)
+                "Labels" -> updateOptions(labelFilter)
             }
         }
     }
@@ -111,15 +146,16 @@ class FilterView(private val model: Model):VBox(), IView{
     private val filterOptions = HBox(filterChoice).apply {
         spacing = 5.0
     }
-    private fun updateOptions(newChild: Region){
-        if(filterOptions.children.size > 1){
+
+    private fun updateOptions(newChild: Region) {
+        if (filterOptions.children.size > 1) {
             filterOptions.children.removeAt(1)
         }
         filterOptions.children.add(newChild)
     }
 
-    private fun showOptions(show:Boolean){
-        if(show) children.add(filterOptions) else children.remove(filterOptions)
+    private fun showOptions(show: Boolean) {
+        if (show) children.add(filterOptions) else children.remove(filterOptions)
     }
 
     private val filterButton = ToggleButton("Filter").apply {
@@ -127,22 +163,14 @@ class FilterView(private val model: Model):VBox(), IView{
         prefWidth = 125.0
         setOnAction {
             showOptions(isSelected)
-            if(isSelected){
-                background =  Background(BackgroundFill(Color.DARKGRAY, CornerRadii(5.0), Insets(0.0)))
+            if (isSelected) {
+                background = Background(BackgroundFill(Color.DARKGRAY, CornerRadii(5.0), Insets(0.0)))
                 //re-apply the old filters
-                if(filterOptions.children.contains(priorityGroup)) {
-                    model.filterByPriorities(selectedPriorites)
-                }
-
-                //filtering by date
-                else if(filterOptions.children.contains(dateFilter)){
-                    model.filterByDates(selectedDates)
-                }
-            }
-            else{
+                model.filter.set(filter.value)
+            } else {
                 background = Background(BackgroundFill(Color.LIGHTGRAY, CornerRadii(5.0), Insets(0.0)))
                 //switch off all filters
-                model.filterByPriorities(emptySet<Int>().toMutableSet())
+                model.filter.set(model.noFilter)
             }
         }
     }
@@ -150,50 +178,11 @@ class FilterView(private val model: Model):VBox(), IView{
     init {
         children.addAll(filterButton)
         spacing = 5.0
-    }
 
-    override fun updateView(){
-        //show any new labels
-        labelFilter.children.clear()
-        for (label in model.getCurrentBoard().labels) {
-            labelFilter.children.add(ToggleButton(label.value).apply{
-                isSelected = selectedLabels.contains(label)
-                background = if(isSelected) {
-                    Background(BackgroundFill(Color.LIGHTBLUE, CornerRadii(5.0), Insets(0.0)))
-                }else{
-                    Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
-                }
-                setOnAction {
-                    if(isSelected){
-                        background = Background(BackgroundFill(Color.LIGHTBLUE, CornerRadii(5.0), Insets(0.0)))
-                        selectedLabels.add(label)
-                    }
-                    else{
-                        background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
-                        if(selectedLabels.contains(label)) { selectedLabels.remove(label) }
-                    }
-                    model.filterByLabels(selectedLabels)
-                }
-            })
+        model.currentBoard.addListener { _, _, _ ->
+            addLabelsToLabelFilter()
         }
 
-        //filtering by priority
-        if(filterOptions.children.contains(priorityGroup)) {
-            model.filterByPriorities(selectedPriorites, false)
-        }
-
-        //filtering by date
-        else if(filterOptions.children.contains(dateFilter)){
-            model.filterByDates(selectedDates, false)
-        }
-
-        else if(filterOptions.children.contains(labelFilter)){
-            model.filterByLabels(selectedLabels, false)
-        }
-
-        //default case, set filtered set as all current items
-        else{
-            model.filterByPriorities(emptySet<Int>().toMutableSet(), false)
-        }
+        filter.addListener { _, _, new -> model.filter.set(new) }
     }
 }
