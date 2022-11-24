@@ -100,7 +100,7 @@ internal class ItemServiceTest {
     @Test
     fun getItems() {
         runBlocking {
-            val result = ItemService.getItems(bid)
+            val result = ItemService.getItems(bid.toString())
 
             assertEquals(result, listOf(i1, i2))
         }

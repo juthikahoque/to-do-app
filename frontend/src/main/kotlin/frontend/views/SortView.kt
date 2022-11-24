@@ -1,37 +1,35 @@
 package frontend.views
 
 import frontend.Model
-import frontend.interfaces.IView
 import javafx.geometry.Insets
-import javafx.scene.control.*
+import javafx.scene.control.Button
+import javafx.scene.control.ChoiceBox
+import javafx.scene.control.ToggleButton
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 
 //View for the sorting by due date, labels and priorities
-class SortView(private val model: Model):VBox(), IView{
-
-    private var sortBy = "dueDate"
-    private var  orderBy = "DESC"
-
+class SortView(private val model: Model) : VBox() {
     private val sortChoice = ChoiceBox<String>().apply {
         items.add("Due Date")
         items.add("Priority")
         items.add("Labels")
-        value = "Due Date"
+        value = ""
 
         setOnAction {
-            when(value){
-                "Due Date" -> sortBy = "dueDate"
-                "Priority" -> sortBy = "priority"
-                "Labels" -> sortBy = "label"
+            val sortBy = when (value) {
+                "Due Date" -> "dueDate"
+                "Priority" -> "priority"
+                "Labels" -> "label"
+                else -> ""
             }
-            model.sortItems(sortBy, orderBy)
+            model.sort.set(sortBy)
         }
     }
 
-    private val sortOrderButton =  Button().apply{
+    private val sortOrderButton = Button().apply {
         val ascImage = Image("/icons/sort_icons/sort-up.png", 15.0, 15.0, true, false)
         val descImage = Image("/icons/sort_icons/sort-down.png", 15.0, 15.0, true, false)
 
@@ -41,15 +39,13 @@ class SortView(private val model: Model):VBox(), IView{
         graphic = descImageView
         background = Background(BackgroundFill(Color.TRANSPARENT, null, null))
         setOnAction {
-            if(graphic == ascImageView){
+            if (graphic == ascImageView) {
                 graphic = descImageView
-                orderBy = "DESC"
-            }
-            else{
+                model.order.set("DESC")
+            } else {
                 graphic = ascImageView
-                orderBy = "ASC"
+                model.order.set("ASC")
             }
-            model.sortItems(sortBy, orderBy)
         }
     }
 
@@ -60,23 +56,27 @@ class SortView(private val model: Model):VBox(), IView{
         prefWidth = 125.0
         setOnAction {
             showOptions(isSelected)
-            background = if(isSelected) {
+            background = if (isSelected) {
+                val sortBy = when (sortChoice.value) {
+                    "Due Date" -> "dueDate"
+                    "Priority" -> "priority"
+                    "Labels" -> "label"
+                    else -> ""
+                }
+                model.sort.set(sortBy)
+
                 Background(BackgroundFill(Color.DARKGRAY, CornerRadii(5.0), Insets(0.0)))
-            }
-            else{
-                model.resetSort()
+            } else {
+                model.sort.set("")
                 Background(BackgroundFill(Color.LIGHTGRAY, CornerRadii(5.0), Insets(0.0)))
             }
         }
     }
 
-    private fun showOptions(show:Boolean){
+    private fun showOptions(show: Boolean) {
         if (show) children.add(options) else children.remove(options)
     }
 
-    override fun updateView() {
-        model.sortItems(sortBy, orderBy, false)
-    }
     init {
         spacing = 5.0
         children.addAll(sortButton)
