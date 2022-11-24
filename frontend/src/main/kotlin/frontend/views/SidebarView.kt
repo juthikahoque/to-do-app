@@ -6,6 +6,7 @@ import frontend.services.AuthService
 import frontend.services.BoardService
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.image.Image
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.ListCell
@@ -16,6 +17,8 @@ import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
+import javafx.scene.paint.ImagePattern
+import javafx.scene.shape.Circle
 import javafx.scene.text.Font
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,16 +36,23 @@ import kotlin.coroutines.CoroutineContext
 class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
 
+    private val userDetails = VBox().apply {
+        val profilePic = Image(AuthService.user?.photoUrl)
+        val username = Label(AuthService.user?.displayName).apply {
+            textFill = Color.LIGHTBLUE
+            font = Font(20.0)
+        }
+        val pictureCircle = Circle(40.0).apply {
+            fill = ImagePattern(profilePic)
+            translateX = 35.0
+        }
+        spacing = 10.0
+        children.addAll(pictureCircle, username)
+    }
+
     private var dragFromIndex = -1
     private var dragToIndex = -1
     private var selectIdx = 0
-
-    private val username = HBox(Label().apply {
-        text = AuthService.user?.displayName
-        textFill = Color.LIGHTBLUE
-        font = Font(20.0)
-        padding = Insets(0.0, 0.0, 20.0, 0.0)
-    })
 
     //List of available boards
     private val boardList = ListView(model.boards).apply {
@@ -198,8 +208,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
         padding = Insets(10.0)
         minWidth = 175.0
         background = Background(BackgroundFill(Color.web("#343436"), null, null))
-
-        top = username
+        top = userDetails
         center = boardList
         bottom = VBox(newBoardButton, logoutButton)
 
