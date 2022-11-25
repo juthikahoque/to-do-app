@@ -4,6 +4,7 @@ import frontend.Model
 import javafx.geometry.Insets
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
+import javafx.scene.input.MouseButton
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Priority
@@ -72,7 +73,9 @@ class ToDoRowView(private val item: Item, model: Model) : VBox() {
         padding = Insets(5.0, 0.0, 5.0, 0.0)
         children.add(gridPane)
         setOnMouseClicked {
-            model.additionalModalView.set(Presenter.editItem)
+            if (it.button == MouseButton.PRIMARY) {
+                model.additionalModalView.set(Presenter.editItem)
+            }
         }
     }
 }
