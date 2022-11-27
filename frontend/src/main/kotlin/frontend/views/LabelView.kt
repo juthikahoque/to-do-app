@@ -12,7 +12,7 @@ class LabelView(labelVal: String): HBox() {
         val label = Label(labelVal)
         label.prefWidth = 50.0
         label.alignment = Pos.CENTER
-        val backgroundColor = Color.LIGHTBLUE
+        val backgroundColor = Color.web("#cdb2d4")
 
         label.background = Background(BackgroundFill(backgroundColor, CornerRadii(5.0), Insets(0.0)))
         children.add(label)

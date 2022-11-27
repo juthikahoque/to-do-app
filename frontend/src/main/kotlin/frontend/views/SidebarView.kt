@@ -41,6 +41,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
         val username = Label(AuthService.user?.displayName).apply {
             textFill = Color.LIGHTBLUE
             font = Font(20.0)
+            id = "name"
         }
         val pictureCircle = Circle(40.0).apply {
             fill = ImagePattern(profilePic)
@@ -56,7 +57,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
 
     //List of available boards
     private val boardList = ListView(model.boards).apply {
-        style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
+        id = "boardView"
 
         setCellFactory {
             object : ListCell<Board?>() {
@@ -79,25 +80,6 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
                     }
                 }
 
-                fun updateStyle(selected: Board) {
-                    style = if (item == selected) {
-                        """
-                        -fx-background-color: rgb(104, 104, 104);
-                        -fx-pref-width: 140.0;
-                        -fx-alignment: CENTER_LEFT;
-                        -fx-border-radius: 20px
-                        """.trimIndent()
-                    } else {
-                        """
-                        -fx-background-color: rgb(52, 52, 54);
-                        -fx-pref-width: 140.0;
-                        -fx-alignment: CENTER_LEFT;
-                        -fx-border-radius: 20px
-                        """.trimIndent()
-                    }
-                    button.style = style
-                }
-
                 override fun updateItem(item: Board?, empty: Boolean) {
                     super.updateItem(item, empty)
                     if (item != null) {
@@ -107,9 +89,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
                         graphic = null
                     }
 
-                    //TODO: Add styles in CSS sheet with additional hover properties
-                    model.currentBoard.addListener { _, _, newValue -> updateStyle(newValue) }
-                    updateStyle(model.currentBoard.value)
+                    id = "currentBoard"
 
                     button.prefWidthProperty().bind(widthProperty())
 
@@ -183,9 +163,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
     }
 
     private val newBoardButton = Button("Create Board").apply {
-        //TODO: Add styles in CSS sheet with additional hover properties
-        style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
-        textFill = Color.LIGHTGREEN
+        id = "create"
         font = Font(15.0)
 
         setOnAction {
@@ -194,9 +172,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
     }
 
     private val logoutButton = Button("Logout").apply {
-        //TODO: Add styles in CSS sheet with additional hover properties
-        style = "-fx-background: rgb(52, 52, 54);\n -fx-background-color: rgb(52, 52, 54)"
-        textFill = Color.INDIANRED
+        id = "logout"
         font = Font(15.0)
 
         setOnAction {

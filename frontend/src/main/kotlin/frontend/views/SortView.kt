@@ -52,6 +52,7 @@ class SortView(private val model: Model) : VBox() {
     private val options = HBox(sortChoice, sortOrderButton)
 
     private val sortButton = ToggleButton("Sort").apply {
+        id = "general"
         background = Background(BackgroundFill(Color.LIGHTGRAY, CornerRadii(5.0), Insets(0.0)))
         prefWidth = 125.0
         setOnAction {

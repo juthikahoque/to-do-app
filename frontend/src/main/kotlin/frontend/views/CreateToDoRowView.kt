@@ -21,7 +21,9 @@ import java.time.LocalDate
 class CreateToDoRowView(private val model: Model) : HBox(), CoroutineScope {
     override val coroutineContext = Dispatchers.JavaFx
 
-    private val titleInput = TextField()
+    private val titleInput = TextField().apply {
+        id = "input"
+    }
     private val datePicker = DatePicker()
     private val priorityChoiceBox = ChoiceBox<Int>()
     private val labelsComboBox = ComboBox<String>()

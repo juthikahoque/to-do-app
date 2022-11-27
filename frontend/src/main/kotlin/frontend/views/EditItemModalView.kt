@@ -66,6 +66,7 @@ class EditItemModalView(private val model: Model, item: Item): VBox() {
 
 
     private val saveButton = Button("Save").apply{
+        id = "save"
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
             item.text = nameInput.text
@@ -83,6 +84,7 @@ class EditItemModalView(private val model: Model, item: Item): VBox() {
     }
 
     private val cancelButton = Button("Cancel").apply{
+        id = "cancel"
         background = Background(BackgroundFill(Color.INDIANRED, CornerRadii(2.5), null))
         setOnAction {
             model.additionalModalView.set("")
