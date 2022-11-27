@@ -26,4 +26,5 @@ module frontend {
     requires io.ktor.client.auth;
     requires java.prefs;
     requires kotlinx.coroutines.javafx;
+    requires org.jfxtras.styles.jmetro;
 }

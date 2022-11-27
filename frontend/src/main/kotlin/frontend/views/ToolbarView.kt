@@ -15,6 +15,7 @@ import javafx.scene.layout.*
 
 class ToolbarView(private val model: Model) : BorderPane() {
     private val searchField = TextField().apply {
+        id = "input"
         promptText = "Search"
         minWidth = 400.0
         HBox.setHgrow(this, Priority.NEVER)

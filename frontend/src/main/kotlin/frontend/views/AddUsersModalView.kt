@@ -70,6 +70,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
     }
 
     private val confirmButton = Button("Confirm").apply{
+        id = "save"
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
             for (user in listOfUsers) {
@@ -85,6 +86,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
     }
 
     private val cancelButton = Button("Cancel").apply{
+        id = "cancel"
         background = Background(BackgroundFill(Color.INDIANRED, CornerRadii(2.5), null))
         setOnAction {
             model.additionalModalView.set("")

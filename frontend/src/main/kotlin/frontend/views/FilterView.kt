@@ -67,6 +67,7 @@ class FilterView(private val model: Model) : VBox() {
         labelFilter.children.setAll(model.currentBoard.value.labels.map { label ->
             ToggleButton(label.value).apply {
                 isSelected = selectedLabels.contains(label)
+                id = "labelToggle"
                 background = if (isSelected) {
                     Background(BackgroundFill(Color.LIGHTBLUE, CornerRadii(5.0), Insets(0.0)))
                 } else {
@@ -102,6 +103,7 @@ class FilterView(private val model: Model) : VBox() {
         val labels = listOf("Low", "Medium", "High")
         for ((index, label) in labels.withIndex()) {
             val toggle = ToggleButton(label).apply {
+                id = label.lowercase()
                 background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
                 val backgroundColor = priorityView.getColor(index)
                 setOnAction {
@@ -159,6 +161,7 @@ class FilterView(private val model: Model) : VBox() {
     }
 
     private val filterButton = ToggleButton("Filter").apply {
+        id = "general"
         background = Background(BackgroundFill(Color.LIGHTGRAY, CornerRadii(5.0), Insets(0.0)))
         prefWidth = 125.0
         setOnAction {

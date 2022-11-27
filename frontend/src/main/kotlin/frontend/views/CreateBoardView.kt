@@ -25,6 +25,7 @@ class CreateBoardView(private val model: Model): VBox() {
 
 
     private val createButton = Button("Create").apply{
+        id = "save"
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
             if (nameInput.text == "") {
@@ -39,6 +40,7 @@ class CreateBoardView(private val model: Model): VBox() {
     }
 
     private val cancelButton = Button("Cancel").apply{
+        id = "cancel"
         background = Background(BackgroundFill(Color.INDIANRED, CornerRadii(2.5), null))
         setOnAction {
             nameInput.text = ""
