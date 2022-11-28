@@ -2,6 +2,7 @@ package frontend.views
 
 import frontend.Model
 import frontend.app
+import frontend.services.AuthService
 import frontend.services.BoardService
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
@@ -10,12 +11,14 @@ import javafx.scene.input.KeyCombination
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
+import javafx.util.StringConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import models.Item
 import models.Label
+import models.User
 import java.time.LocalDate
 
 class CreateToDoRowView(private val model: Model) : HBox(), CoroutineScope {
@@ -25,39 +28,106 @@ class CreateToDoRowView(private val model: Model) : HBox(), CoroutineScope {
         id = "input"
     }
     private val datePicker = DatePicker()
-    private val priorityChoiceBox = ChoiceBox<Int>()
-    private val labelsComboBox = ComboBox<String>()
-    private val assignedToComboBox = ComboBox<String>()
-    private val createButton = Button("Create").apply {
-        isDefaultButton = true
+
+    private val priorityChoiceBox = ChoiceBox<Int>().apply {
+        items.setAll(0, 1, 2)
+        selectionModel.selectFirst()
+
+        converter = object : StringConverter<Int>() {
+            override fun toString(obj: Int?) = when (obj) {
+                0 -> "low"
+                1 -> "medium"
+                2 -> "high"
+                else -> "low"
+            }
+
+            override fun fromString(str: String?) = when (str) {
+                "low" -> 0
+                "medium" -> 1
+                "high" -> 2
+                else -> 0
+            }
+        }
     }
 
-    var labelList = model.currentBoard.value.labels
+    private val labelsComboBox = ComboBox<Label>().apply {
+        promptText = "Select label(s)"
+        isEditable = true
+
+        items.setAll(model.currentBoard.value.labels)
+
+        converter = object : StringConverter<Label>() {
+            override fun fromString(str: String) = Label(str)
+            override fun toString(obj: Label?) = obj?.value
+        }
+
+        model.currentBoard.addListener { _, _, board ->
+            items.setAll(board.labels)
+        }
+    }
+
+    private val assignedToComboBox = ComboBox<User>().apply {
+        promptText = "Assign to..."
+        isEditable = false
+        items.setAll(model.currentBoard.value.users)
+
+        converter = object : StringConverter<User>() {
+            override fun fromString(str: String) = model.currentBoard.value.users.find { it.name == str }
+            override fun toString(obj: User?) = obj?.name
+        }
+
+        model.currentBoard.addListener { _, _, board ->
+            items.setAll(board.users)
+        }
+    }
+
+    private val createButton = Button("Create").apply {
+        minWidth = 75.0
+        prefWidth = 75.0
+
+        setOnAction {
+            if (labelsComboBox.value != null) {
+                val currentList = model.currentBoard.value.labels
+                if (!currentList.contains(labelsComboBox.value)) {
+                    currentList.add(labelsComboBox.value)
+                    launch {
+                        BoardService.updateBoard(model.currentBoard.value.copy(labels = currentList))
+                    }
+                }
+            }
+            createTodo()
+        }
+
+        defaultButtonProperty().bind(
+            focusedProperty()
+                .or(titleInput.focusedProperty())
+                .or(datePicker.focusedProperty())
+                .or(priorityChoiceBox.focusedProperty())
+                .or(labelsComboBox.focusedProperty())
+                .or(assignedToComboBox.focusedProperty())
+        )
+    }
 
     private fun createTodo() {
-        val title = titleInput.text
-        val date = datePicker.value.atStartOfDay()
-        val boardId = model.currentBoard.value.id
         val labels = if (labelsComboBox.value != null) {
-            mutableSetOf(Label(labelsComboBox.value))
+            mutableSetOf(labelsComboBox.value)
         } else {
             mutableSetOf()
         }
-        val priority = priorityChoiceBox.selectionModel.selectedItem
 
         val todo = Item(
-            title,
-            date,
-            boardId,
-            labels,
-            priority,
+            title = titleInput.text,
+            dueDate = datePicker.value.atStartOfDay(),
+            boardId = model.currentBoard.value.id,
+            labels = labels,
+            priority = priorityChoiceBox.value,
+            owner = assignedToComboBox.value ?: AuthService.user,
         )
         model.addToDoItem(todo)
         titleInput.requestFocus()
     }
 
     init {
-        createButton.minWidth = 75.0
         // to do title textfield
         titleInput.promptText = "To-Do Title"
 
@@ -68,46 +138,6 @@ class CreateToDoRowView(private val model: Model) : HBox(), CoroutineScope {
             println("Selected date: $date")
         }
 
-        // choicebox for priority
-        priorityChoiceBox.items.addAll(0, 1, 2)
-        priorityChoiceBox.selectionModel.selectFirst()
-
-        // combobox for labels
-        labelsComboBox.promptText = "Select label(s)"
-        labelsComboBox.isEditable = true
-        model.currentBoard.addListener { _, _, board ->
-            labelsComboBox.items.setAll(board.labels.map { it.value })
-        }
-        //labelsComboBox.items.add("Label 1")
-        //labelsComboBox.
-        /*for (label in model.currentBoard.value.labels) {
-            labelsComboBox.items.add(label.value)
-        }*/
-
-        // combobox for assigning todo
-        assignedToComboBox.promptText = "Assign to..."
-        assignedToComboBox.isEditable = true
-        /*for (user in model.currentBoard.value.users) {
-            // TODO: will need to accept name
-            assignedToComboBox.items.add(user.toString())
-        }*/
-
-        createButton.prefWidth = 75.0
-
-        // handle create button click
-        createButton.setOnAction {
-            if (labelsComboBox.value != null && labelsComboBox.value.isNotBlank()) {
-                val newLabel = Label(labelsComboBox.value)
-                if (!labelList.contains(newLabel)) {
-                    labelList.add(newLabel)
-                    launch {
-                        BoardService.updateBoard(model.currentBoard.value.copy(labels = labelList))
-                    }
-                }
-            }
-
-            createTodo()
-        }
         //add a spacer to make the UI responsive
         val spacer = Pane().apply {
             setHgrow(this, Priority.ALWAYS)
@@ -124,16 +154,6 @@ class CreateToDoRowView(private val model: Model) : HBox(), CoroutineScope {
         ).apply {
             spacing = 10.0
         }
-
-        createButton.defaultButtonProperty().bind(
-            titleInput.focusedProperty()
-                .or(datePicker.focusedProperty())
-                .or(priorityChoiceBox.focusedProperty())
-                .or(labelsComboBox.focusedProperty())
-                .or(assignedToComboBox.focusedProperty())
-                .or(createButton.focusedProperty())
-        )
-
 
         app.addHotkey(KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)) {
             titleInput.requestFocus()

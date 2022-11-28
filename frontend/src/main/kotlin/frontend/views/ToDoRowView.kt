@@ -18,7 +18,7 @@ class ToDoRowView(private val item: Item, model: Model) : VBox() {
             model.updateItem(item.copy(done = isSelected))
         }
     }
-    private val titleLabel = Label(item.text).apply {
+    private val titleLabel = Label(item.title).apply {
         minWidth = 200.0
         maxWidth = 600.0
     }
@@ -38,7 +38,7 @@ class ToDoRowView(private val item: Item, model: Model) : VBox() {
         }
     }
 
-    private val assignedToLabel = Label("Me")
+    private val ownerLabel = Label(item.owner.name)
 
     private val gridPane = GridPane().apply {
         hgap = 10.0
@@ -48,7 +48,7 @@ class ToDoRowView(private val item: Item, model: Model) : VBox() {
         add(dueDateLabel, 3, 0)
         //add(PriorityTagView(item.priority, true), 4, 0)
         add(tags, 4, 0)
-        add(assignedToLabel, 5, 0)
+        add(ownerLabel, 5, 0)
 
         val alwaysGrow = ColumnConstraints().apply {
             hgrow = Priority.ALWAYS

@@ -1,7 +1,7 @@
 package backend.routes
 
-import backend.services.ItemService
 import backend.services.Database
+import backend.services.ItemService
 import backend.services.conn
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import models.Item
 import models.Label
+import models.User
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -16,9 +17,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.*
-import java.sql.DriverManager
 
 class ItemTest {
+    private val user = User("rIliX3UCwhY7qvdPeh0jJsQL1UR2", "test", "test@email.com")
     @BeforeEach
     fun init() {
         Assertions.assertDoesNotThrow {
@@ -48,14 +49,14 @@ class ItemTest {
         val boardId1 = UUID.randomUUID()
         val currentDate = LocalDateTime.of(2022, 11, 11, 14, 53)
         val items = listOf(
-            Item(text = "item1", dueDate = currentDate, boardId = boardId1),
-            Item(text = "item2", dueDate = currentDate.plusDays(1), boardId = boardId1),
-            Item(text = "item1", dueDate = currentDate.plusHours(5), boardId = boardId1),
+            Item(title = "item1", dueDate = currentDate, boardId = boardId1, owner = user),
+            Item(title = "item2", dueDate = currentDate.plusDays(1), boardId = boardId1, owner = user),
+            Item(title = "item1", dueDate = currentDate.plusHours(5), boardId = boardId1, owner = user),
         )
         items.forEach { ItemService.addItem(it) }
 
         // items between today and tomorrow with boardId 1
-            val sameDueDate = items.filter { it.text == "item1" }
+        val sameDueDate = items.filter { it.title == "item1" }
 
         val client = configureTest("duedate")
         var headers = Parameters.build {
@@ -84,21 +85,21 @@ class ItemTest {
     fun testPriorityRoute() = testApplication {
         val boardId1 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "CS 346", priority = 1, boardId = boardId1),
-            Item(text = "CS 346", priority = 1, boardId = boardId1),
-            Item(text = "same day", priority = 0, boardId = boardId1),
+            Item(title = "CS 346", priority = 1, boardId = boardId1, owner = user),
+            Item(title = "CS 346", priority = 1, boardId = boardId1, owner = user),
+            Item(title = "same day", priority = 0, boardId = boardId1, owner = user),
         )
 
         items.forEach { ItemService.addItem(it) }
 
-        var samePriority = items.filter { it.priority == 1 }
+        val samePriority = items.filter { it.priority == 1 }
 
         val client = configureTest("priority")
-        var headers = Parameters.build {
+        val headers = Parameters.build {
             append("priority", "1")
         }.formUrlEncode()
 
-        var result = client.get("board/${boardId1}/items?${headers}")
+        val result = client.get("board/${boardId1}/items?${headers}")
 
         assertEquals(HttpStatusCode.OK, result.status)
         assertEquals(samePriority, result.body<List<Item>>())
@@ -109,14 +110,32 @@ class ItemTest {
     fun testLabelsRoute() = testApplication {
         val boardId1 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "CS 346", priority = 1, labels = mutableSetOf(Label("CS 346")), boardId = boardId1),
-            Item(text = "CS 346", priority = 0, labels = mutableSetOf(Label("CS 346"), Label("CS 341")), boardId = boardId1),
-            Item(text = "CS 341", priority = 0, labels = mutableSetOf(Label("CS 341")), boardId = boardId1),
+            Item(
+                title = "CS 346",
+                priority = 1,
+                labels = mutableSetOf(Label("CS 346")),
+                boardId = boardId1,
+                owner = user
+            ),
+            Item(
+                title = "CS 346",
+                priority = 0,
+                labels = mutableSetOf(Label("CS 346"), Label("CS 341")),
+                boardId = boardId1,
+                owner = user
+            ),
+            Item(
+                title = "CS 341",
+                priority = 0,
+                labels = mutableSetOf(Label("CS 341")),
+                boardId = boardId1,
+                owner = user
+            ),
         )
 
         items.forEach { ItemService.addItem(it) }
 
-        var sameLabels = listOf(items[1], items[0])
+        val sameLabels = listOf(items[1], items[0])
 
         val client = configureTest("labels")
         val headers = Parameters.build {
@@ -124,7 +143,7 @@ class ItemTest {
             append("sortBy", "priority")
         }.formUrlEncode()
 
-        var result = client.get("board/${boardId1}/items?${headers}")
+        val result = client.get("board/${boardId1}/items?${headers}")
 
         assertEquals(HttpStatusCode.OK, result.status)
         assertEquals(sameLabels, result.body<List<Item>>())
@@ -135,12 +154,33 @@ class ItemTest {
     fun testSorting() = testApplication {
         val boardId1 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "CS 346", priority = 0, dueDate = LocalDateTime.now(), labels = mutableSetOf(Label("CS 346"), Label("CS 341")), boardId = boardId1),
-            Item(text = "CS 346", priority = 1, dueDate = LocalDateTime.now().plusDays(1), labels = mutableSetOf(Label("CS 346")), boardId = boardId1),
-            Item(text = "CS 341", priority = 0, dueDate = LocalDateTime.now().plusHours(1), labels = mutableSetOf(Label("CS 341")), boardId = boardId1),
+            Item(
+                title = "CS 346",
+                priority = 0,
+                dueDate = LocalDateTime.now(),
+                labels = mutableSetOf(Label("CS 346"), Label("CS 341")),
+                boardId = boardId1,
+                owner = user
+            ),
+            Item(
+                title = "CS 346",
+                priority = 1,
+                dueDate = LocalDateTime.now().plusDays(1),
+                labels = mutableSetOf(Label("CS 346")),
+                boardId = boardId1,
+                owner = user
+            ),
+            Item(
+                title = "CS 341",
+                priority = 0,
+                dueDate = LocalDateTime.now().plusHours(1),
+                labels = mutableSetOf(Label("CS 341")),
+                boardId = boardId1,
+                owner = user
+            ),
         )
 
-        items.forEach{ ItemService.addItem(it) }
+        items.forEach { ItemService.addItem(it) }
 
         val client = configureTest("sorting")
 
@@ -167,20 +207,20 @@ class ItemTest {
     fun testSearch() = testApplication {
         val boardId1 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "item1", boardId = boardId1),
-            Item(text = "item2", boardId = boardId1),
-            Item(text = "item1", boardId = boardId1)
+            Item(title = "item1", boardId = boardId1, owner = user),
+            Item(title = "item2", boardId = boardId1, owner = user),
+            Item(title = "item1", boardId = boardId1, owner = user)
         )
         items.forEach { ItemService.addItem(it) }
 
         val client = configureTest("searching")
 
-        var headers = Parameters.build {
+        val headers = Parameters.build {
             append("search", "item1")
         }.formUrlEncode()
 
-        var expectedResult = items.filter { it.text == "item1" }
-        var result = client.get("board/${boardId1}/items?${headers}")
+        val expectedResult = items.filter { it.title == "item1" }
+        val result = client.get("board/${boardId1}/items?${headers}")
 
         assertEquals(HttpStatusCode.OK, result.status)
         assertEquals(expectedResult, result.body<List<Item>>())

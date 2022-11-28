@@ -29,9 +29,10 @@ internal class ItemServiceTest {
             stat.executeUpdate("DROP TABLE items")
         }
     }
+
     @Test
     fun addItem() {
-        val item = Item("todo")
+        val item = Item("todo", owner = user)
 
         ItemService.addItem(item)
 
@@ -42,8 +43,26 @@ internal class ItemServiceTest {
 
     @Test
     fun getAllItems() {
-        val item1 = Item("todo1", LocalDateTime.now(), UUID.randomUUID(), mutableSetOf(Label("label")), 1, UUID.randomUUID(), true)
-        val item2 = Item("todo1", LocalDateTime.now(), item1.boardId, mutableSetOf(Label("label")), 1, UUID.randomUUID(), true)
+        val item1 = Item(
+            "todo1",
+            LocalDateTime.now(),
+            UUID.randomUUID(),
+            mutableSetOf(Label("label")),
+            1,
+            UUID.randomUUID(),
+            true,
+            owner = user
+        )
+        val item2 = Item(
+            "todo1",
+            LocalDateTime.now(),
+            item1.boardId,
+            mutableSetOf(Label("label")),
+            1,
+            UUID.randomUUID(),
+            true,
+            owner = user
+        )
 
         val items = listOf(
             item1,
@@ -64,7 +83,7 @@ internal class ItemServiceTest {
 
     @Test
     fun getItem() {
-        val newItem = Item("item")
+        val newItem = Item("item", owner = user)
         val itemId = newItem.id
         ItemService.addItem(newItem)
 
@@ -76,8 +95,26 @@ internal class ItemServiceTest {
     @Test
     fun updateItem() {
         val boardId = UUID.randomUUID()
-        val newItem = Item("board", LocalDateTime.now(), boardId, mutableSetOf(Label("label")), 1, UUID.randomUUID(), true)
-        val updatedItem = Item("updated", LocalDateTime.now(), boardId, mutableSetOf(Label("updated")), 2, newItem.id, false)
+        val newItem = Item(
+            "board",
+            LocalDateTime.now(),
+            boardId,
+            mutableSetOf(Label("label")),
+            1,
+            UUID.randomUUID(),
+            true,
+            owner = user
+        )
+        val updatedItem = Item(
+            "updated",
+            LocalDateTime.now(),
+            boardId,
+            mutableSetOf(Label("updated")),
+            2,
+            newItem.id,
+            false,
+            owner = user
+        )
         ItemService.addItem(newItem)
 
         val itemAfterUpdate = ItemService.updateItem(updatedItem)
@@ -86,13 +123,13 @@ internal class ItemServiceTest {
         assertEquals(newItem.id, itemAfterUpdate.id)
         assertFalse(itemAfterUpdate.done)
         assertEquals(updatedItem.priority, itemAfterUpdate.priority)
-        assertEquals("updated", itemAfterUpdate.text)
+        assertEquals("updated", itemAfterUpdate.title)
         assertEquals(Label("updated"), itemAfterUpdate.labels.first())
     }
 
     @Test
     fun deleteItem() {
-        val newItem = Item("item")
+        val newItem = Item("item", owner = user)
         val itemId = newItem.id
         ItemService.addItem(newItem)
 
@@ -111,20 +148,20 @@ internal class ItemServiceTest {
         val boardId3 = UUID.randomUUID()
         val currentDate = LocalDateTime.of(2022, 11, 11, 14, 53)
         val items = listOf(
-            Item(text = "item1", dueDate = currentDate, boardId = boardId1),
-            Item(text = "item2", dueDate = currentDate.plusDays(1), boardId = boardId1),
-            Item(text = "item1", dueDate = currentDate.plusHours(5), boardId = boardId1),
-            Item(text = "item3", dueDate = currentDate.plusDays(2), boardId = boardId2),
-            Item(text = "item4", dueDate = currentDate.plusHours(5), boardId = boardId2),
+            Item(title = "item1", dueDate = currentDate, boardId = boardId1, owner = user),
+            Item(title = "item2", dueDate = currentDate.plusDays(1), boardId = boardId1, owner = user),
+            Item(title = "item1", dueDate = currentDate.plusHours(5), boardId = boardId1, owner = user),
+            Item(title = "item3", dueDate = currentDate.plusDays(2), boardId = boardId2, owner = user),
+            Item(title = "item4", dueDate = currentDate.plusHours(5), boardId = boardId2, owner = user),
         )
         items.forEach { ItemService.addItem(it) }
 
         // items between today and tomorrow with boardId 1
-        var sameDueDate = items.filter { it.text == "item1" }
+        var sameDueDate = items.filter { it.title == "item1" }
         var filteredItems = getItems(
             boardId = boardId1.toString(),
             "",
-            startDateTime =  currentDate,
+            startDateTime = currentDate,
             null,
             mutableSetOf(),
             mutableSetOf(),
@@ -135,7 +172,7 @@ internal class ItemServiceTest {
         assertEquals(sameDueDate, filteredItems)
 
         // items between tomorrow and the day after with boardId 1
-        sameDueDate = items.filter { it.text == "item2" }
+        sameDueDate = items.filter { it.title == "item2" }
         filteredItems = getItems(
             boardId1.toString(),
             "",
@@ -201,14 +238,33 @@ internal class ItemServiceTest {
         val boardId2 = UUID.randomUUID()
         val items = listOf(
             Item(
-                text = "CS 346",
+                title = "CS 346",
                 priority = 2,
                 labels = mutableSetOf(Label("CS 341"), Label("CS 346")),
-                boardId = boardId1
+                boardId = boardId1,
+                owner = user,
             ),
-            Item(text = "CS 346", priority = 1, labels = mutableSetOf(Label("CS 346")), boardId = boardId1),
-            Item(text = "CS 341", priority = 0, labels = mutableSetOf(Label("CS 341")), boardId = boardId1),
-            Item(text = "CS 341", priority = 1, labels = mutableSetOf(Label("CS 341")), boardId = boardId2)
+            Item(
+                title = "CS 346",
+                priority = 1,
+                labels = mutableSetOf(Label("CS 346")),
+                boardId = boardId1,
+                owner = user,
+            ),
+            Item(
+                title = "CS 341",
+                priority = 0,
+                labels = mutableSetOf(Label("CS 341")),
+                boardId = boardId1,
+                owner = user,
+            ),
+            Item(
+                title = "CS 341",
+                priority = 1,
+                labels = mutableSetOf(Label("CS 341")),
+                boardId = boardId2,
+                owner = user,
+            )
         )
 
         items.forEach { ItemService.addItem(it) }
@@ -294,10 +350,10 @@ internal class ItemServiceTest {
         val boardId1 = UUID.randomUUID()
         val boardId2 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "CS 346", priority = 1, boardId = boardId1),
-            Item(text = "CS 346", priority = 1, boardId = boardId1),
-            Item(text = "same day", priority = 0, boardId = boardId1),
-            Item(text = "same day", priority = 0, boardId = boardId2),
+            Item(title = "CS 346", priority = 1, boardId = boardId1, owner = user),
+            Item(title = "CS 346", priority = 1, boardId = boardId1, owner = user),
+            Item(title = "same day", priority = 0, boardId = boardId1, owner = user),
+            Item(title = "same day", priority = 0, boardId = boardId2, owner = user),
         )
 
         items.forEach { ItemService.addItem(it) }
@@ -366,7 +422,7 @@ internal class ItemServiceTest {
 
     @Test
     fun testDone() {
-        val newItem = Item("item")
+        val newItem = Item("item", owner = user)
         ItemService.addItem(newItem)
 
         val done = ItemService.markItemAsDone(newItem)
@@ -376,15 +432,16 @@ internal class ItemServiceTest {
 
     private fun assertOrdering(names: List<String>, items: List<Item>) {
         assertEquals(names.size, items.size)
-        items.forEachIndexed { idx, ele -> assertEquals(names[idx], ele.text)}
+        items.forEachIndexed { idx, ele -> assertEquals(names[idx], ele.title) }
     }
+
     @Test
     fun changeOrder() {
         val boardId = UUID.randomUUID()
         val items = listOf(
-            Item("1", boardId=boardId),
-            Item("2", boardId=boardId),
-            Item("3", boardId=boardId),
+            Item("1", boardId = boardId, owner = user),
+            Item("2", boardId = boardId, owner = user),
+            Item("3", boardId = boardId, owner = user),
         )
         items.forEach { ItemService.addItem(it) }
 
@@ -401,32 +458,36 @@ internal class ItemServiceTest {
         val boardId2 = UUID.randomUUID()
         val items = listOf(
             Item(
-                text = "CS 346",
+                title = "CS 346",
                 priority = 0,
                 dueDate = LocalDateTime.now(),
                 labels = mutableSetOf(Label("CS 346"), Label("CS 341")),
-                boardId = boardId1
+                boardId = boardId1,
+                owner = user,
             ),
             Item(
-                text = "CS 346",
+                title = "CS 346",
                 priority = 1,
                 dueDate = LocalDateTime.now().plusDays(1),
                 labels = mutableSetOf(Label("CS 346")),
-                boardId = boardId1
+                boardId = boardId1,
+                owner = user,
             ),
             Item(
-                text = "CS 341",
+                title = "CS 341",
                 priority = 0,
                 dueDate = LocalDateTime.now().plusHours(1),
                 labels = mutableSetOf(Label("CS 341")),
-                boardId = boardId1
+                boardId = boardId1,
+                owner = user,
             ),
             Item(
-                text = "CS 341",
+                title = "CS 341",
                 priority = 1,
                 dueDate = LocalDateTime.now(),
                 labels = mutableSetOf(Label("CS 341")),
-                boardId = boardId2
+                boardId = boardId2,
+                owner = user,
             )
         )
 
@@ -535,13 +596,13 @@ internal class ItemServiceTest {
     fun searching() {
         val boardId1 = UUID.randomUUID()
         val items = listOf(
-            Item(text = "item1", boardId = boardId1),
-            Item(text = "item2", boardId = boardId1),
-            Item(text = "item1", boardId = boardId1)
+            Item(title = "item1", boardId = boardId1, owner = user),
+            Item(title = "item2", boardId = boardId1, owner = user),
+            Item(title = "item1", boardId = boardId1, owner = user)
         )
         items.forEach { ItemService.addItem(it) }
 
-        val expectedResult = items.filter { it.text == "item1" }
+        val expectedResult = items.filter { it.title == "item1" }
         var searchResult = getItems(
             boardId1.toString(),
             "",
@@ -574,7 +635,7 @@ internal class ItemServiceTest {
     fun attachments() {
         // test add
         val boardId = UUID.randomUUID()
-        val item = Item("1", boardId = boardId)
+        val item = Item("1", boardId = boardId, owner = user)
 
         ItemService.addItem(item)
 

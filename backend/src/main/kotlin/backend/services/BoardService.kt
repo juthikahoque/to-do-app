@@ -149,9 +149,9 @@ object BoardService {
         // get board users
         getFields[0].setString(1, boardId)
         val usersRes = getFields[0].executeQuery()
-        val users = mutableSetOf<String>()
+        val users = mutableSetOf<User>()
         while (usersRes.next()) {
-            users.add(usersRes.getString("userId"))
+            users.add(UserService.getUserById(usersRes.getString("userId")))
         }
         // get board labels
         getFields[1].setString(1, boardId)
@@ -184,8 +184,8 @@ object BoardService {
             addBoard.setString(4, board.created_at.toString())
             addBoard.executeUpdate()
             // insert into boards_users
-            for (userId in board.users) {
-                addUser(boardIdStr, userId)
+            for (user in board.users) {
+                addUser(boardIdStr, user.userId)
             }
             // insert into boards_labels
             for (label in board.labels) {
@@ -262,11 +262,11 @@ object BoardService {
             val users = new.users.toMutableSet()
             for (oldUser in old.users) {
                 if (!users.remove(oldUser)) {
-                    removeUser(boardIdString, oldUser)
+                    removeUser(boardIdString, oldUser.userId)
                 }
             }
             for (unAddedUsers in users) {
-                addUser(new.id.toString(), unAddedUsers)
+                addUser(new.id.toString(), unAddedUsers.userId)
             }
             // update boards_labels
             val labels = new.labels.toMutableSet()

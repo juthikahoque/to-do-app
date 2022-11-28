@@ -47,6 +47,7 @@ fun Application.configureSerialization() {
 fun Application.configureErrorHandling() {
     install(StatusPages) {
         exception<AppError> { call, cause ->
+            println(cause.message)
             when (cause.type) {
                 AppError.NotFound ->
                     call.respond(HttpStatusCode.NotFound, cause.message ?: AppError.NotFound)

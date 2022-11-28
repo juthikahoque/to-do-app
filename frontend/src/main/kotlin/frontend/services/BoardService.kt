@@ -31,9 +31,7 @@ object BoardService {
     }
 
     suspend fun getBoard(id: UUID): Board {
-        val result = client.get("board") {
-            url(id.toString())
-        }
+        val result = client.get("board/$id")
         return result.body()
     }
 
@@ -46,9 +44,7 @@ object BoardService {
     }
 
     suspend fun deleteBoard(id: UUID) {
-        val result = client.delete("board") {
-            url(id.toString())
-        }
+        val result = client.delete("board/$id")
         if (result.status != HttpStatusCode.NoContent) error("failed to delete item")
     }
 

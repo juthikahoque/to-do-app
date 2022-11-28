@@ -11,6 +11,8 @@ import io.ktor.server.testing.*
 import backend.models.AuthUser
 
 
+
+
 fun ApplicationTestBuilder.configureTest(mockUserId: String): HttpClient {
     environment {
         config = ApplicationConfig("test.conf")

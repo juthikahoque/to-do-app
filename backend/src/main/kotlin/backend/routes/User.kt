@@ -6,7 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import backend.models.AuthUser
-import services.UserService
+import backend.services.UserService
 
 fun Route.userRouting() {
     authenticate {

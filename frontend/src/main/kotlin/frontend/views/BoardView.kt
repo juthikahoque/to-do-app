@@ -150,6 +150,11 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         model.applicationState.addListener { _, _, _ -> updateApplicationState() }
         updateApplicationState()
 
+        model.currentBoard.addListener { _, _, board ->
+            createToDoHeader.isVisible = board != model.allBoard
+            createToDoRowView.isVisible = board != model.allBoard
+        }
+
         app.addHotkey(KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN)) {
             itemList.requestFocus()
             itemList.selectionModel.select(0)

@@ -12,19 +12,21 @@ internal class ItemTest {
     @Test
     fun serialize() {
         val item = Item(
-            text = "item",
+            title = "item",
             dueDate = LocalDateTime.now(),
             boardId = UUID.randomUUID(),
             labels = mutableSetOf(Label("label1"), Label("label2")),
             priority = 1,
             id = UUID.randomUUID(),
-            done = true
+            owner = User("user"),
+            done = true,
+            description = "des",
         )
 
         val str = Json.encodeToString(item)
 
         assertEquals(
-            """{"text":"item","dueDate":"${item.dueDate}","boardId":"${item.boardId}","labels":[{"value":"label1"},{"value":"label2"}],"priority":1,"id":"${item.id}","done":true}""",
+            """{"title":"item","dueDate":"${item.dueDate}","boardId":"${item.boardId}","labels":[{"value":"label1"},{"value":"label2"}],"priority":1,"id":"${item.id}","done":true,"owner":${Json.encodeToString(item.owner)},"description":"des"}""",
             str
         )
 

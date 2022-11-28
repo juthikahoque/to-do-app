@@ -47,10 +47,8 @@ jlink {
     }
     mergedModule {
         excludeProvides servicePattern: 'reactor.blockhound.*'
-        excludeProvides servicePattern: 'kotlin.*'
-        excludeRequires("kotlin.coroutines.cancellation")
-
     }
+    forceMerge("kotlin")
 }
 
 jlinkZip {

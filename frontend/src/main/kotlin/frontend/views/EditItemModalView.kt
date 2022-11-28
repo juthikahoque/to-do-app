@@ -1,7 +1,6 @@
 package frontend.views
 
 import frontend.Model
-import frontend.services.BoardService
 import frontend.services.ItemService
 import javafx.geometry.Insets
 import javafx.scene.control.*
@@ -21,7 +20,7 @@ class EditItemModalView(private val model: Model, item: Item): VBox() {
     )
 
     private val nameInput = TextField().apply {
-        text = item.text
+        text = item.title
     }
 
     private val datePicker = DatePicker().apply {
@@ -69,7 +68,7 @@ class EditItemModalView(private val model: Model, item: Item): VBox() {
         id = "save"
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
-            item.text = nameInput.text
+            item.title = nameInput.text
             item.priority = selectedPriority
             item.dueDate = datePicker.value.atStartOfDay()
 

@@ -14,8 +14,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class BoardServiceTest {
-    val b1 = Board("board")
-    val b2 = Board("2")
+    private val b1 = Board("board")
+    private val b2 = Board("2")
 
     private val httpClient = HttpClient(MockEngine) {
         engine {
@@ -28,20 +28,29 @@ internal class BoardServiceTest {
                     )
 
                     HttpMethod.Get -> respond(
-                        if (request.url.encodedPath == "/board") Json.encodeToString(listOf(b1, b2))
-                        else Json.encodeToString(b1),
+                        when (request.url.encodedPath) {
+                            "/board" -> Json.encodeToString(listOf(b1, b2))
+                            "/board/${b1.id}" -> Json.encodeToString(b1)
+                            else -> error("invalid path")
+                        },
                         HttpStatusCode.OK,
                         headersOf(HttpHeaders.ContentType, "application/json")
                     )
 
                     HttpMethod.Put -> respond(
-                        if (request.url.encodedPath == "/board") Json.encodeToString(b1)
-                        else "",
+                        when (request.url.encodedPath) {
+                            "/board" -> Json.encodeToString(b1)
+                            "/board/order" -> ""
+                            else -> error("invalid path")
+                        },
                         HttpStatusCode.OK,
                         headersOf(HttpHeaders.ContentType, "application/json")
                     )
 
-                    HttpMethod.Delete -> respond("", HttpStatusCode.NoContent)
+                    HttpMethod.Delete ->
+                        if (request.url.encodedPath == "/board/${b1.id}")
+                            respond("", HttpStatusCode.NoContent)
+                        else error("invalid path")
 
                     else -> error("unhandled")
                 }
