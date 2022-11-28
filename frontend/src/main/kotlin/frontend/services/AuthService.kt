@@ -8,14 +8,13 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNames
 import kotlinx.serialization.json.decodeFromStream
+import models.User
 
+@OptIn(ExperimentalSerializationApi::class)
 object AuthService {
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -27,7 +26,16 @@ object AuthService {
             json(json)
         }
     }
-    var user: FirebaseRet? = null
+
+    val user: User
+        get() = firebaseUser!!.let {
+            User(
+                it.localId,
+                it.displayName,
+                it.email,
+            )
+        }
+    var firebaseUser: FirebaseRet? = null
     var token: Token? = null
 
     init {
@@ -38,7 +46,7 @@ object AuthService {
             token = json.decodeFromString<Token>(tokenString)
             runBlocking {
                 refresh() // refresh the token to avoid expired token on first login
-                user = getUserInfo()
+                firebaseUser = getUserInfo()
             }
         }
     }
@@ -62,7 +70,7 @@ object AuthService {
             append("providerId", "google.com")
         }.formUrlEncode()
 
-        user = firebaseSignInWithOAuth(body)
+        firebaseUser = firebaseSignInWithOAuth(body)
     }
 
     suspend fun refresh() {
@@ -100,7 +108,7 @@ object AuthService {
     fun logout() {
         Settings.put("auth.token", "")
         this.token = null
-        this.user = null
+        this.firebaseUser = null
     }
 
     suspend fun serverStatusCheck(url: String): Boolean {

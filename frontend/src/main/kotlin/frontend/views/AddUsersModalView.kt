@@ -48,7 +48,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
 
             if (users.isEmpty()) {
                 errorMessage.text = "An invalid email was provided."
-            } else if (model.currentBoard.value.users.contains(users[0].userId)) {
+            } else if (model.currentBoard.value.users.contains(users[0])) {
                 errorMessage.text = "This user already has access to this board."
             } else if (listOfUsers.contains(users[0])) {
                 errorMessage.text = "This user is already set to be added."
@@ -74,7 +74,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
             for (user in listOfUsers) {
-                model.currentBoard.value.users.add(user.userId)
+                model.currentBoard.value.users.add(user)
             }
 
             runBlocking {

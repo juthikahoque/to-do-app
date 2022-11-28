@@ -20,7 +20,7 @@ object ItemService {
     }
 
     suspend fun addItem(bid: UUID, item: Item): Item? {
-        val result = client.post("board/${bid}/items") {
+        val result = client.post("board/$bid/items") {
             contentType(ContentType.Application.Json)
             setBody(item)
         }
@@ -37,7 +37,7 @@ object ItemService {
         sortBy: String = "",
         orderBy: String = "",
     ): MutableList<Item> {
-        val result = client.get("board/${bid}/items") {
+        val result = client.get("board/$bid/items") {
             url {
                 if (startDate != null)  parameters.append("date", startDate.toString())
                 if (endDate != null)    parameters.append("date", endDate.toString())
@@ -52,14 +52,12 @@ object ItemService {
     }
 
     suspend fun getItem(bid: UUID, id: UUID): Item {
-        val result = client.get("board/${bid}/items") {
-            url(id.toString())
-        }
+        val result = client.get("board/$bid/items/$id")
         return result.body()
     }
 
     suspend fun updateItem(bid: UUID, new: Item): Item? {
-        val result = client.put("board/${bid}/items") {
+        val result = client.put("board/$bid/items") {
             contentType(ContentType.Application.Json)
             setBody(new)
         }

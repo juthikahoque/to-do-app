@@ -42,7 +42,10 @@ class Model : CoroutineScope {
         runBlocking {
             val list = BoardService.getBoards().toMutableList()
             if (list.isEmpty()) { // only has the "All" board
-                val personalBoard = Board("Personal", mutableSetOf(AuthService.user!!.localId))
+                val personalBoard = Board(
+                    "Personal",
+                    mutableSetOf(AuthService.user)
+                )
                 BoardService.addBoard(personalBoard)
                 list.add(personalBoard)
             }

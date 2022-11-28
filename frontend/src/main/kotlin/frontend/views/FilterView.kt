@@ -149,7 +149,7 @@ class FilterView(private val model: Model) : VBox() {
         spacing = 5.0
     }
 
-    private fun updateOptions(newChild: Region) {
+    private fun updateOptions(newChild: Region?) {
         if (filterOptions.children.size > 1) {
             filterOptions.children.removeAt(1)
         }

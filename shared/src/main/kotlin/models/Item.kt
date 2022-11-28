@@ -6,7 +6,7 @@ import java.util.*
 
 @Serializable
 data class Item(
-    var text: String = "",
+    var title: String = "",
     var dueDate: @Serializable(with = DateTimeSerializer::class) LocalDateTime? = null,
     val boardId: @Serializable(with = UUIDSerializer::class) UUID = UUID.randomUUID(),
     val labels: MutableSet<Label> = mutableSetOf(),
@@ -14,4 +14,6 @@ data class Item(
     val id: @Serializable(with = UUIDSerializer::class) UUID = UUID.randomUUID(),
     val done: Boolean = false,
     val attachments: MutableSet<Attachment> = mutableSetOf(),
+    val owner: User,
+    val description: String = "",
 )

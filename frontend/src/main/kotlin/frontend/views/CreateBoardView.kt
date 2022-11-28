@@ -30,9 +30,9 @@ class CreateBoardView(private val model: Model): VBox() {
         setOnAction {
             if (nameInput.text == "") {
                 println("No board name entered! This is probably an error!")
-                model.addBoard(Board("NO NAME", mutableSetOf(AuthService.user!!.localId)))
+                model.addBoard(Board("NO NAME", mutableSetOf(AuthService.user)))
             } else {
-                model.addBoard(Board(nameInput.text, mutableSetOf(AuthService.user!!.localId)))
+                model.addBoard(Board(nameInput.text, mutableSetOf(AuthService.user)))
             }
             model.additionalModalView.set("")
         }

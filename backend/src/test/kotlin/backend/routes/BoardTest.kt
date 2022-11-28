@@ -10,8 +10,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import backend.services.*
+import models.User
 
 class BoardTest {
+
+    val users = mutableSetOf(User("rIliX3UCwhY7qvdPeh0jJsQL1UR2", "test", "test@email.com"))
 
     @BeforeEach
     fun init() {
@@ -29,11 +32,8 @@ class BoardTest {
 
     @Test
     fun testGet() = testApplication {
-        val client = configureTest("user")
+        val client = configureTest("rIliX3UCwhY7qvdPeh0jJsQL1UR2")
 
-        val mockUserId = "user"
-
-        val users = mutableSetOf(mockUserId)
         val boards = listOf(
             Board("1", users),
             Board("2", users),
@@ -47,11 +47,8 @@ class BoardTest {
 
     @Test
     fun testGetById() = testApplication {
-        val client = configureTest("user")
+        val client = configureTest("rIliX3UCwhY7qvdPeh0jJsQL1UR2")
 
-        val mockUserId = "user"
-
-        val users = mutableSetOf(mockUserId)
         val boards = listOf(
             Board("1", users),
             Board("2", users),
@@ -68,9 +65,6 @@ class BoardTest {
     fun testPost() = testApplication {
         val client = configureTest("user")
 
-        val mockUserId = "user"
-
-        val users = mutableSetOf(mockUserId)
         val board = Board("1", users)
 
         val response = client.post("/board") {
@@ -86,9 +80,6 @@ class BoardTest {
     fun testUpdate() = testApplication {
         val client = configureTest("user")
 
-        val mockUserId = "user"
-
-        val users = mutableSetOf(mockUserId)
         val board = Board("1", users)
         val new = board.copy(name = "new")
 
@@ -116,9 +107,6 @@ class BoardTest {
     fun testDelete() = testApplication {
         val client = configureTest("user")
 
-        val mockUserId = "user"
-
-        val users = mutableSetOf(mockUserId)
         val board = Board("1", users)
         BoardService.addBoard(board)
 

@@ -11,6 +11,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import models.Attachment
 import models.Item
+import models.User
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -19,9 +20,10 @@ import java.util.*
 
 internal class ItemServiceTest {
 
-    val bid = UUID.randomUUID()
-    val i1 = Item(text = "item", id = bid)
-    val i2 = Item(text = "2", id = bid)
+    private val bid = UUID.randomUUID()
+    private val user = User("rIliX3UCwhY7qvdPeh0jJsQL1UR2")
+    private val i1 = Item(title = "item", id = bid, owner = user)
+    private val i2 = Item(title = "2", id = bid, owner = user)
 
     private fun MockRequestHandleScope.mockPost(request: HttpRequestData): HttpResponseData {
         return when (request.url.encodedPath) {

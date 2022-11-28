@@ -37,8 +37,8 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
 
     private val userDetails = VBox().apply {
-        val profilePic = Image(AuthService.user?.photoUrl)
-        val username = Label(AuthService.user?.displayName).apply {
+        val profilePic = Image(AuthService.firebaseUser?.photoUrl)
+        val username = Label(AuthService.user.name).apply {
             textFill = Color.LIGHTBLUE
             font = Font(20.0)
             id = "name"

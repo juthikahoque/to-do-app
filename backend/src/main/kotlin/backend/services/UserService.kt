@@ -1,6 +1,5 @@
-package services
+package backend.services
 
-import backend.services.FirebaseService
 import com.google.firebase.auth.UserRecord
 import models.User
 

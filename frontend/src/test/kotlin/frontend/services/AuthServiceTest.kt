@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 suspend fun main() {
     AuthService.googleAuth()
 
-    assertNotNull(AuthService.user)
+    assertNotNull(AuthService.firebaseUser)
 
     AuthService.refresh()
 }

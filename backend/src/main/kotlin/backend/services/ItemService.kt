@@ -29,6 +29,8 @@ object ItemService {
                 priority INT,
                 done BOOLEAN,
                 boardId TEXT,
+                owner TEXT,
+                description TEXT,
                 ordering INT NOT NULL,
                 FOREIGN KEY(boardId) REFERENCES boards(id));
         """.trimIndent()
@@ -63,20 +65,23 @@ object ItemService {
             // prepared statements
             val insertItems = conn.prepareStatement(
                 """
-                INSERT INTO items (id, text, dueDate, priority, done, boardId, ordering) 
-                SELECT ?, ?, ?, ?, ?, ?, COALESCE(MAX(ordering) + 1, 0) FROM items WHERE boardId = ?
+                INSERT INTO items (id, text, dueDate, priority, done, boardId, owner, description, ordering) 
+                SELECT ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(MAX(ordering) + 1, 0) FROM items WHERE boardId = ?
                 """.trimIndent()
             )
             val insertLabels = conn.prepareStatement("INSERT INTO items_labels (itemId, label) VALUES (?, ?)")
 
+            var idx = 0;
             // insert into items table
-            insertItems.setString(1, item.id.toString())
-            insertItems.setString(2, item.text)
-            insertItems.setString(3, item.dueDate.toString())
-            insertItems.setInt(4, item.priority)
-            insertItems.setBoolean(5, item.done)
-            insertItems.setString(6, item.boardId.toString())
-            insertItems.setString(7, item.boardId.toString())
+            insertItems.setString(++idx, item.id.toString())
+            insertItems.setString(++idx, item.title)
+            insertItems.setString(++idx, item.dueDate.toString())
+            insertItems.setInt(++idx, item.priority)
+            insertItems.setBoolean(++idx, item.done)
+            insertItems.setString(++idx, item.boardId.toString())
+            insertItems.setString(++idx, item.owner.userId)
+            insertItems.setString(++idx, item.description)
+            insertItems.setString(++idx, item.boardId.toString())
 
             insertItems.executeUpdate()
 
@@ -161,7 +166,7 @@ object ItemService {
         val dueDateStr = res.getString("dueDate")
 
         return Item(
-            text = res.getString("text"),
+            title = res.getString("text"),
             dueDate = if (dueDateStr == "null") null else LocalDateTime.parse(dueDateStr),
             boardId = UUID.fromString(res.getString("boardId")),
             labels = labels,
@@ -169,6 +174,8 @@ object ItemService {
             id = itemId,
             done = res.getBoolean("done"),
             attachments = attachments,
+            owner = UserService.getUserById(res.getString("owner")),
+            description = res.getString("description"),
         )
     }
 
@@ -209,13 +216,18 @@ object ItemService {
 
     fun updateItem(new: Item): Item {
         try {
-            val updateItem =
-                conn.prepareStatement("UPDATE items SET text = ?, dueDate = ?, priority = ?, done = ? WHERE id = ?")
-            updateItem.setString(1, new.text)
-            updateItem.setString(2, new.dueDate.toString())
-            updateItem.setInt(3, new.priority)
-            updateItem.setBoolean(4, new.done)
-            updateItem.setString(5, new.id.toString())
+            val updateItem = conn.prepareStatement(
+                """UPDATE items SET text = ?, dueDate = ?, priority = ?, done = ?, owner = ?, description = ? WHERE id = ?"""
+            )
+            var idx = 0;
+
+            updateItem.setString(++idx, new.title)
+            updateItem.setString(++idx, new.dueDate.toString())
+            updateItem.setInt(++idx, new.priority)
+            updateItem.setBoolean(++idx, new.done)
+            updateItem.setString(++idx, new.owner.userId)
+            updateItem.setString(++idx, new.description)
+            updateItem.setString(++idx, new.id.toString())
 
             updateItem.executeUpdate()
 
