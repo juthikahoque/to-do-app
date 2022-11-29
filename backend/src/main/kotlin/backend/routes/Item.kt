@@ -31,9 +31,10 @@ fun Route.itemRouting() {
                 val labels = mutableSetOf<Label>()
                 filterByLabel?.forEach { labels.add(Label(it)) }
 
-                val filterByDate = call.request.queryParameters.getAll("date")
-                val startDate = if (!filterByDate?.get(0).isNullOrBlank()) LocalDateTime.parse(filterByDate?.get(0)) else null
-                val endDate = if (!filterByDate?.get(1).isNullOrBlank()) LocalDateTime.parse(filterByDate?.get(1)) else null
+                val sDateStr = call.request.queryParameters["sDate"]
+                val startDate = if (sDateStr == null) null else LocalDateTime.parse(sDateStr)
+                val eDateStr = call.request.queryParameters["eDate"]
+                val endDate = if (eDateStr == null) null else LocalDateTime.parse(eDateStr)
 
                 // for searching
                 val search = call.request.queryParameters["search"]

@@ -5,64 +5,137 @@ import frontend.services.ItemService
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Insets
 import javafx.scene.control.ChoiceBox
+import javafx.scene.control.DateCell
 import javafx.scene.control.DatePicker
-import javafx.scene.control.Label
 import javafx.scene.control.ToggleButton
+import javafx.scene.control.skin.DatePickerSkin
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
+import javafx.scene.text.Text
+import javafx.util.StringConverter
 import java.time.LocalDate
+import kotlin.math.max
+import kotlin.math.min
+
 
 //View for the filtering by due date, labels and priorities
 class FilterView(private val model: Model) : VBox() {
-
-    private var oldestDate = LocalDate.MIN
-
-    private var selectedDates: Pair<LocalDate, LocalDate?> = Pair(oldestDate, null)
-
     private var filter = SimpleObjectProperty(model.noFilter)
 
-    private val dateFilter = HBox().apply {
-        val from = DatePicker().apply {
-            prefWidth = 125.0
-            setOnAction {
-                selectedDates = selectedDates.copy(first = value)
-                filter.set { bid, sort, order, search ->
-                    ItemService.getItems(
-                        bid,
-                        startDate = selectedDates.first.atStartOfDay(),
-                        endDate = selectedDates.second?.atStartOfDay(),
-                        search =  search,
-                        sortBy =  sort,
-                        orderBy =  order
-                    )
-                }
+    private var iniDay: Int? = null
+    private var endDay: Int? = null
+
+    private var iniDate: LocalDate = LocalDate.now()
+    private var endDate: LocalDate = LocalDate.now()
+
+    private val datePicker = DatePicker().apply {
+        minWidth = 200.0
+        isEditable = false
+        converter = object : StringConverter<LocalDate?>() {
+            override fun toString(obj: LocalDate?): String {
+                return if (iniDate != endDate) "$iniDate to $endDate" else obj.toString()
             }
 
-        }
-        val toLabel = Label(" to ").apply { translateY = 5.0 }
-        val to = DatePicker().apply {
-            prefWidth = 125.0
-            setOnAction {
-                selectedDates = selectedDates.copy(second = value)
-                filter.set { bid, sort, order, search ->
-                    ItemService.getItems(
-                        bid,
-                        startDate = selectedDates.first.atStartOfDay(),
-                        endDate = selectedDates.second?.atStartOfDay(),
-                        search =  search,
-                        sortBy =  sort,
-                        orderBy =  order
-                    )
+            override fun fromString(str: String): LocalDate? {
+                return if (str.contains(" to ")) {
+                    iniDate = LocalDate.parse(str.split(" to ").first())
+                    endDate = LocalDate.parse(str.split(" to ").last())
+                    iniDate
+                } else {
+                    LocalDate.parse(str)
                 }
             }
         }
-        children.addAll(from, toLabel, to)
+        value = LocalDate.now()
+
+        setOnShowing {
+            val content = (skin as DatePickerSkin).popupContent
+            val cells: List<DateCell> = content.lookupAll(".day-cell")
+                .filter { "next-month" !in it.styleClass && "previous-month" !in it.styleClass }
+                .map { it as DateCell }
+
+            iniDay = null
+            endDay = null
+
+            content.setOnMouseDragged { e: MouseEvent ->
+                val n = e.pickResult.intersectedNode
+                val c = if (n is DateCell) n else if (n is Text) (n.parent as DateCell) else null
+                if (c != null && c.styleClass.contains("day-cell") &&
+                    "next-month" !in c.styleClass && "previous-month" !in c.styleClass
+                ) {
+                    iniDay = iniDay ?: c.text.toInt()
+                    endDay = c.text.toInt()
+                }
+                if (iniDay != null && endDay != null) {
+                    cells.forEach { it.styleClass.remove("selected") }
+                    cells.filter { it.text.toInt() in min(iniDay!!, endDay!!)..max(iniDay!!, endDay!!) }
+                        .forEach { it.styleClass.add("selected") }
+                }
+            }
+            content.setOnMouseReleased { e ->
+                val ini = iniDay
+                val end = endDay
+                if (ini != null && end != null) {
+                    iniDate = LocalDate.of(
+                        value.year,
+                        value.month,
+                        min(ini, end)
+                    )
+                    endDate = LocalDate.of(
+                        value.year,
+                        value.month,
+                        max(ini, end)
+                    )
+
+                    value = iniDate
+
+                    cells.forEach { it.styleClass.remove("selected") }
+                    cells.filter { it.text.toInt() in ini..end }
+                        .forEach { it.styleClass.add("selected") }
+                } else {
+                    val n = e.pickResult.intersectedNode
+                    val c = if (n is DateCell) n else if (n is Text) (n.parent as DateCell) else null
+                    if (c != null && c.styleClass.contains("day-cell") &&
+                        "next-month" !in c.styleClass && "previous-month" !in c.styleClass
+                    ) {
+                        value = LocalDate.of(
+                            value.year,
+                            value.month,
+                            c.text.toInt()
+                        )
+                        iniDate = value
+                        endDate = value
+                    }
+                }
+                filter.set { bid, sort, order, search ->
+                    println("$iniDate to $endDate")
+                    ItemService.getItems(
+                        bid,
+                        startDate = iniDate.atStartOfDay(),
+                        endDate = endDate.plusDays(1).atStartOfDay(),
+                        search = search,
+                        sortBy = sort,
+                        orderBy = order
+                    )
+                }
+                endDay = null
+                iniDay = null
+
+                if (value == iniDate) {
+                    value = value.plusDays(1)
+                    value = value.minusDays(1)
+                }
+                hide()
+            }
+        }
     }
 
     private val selectedLabels = mutableSetOf<models.Label>()
     private val labelFilter = HBox().apply {
         spacing = 10.0
     }
+
     private fun addLabelsToLabelFilter() {
         labelFilter.children.setAll(model.currentBoard.value.labels.map { label ->
             ToggleButton(label.value).apply {
@@ -87,9 +160,9 @@ class FilterView(private val model: Model) : VBox() {
                         ItemService.getItems(
                             bid,
                             labels = selectedLabels,
-                            search =  search,
-                            sortBy =  sort,
-                            orderBy =  order
+                            search = search,
+                            sortBy = sort,
+                            orderBy = order
                         )
                     }
                 }
@@ -119,10 +192,10 @@ class FilterView(private val model: Model) : VBox() {
                     filter.set { bid, sort, order, search ->
                         ItemService.getItems(
                             bid,
-                            priorities =  selectedPriorities,
-                            search =  search,
-                            sortBy =  sort,
-                            orderBy =  order
+                            priorities = selectedPriorities,
+                            search = search,
+                            sortBy = sort,
+                            orderBy = order
                         )
                     }
                 }
@@ -138,7 +211,7 @@ class FilterView(private val model: Model) : VBox() {
         items.add("Labels")
         setOnAction {
             when (value) {
-                "Due Date" -> updateOptions(dateFilter)
+                "Due Date" -> updateOptions(datePicker)
                 "Priority" -> updateOptions(priorityGroup)
                 "Labels" -> updateOptions(labelFilter)
             }

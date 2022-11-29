@@ -3,7 +3,9 @@ package frontend.views
 import frontend.Model
 import frontend.services.ItemService
 import javafx.geometry.Insets
-import javafx.scene.control.*
+import javafx.scene.control.Button
+import javafx.scene.control.DatePicker
+import javafx.scene.control.TextField
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import kotlinx.coroutines.runBlocking
@@ -13,11 +15,6 @@ import java.time.LocalDate
 class EditItemModalView(private val model: Model, item: Item): VBox() {
 
     private var selectedPriority = item.priority
-    private val priorityMappings = mutableMapOf<Int, String>(
-        0 to "Low",
-        1 to "Medium",
-        2 to "High"
-    )
 
     private val nameInput = TextField().apply {
         text = item.title
@@ -73,7 +70,7 @@ class EditItemModalView(private val model: Model, item: Item): VBox() {
             item.dueDate = datePicker.value.atStartOfDay()
 
             runBlocking {
-                ItemService.updateItem(item.boardId, item!!)
+                ItemService.updateItem(item.boardId, item)
             }
 
             model.additionalModalView.set("")
