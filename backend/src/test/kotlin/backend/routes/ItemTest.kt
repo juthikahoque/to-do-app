@@ -60,8 +60,8 @@ class ItemTest {
 
         val client = configureTest("duedate")
         var headers = Parameters.build {
-            append("date", currentDate.toString())
-            append("date", currentDate.plusDays(1).toString())
+            append("sDate", currentDate.toString())
+            append("eDate", currentDate.plusDays(1).toString())
         }.formUrlEncode()
 
         var result = client.get("board/${boardId1}/items?${headers}")
@@ -70,8 +70,7 @@ class ItemTest {
         assertEquals(sameDueDate, result.body<List<Item>>())
 
         headers = Parameters.build {
-            append("date", currentDate.toString())
-            append("date", "")
+            append("sDate", currentDate.toString())
         }.formUrlEncode()
 
         result = client.get("board/${boardId1}/items?${headers}")

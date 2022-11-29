@@ -39,8 +39,8 @@ object ItemService {
     ): MutableList<Item> {
         val result = client.get("board/$bid/items") {
             url {
-                if (startDate != null)  parameters.append("date", startDate.toString())
-                if (endDate != null)    parameters.append("date", endDate.toString())
+                if (startDate != null)  parameters.append("sDate", startDate.toString())
+                if (endDate != null)    parameters.append("eDate", endDate.toString())
                 for (p in priorities)   parameters.append("priority", p.toString())
                 for (l in labels)       parameters.append("label", l.value)
                 if (search != "")       parameters.append("search", search)

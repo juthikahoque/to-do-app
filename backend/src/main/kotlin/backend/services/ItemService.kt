@@ -406,9 +406,8 @@ object ItemService {
 
             // substitute values
             if (startDateTime != null) {
-                val startDate = startDateTime.toLocalDate()
-                val endDate = if (endDateTime != null) endDateTime.toLocalDate() else startDate.plusDays(1)
-                statement.setString(++sqlIndex, startDate.toString())
+                val endDate = endDateTime ?: startDateTime.plusDays(1)
+                statement.setString(++sqlIndex, startDateTime.toString())
                 statement.setString(++sqlIndex, endDate.toString())
             }
             for (label in labels) {
