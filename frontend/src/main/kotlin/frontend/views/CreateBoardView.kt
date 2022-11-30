@@ -60,7 +60,10 @@ class CreateBoardView(private val model: Model): VBox(), CoroutineScope {
         isCancelButton = true
     }
 
-    private val buttons = HBox(createButton, cancelButton).apply{
+    private val spacer = Pane().apply {
+        HBox.setHgrow(this, Priority.ALWAYS)
+    }
+    private val buttons = HBox(spacer, cancelButton, createButton).apply{
         spacing = 10.0
     }
 

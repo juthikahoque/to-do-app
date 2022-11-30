@@ -48,7 +48,7 @@
     accent_color: #90EE90;
 }
 
-#cancel {
+#delete {
     accent_color: #CD5C5C;
 }
 
@@ -77,7 +77,7 @@
 }
 
 #create {
-    -fx-font-size: 12px;
+    -fx-font-size: 20px;
     -fx-background: rgb(52, 52, 54);
     -fx-background-color: rgb(52, 52, 54);
     accent_color: #90EE90;
@@ -85,7 +85,7 @@
 }
 
 #logout {
-    -fx-font-size: 12px;
+    -fx-font-size: 20px;
     -fx-background: rgb(52, 52, 54);
     -fx-background-color: rgb(52, 52, 54);
     accent_color: #CD5C5C;
@@ -182,17 +182,25 @@
     -fx-background-color: rgb(52, 52, 54)
 }
 
+#borderPane {
+    -fx-background-color: white;
+}
+
 /*******************************************************************************
  *                                                                             *
  * Text Field                                                                  *
  *                                                                             *
  ******************************************************************************/
 
- .text-field, .text-field:hover {
+ .text-field, .text-field:hover, .text-area, .text-area:hover {
     -fx-background-color: accent_color, text_input_background_color;
  }
 
-.text-input {
+ .text-area .content, .text-area:hover .content  {
+    -fx-background-color: accent_color, text_input_background_color;
+ }
+
+.text-input, .text-area {
   graphic_color: accent_color;
 }
 
