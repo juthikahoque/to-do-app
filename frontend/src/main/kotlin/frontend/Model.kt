@@ -8,6 +8,9 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.javafx.JavaFx
@@ -32,7 +35,7 @@ class Model : CoroutineScope {
     val sort = SimpleStringProperty("")
     val order = SimpleStringProperty("")
     val search = SimpleStringProperty("")
-    val filter = SimpleObjectProperty(noFilter)
+    val filter = SimpleObjectProperty(noFilter) // function that takes bid, sort, order, search
 
     val applicationState = SimpleObjectProperty(ApplicationState.Loading)
 
@@ -41,7 +44,7 @@ class Model : CoroutineScope {
     init {
         runBlocking {
             val list = BoardService.getBoards().toMutableList()
-            if (list.isEmpty()) { // only has the "All" board
+            if (list.isEmpty()) { // user has no board, add a personal
                 val personalBoard = Board(
                     "Personal",
                     mutableSetOf(AuthService.user)
@@ -53,54 +56,37 @@ class Model : CoroutineScope {
             boards.setAll(list)
         }
 
-        sort.addListener { _, _, _ -> updateItems() }
-        order.addListener { _, _, _ -> updateItems() }
-        search.addListener { _, _, _ -> updateItems() }
-        filter.addListener { _, _, _ -> updateItems() }
+        sort.addListener { _, _, _ -> launch { updateItems() } }
+        order.addListener { _, _, _ -> launch { updateItems() } }
+        search.addListener { _, _, _ -> launch { updateItems() } }
+        filter.addListener { _, _, _ -> launch { updateItems() } }
 
-        currentBoard.addListener { _, _, _ -> updateItems() }
+        currentBoard.addListener { _, _, _ -> launch { updateItems() } }
         currentBoard.set(boards[1])
 
         applicationState.set(ApplicationState.Ready)
     }
 
-    fun updateBoards() {
-        launch {
-            val list = BoardService.getBoards().toMutableList()
-            list.add(0, allBoard)
-            boards.setAll(list)
-        }
+    suspend fun updateBoards() {
+        val list = BoardService.getBoards().toMutableList()
+        list.add(0, allBoard)
+        boards.setAll(list)
     }
 
-    fun updateItems() {
+    suspend fun updateItems() {
         val boardIdStr = if (currentBoard.value == allBoard) "all" else currentBoard.value.id.toString()
         val sortStr = if (sort.value == "" && currentBoard.value == allBoard) "dueDate" else sort.value
         val orderStr = order.value
         val searchStr = search.value
-        launch {
-            items.setAll(
-                filter.value.invoke(
-                    boardIdStr,
-                    sortStr,
-                    orderStr,
-                    searchStr,
-                )
+
+        items.setAll(
+            filter.value.invoke(
+                boardIdStr,
+                sortStr,
+                orderStr,
+                searchStr,
             )
-        }
-    }
-
-    fun addBoard(board: Board) {
-        runBlocking {
-            BoardService.addBoard(board)
-            updateBoards()
-        }
-    }
-
-    fun addToDoItem(item: Item) {
-        runBlocking {
-            ItemService.addItem(item.boardId, item)
-            updateItems()
-        }
+        )
     }
 
     fun customOrderEnabled(): Boolean {
@@ -108,17 +94,5 @@ class Model : CoroutineScope {
                 && filter.value == noFilter
                 && sort.value == ""
                 && search.value == "")
-    }
-
-    fun logout() {
-        AuthService.logout()
-        app.changeScene("login")
-    }
-
-    fun updateItem(item: Item) {
-        runBlocking {
-            ItemService.updateItem(item.boardId, item)
-            updateItems()
-        }
     }
 }

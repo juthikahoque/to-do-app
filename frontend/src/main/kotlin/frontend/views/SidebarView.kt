@@ -5,17 +5,18 @@ import frontend.app
 import frontend.services.AuthService
 import frontend.services.BoardService
 import javafx.geometry.Insets
-import javafx.geometry.Pos
-import javafx.scene.image.Image
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
-import javafx.scene.control.skin.ButtonSkin
+import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
-import javafx.scene.layout.*
+import javafx.scene.layout.Background
+import javafx.scene.layout.BackgroundFill
+import javafx.scene.layout.BorderPane
+import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
 import javafx.scene.shape.Circle
@@ -26,6 +27,7 @@ import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import models.Board
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.max
 
 
 /* The view for the sidebar which includes
@@ -53,50 +55,34 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
 
     private var dragFromIndex = -1
     private var dragToIndex = -1
-    private var selectIdx = 0
 
     //List of available boards
     private val boardList = ListView(model.boards).apply {
         id = "boardView"
 
+        selectionModel.select(1)
+        selectionModel.selectedItemProperty().addListener { _, _, new ->
+            if (new != null && dragFromIndex == -1) { // not in drag
+                model.currentBoard.set(new)
+            }
+        }
+
         setCellFactory {
             object : ListCell<Board?>() {
-                var button = Button().apply {
-                    textFill = Color.WHITE
-                    padding = Insets(8.0)
-                    font = Font(15.0)
-                    alignment = Pos.CENTER_LEFT
-
-                    setOnAction {
-                        if (item != null) {
-                            model.currentBoard.set(item)
-                        }
-                    }
-
-                    skin = object : ButtonSkin(this) {
-                        init {
-                            consumeMouseEvents(false)
-                        }
-                    }
-                }
-
                 override fun updateItem(item: Board?, empty: Boolean) {
                     super.updateItem(item, empty)
-                    if (item != null) {
-                        button.text = item.name
-                        graphic = button
+
+                    graphic = if (item != null) {
+                        id = "currentBoard"
+                        val pad = if (dragFromIndex != -1 && isSelected) 15.0 else 0.0
+                        Label(item.name).apply {
+                            textFill = Color.WHITE
+                            font = Font(15.0)
+                            padding = Insets(5.0, 0.0, 5.0, pad)
+                        }
                     } else {
-                        graphic = null
-                    }
-
-                    id = "currentBoard"
-
-                    button.prefWidthProperty().bind(widthProperty())
-
-                    padding = if (dragFromIndex != -1 && isSelected) {
-                        Insets(1.0, 1.0, 1.0, 15.0)
-                    } else {
-                        Insets(1.0)
+                        id = ""
+                        null
                     }
 
                     setOnDragDetected {
@@ -130,14 +116,16 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
         }
         // re-order on drag release
         setOnMouseDragReleased {
-            if (dragFromIndex != -1 && dragFromIndex != dragToIndex) {
-                selectIdx = dragToIndex
+            val from = dragFromIndex
+            val to = dragToIndex
+            dragFromIndex = -1
+            refresh()
+
+            if (from != to && from != -1) {
                 launch {
                     // due to first item being all board, 2nd item has index 0,
                     // indexes are 1 higher than they are supposed to be
                     BoardService.orderBoard(dragFromIndex - 1, dragToIndex - 1)
-                    model.updateBoards()
-                    dragFromIndex = -1
                 }
             }
         }
@@ -160,6 +148,53 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
                 dragFromIndex = -1
             }
         }
+
+        setOnKeyPressed {
+            when (it.code) { // delete item
+                KeyCode.DELETE -> {
+                    val item = selectionModel.selectedItem
+                    model.boards.remove(item)
+                    launch {
+                        BoardService.deleteBoard(item.id)
+                    }
+                }
+                else -> {}
+            }
+
+            if (!it.isShortcutDown) return@setOnKeyPressed
+            // everything else requires shortcut down
+            when (it.code) {
+                KeyCode.UP -> { // re-order up
+                    val idx = selectionModel.selectedIndex
+                    if (idx > 1) {
+                        val old = items[idx]
+                        items[idx] = items[idx - 1]
+                        items[idx - 1] = old
+                        selectionModel.select(idx - 1)
+
+                        launch {
+                            // index is off by 1 due to "All" board
+                            BoardService.orderBoard(idx - 1, idx - 2)
+                        }
+                    }
+                }
+                KeyCode.DOWN -> { // re-order down
+                    val idx = selectionModel.selectedIndex
+                    if (idx < items.size - 1) {
+                        val old = items[idx]
+                        items[idx] = items[idx + 1]
+                        items[idx + 1] = old
+                        selectionModel.select(idx + 1)
+
+                        launch {
+                            // index is off by 1 due to "All" board
+                            BoardService.orderBoard(idx - 1, idx)
+                        }
+                    }
+                }
+                else -> {}
+            }
+        }
     }
 
     private val newBoardButton = Button("Create Board").apply {
@@ -176,7 +211,8 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
         font = Font(15.0)
 
         setOnAction {
-            model.logout()
+            AuthService.logout()
+            app.changeScene("login")
         }
     }
 
@@ -194,7 +230,16 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
             }
         }
         app.addHotkey(KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN)) {
-            boardList.focusModel.focus(0)
+            boardList.requestFocus()
+        }
+        // refresh all hotkey
+        app.addHotkey(KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN)) {
+            val selectedIdx = boardList.selectionModel.selectedIndex
+            launch {
+                model.updateBoards()
+                boardList.selectionModel.select(max(selectedIdx, model.boards.size - 1))
+                model.updateItems()
+            }
         }
     }
 }

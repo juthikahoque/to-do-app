@@ -4,6 +4,7 @@ import frontend.Model
 import frontend.app
 import frontend.services.AuthService
 import frontend.services.BoardService
+import frontend.services.ItemService
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
@@ -123,7 +124,10 @@ class CreateToDoRowView(private val model: Model) : HBox(), CoroutineScope {
             priority = priorityChoiceBox.value,
             owner = assignedToComboBox.value ?: AuthService.user,
         )
-        model.addToDoItem(todo)
+        model.items.add(todo)
+        launch {
+            ItemService.addItem(todo.boardId, todo)
+        }
         titleInput.requestFocus()
     }
 

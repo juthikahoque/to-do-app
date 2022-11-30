@@ -77,6 +77,7 @@
 }
 
 #create {
+    -fx-font-size: 12px;
     -fx-background: rgb(52, 52, 54);
     -fx-background-color: rgb(52, 52, 54);
     accent_color: #90EE90;
@@ -84,6 +85,7 @@
 }
 
 #logout {
+    -fx-font-size: 12px;
     -fx-background: rgb(52, 52, 54);
     -fx-background-color: rgb(52, 52, 54);
     accent_color: #CD5C5C;
@@ -205,28 +207,27 @@
  #currentBoard {
     -fx-alignment: CENTER_LEFT;
     -fx-border-radius: 4;
-    -fx-font-size: 15px;
-    -fx-text-fill: white;
 
     -fx-background-color: rgb(52, 52, 54);
     -fx-pref-width: 140.0;
-
  }
 
-  #currentBoard:hover {
-     -fx-text-fill: white;
-     -fx-background-color: derive(rgb(52, 52, 54), 50%);
-  }
+ #currentBoard .label {
+    -fx-font-size: 15px;
+    -fx-text-fill: white;
+ }
 
-  #currentBoard:hover .button {
+#currentBoard:hover {
     -fx-background-color: derive(rgb(52, 52, 54), 50%);
-  }
+}
 
-  #currentBoard .button {
-      -fx-text-fill: white;
-      -fx-background-color: rgb(52, 52, 54);
-    }
+#currentBoard:focused {
+    -fx-background-color: derive(rgb(52, 52, 54), 60%);
+}
 
+#currentBoard:selected {
+    -fx-background-color: derive(rgb(52, 52, 54), 20%);
+}
 
    /*******************************************************************************
     *                                                                             *

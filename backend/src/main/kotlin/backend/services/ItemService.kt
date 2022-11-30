@@ -71,7 +71,7 @@ object ItemService {
             )
             val insertLabels = conn.prepareStatement("INSERT INTO items_labels (itemId, label) VALUES (?, ?)")
 
-            var idx = 0;
+            var idx = 0
             // insert into items table
             insertItems.setString(++idx, item.id.toString())
             insertItems.setString(++idx, item.title)
@@ -219,7 +219,7 @@ object ItemService {
             val updateItem = conn.prepareStatement(
                 """UPDATE items SET text = ?, dueDate = ?, priority = ?, done = ?, owner = ?, description = ? WHERE id = ?"""
             )
-            var idx = 0;
+            var idx = 0
 
             updateItem.setString(++idx, new.title)
             updateItem.setString(++idx, new.dueDate.toString())
