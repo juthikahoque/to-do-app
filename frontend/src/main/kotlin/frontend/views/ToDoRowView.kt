@@ -2,6 +2,9 @@ package frontend.views
 
 import frontend.Model
 import frontend.services.ItemService
+import frontend.utils.ActionMetaData
+import frontend.utils.Actions
+import frontend.utils.UndoRedoManager
 import javafx.geometry.Insets
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
@@ -24,6 +27,12 @@ class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope
     private val completedCheckBox = CheckBox().apply {
         isSelected = item.done
         setOnAction {
+            UndoRedoManager.handleAction(
+                Actions.updateItem,
+                model.items,
+                model.boards,
+                null
+            )
             val idx = model.items.indexOf(item)
             val new = item.copy(done = isSelected)
             model.items[idx] = new

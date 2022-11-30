@@ -5,6 +5,9 @@ import frontend.app
 import frontend.services.AuthService
 import frontend.services.BoardService
 import frontend.services.ItemService
+import frontend.utils.ActionMetaData
+import frontend.utils.Actions
+import frontend.utils.UndoRedoManager
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
@@ -115,7 +118,12 @@ class CreateToDoRowView(private val model: Model) : HBox(), CoroutineScope {
         } else {
             mutableSetOf()
         }
-
+        UndoRedoManager.handleAction(
+            Actions.addItem,
+            model.items,
+            model.boards,
+            null
+        )
         val todo = Item(
             title = titleInput.text,
             dueDate = datePicker.value.atStartOfDay(),

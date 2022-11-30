@@ -3,7 +3,10 @@ package frontend.views
 import frontend.Model
 import frontend.app
 import frontend.services.ItemService
+import frontend.utils.ActionMetaData
+import frontend.utils.Actions
 import frontend.utils.ApplicationState
+import frontend.utils.UndoRedoManager
 import javafx.geometry.Insets
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
@@ -137,6 +140,12 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
             refresh()
 
             if (from != to && from != -1) {
+                UndoRedoManager.handleAction(
+                    Actions.reorderItem,
+                    model.items,
+                    model.boards,
+                    ActionMetaData(from, to)
+                )
                 launch {
                     ItemService.orderItem(model.currentBoard.value.id, from, to)
                 }
@@ -174,6 +183,12 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
                     copy(true)
                 }
                 KeyCode.D -> { // mark as done
+                    UndoRedoManager.handleAction(
+                        Actions.updateItem,
+                        model.items,
+                        model.boards,
+                        null
+                    )
                     val item = selectionModel.selectedItem
                     val new = item.copy(done = !item.done)
                     items[selectionModel.selectedIndex] = new
@@ -190,6 +205,12 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         if (model.currentBoard.value == model.allBoard) return
         val idx = itemList.selectionModel.selectedIndex
         if (idx + dir < itemList.items.size && idx + dir >= 0) {
+            UndoRedoManager.handleAction(
+                Actions.reorderItem,
+                model.items,
+                model.boards,
+                ActionMetaData(idx, idx + dir)
+            )
             // swap
             val temp = model.items[idx]
             model.items[idx] = model.items[idx + dir]
@@ -206,6 +227,12 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
             val item = itemList.selectionModel.selectedItem.copy()
             copiedItem = item
             if (cut) {
+                UndoRedoManager.handleAction(
+                    Actions.deleteItem,
+                    model.items,
+                    model.boards,
+                    null
+                )
                 model.items.remove(item)
                 launch {
                     ItemService.deleteItem(item.boardId, item.id)
@@ -216,6 +243,12 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
     private fun paste() {
         val item = copiedItem
         if (item != null && model.currentBoard.value != model.allBoard) {
+            UndoRedoManager.handleAction(
+                Actions.addItem,
+                model.items,
+                model.boards,
+                null
+            )
             val newItem = item.copy(
                 boardId = model.currentBoard.value.id,
                 id = UUID.randomUUID(),
@@ -231,6 +264,12 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
 
     private fun delete() {
         if (itemList.isFocused) {
+            UndoRedoManager.handleAction(
+                Actions.deleteItem,
+                model.items,
+                model.boards,
+                null
+            )
             val item = itemList.selectionModel.selectedItem
             model.items.remove(item)
             launch {

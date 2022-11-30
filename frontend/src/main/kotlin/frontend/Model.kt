@@ -3,7 +3,9 @@ package frontend
 import frontend.services.AuthService
 import frontend.services.BoardService
 import frontend.services.ItemService
+import frontend.utils.Actions
 import frontend.utils.ApplicationState
+import frontend.utils.UndoRedoManager
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -56,6 +58,8 @@ class Model : CoroutineScope {
             boards.setAll(list)
         }
 
+        UndoRedoManager.init(this)
+
         sort.addListener { _, _, _ -> launch { updateItems() } }
         order.addListener { _, _, _ -> launch { updateItems() } }
         search.addListener { _, _, _ -> launch { updateItems() } }
@@ -63,7 +67,6 @@ class Model : CoroutineScope {
 
         currentBoard.addListener { _, _, _ -> launch { updateItems() } }
         currentBoard.set(boards[1])
-
         applicationState.set(ApplicationState.Ready)
     }
 
@@ -89,6 +92,23 @@ class Model : CoroutineScope {
         )
     }
 
+    fun addBoard(board: Board) {
+        UndoRedoManager.handleAction(Actions.addBoard, items, boards, null)
+        runBlocking {
+            BoardService.addBoard(board)
+            updateBoards()
+        }
+    }
+
+    fun addToDoItem(item: Item) {
+        UndoRedoManager.handleAction(Actions.addItem, items, boards, null)
+        runBlocking {
+            ItemService.addItem(item.boardId, item)
+            updateItems()
+        }
+    }
+        
+
     fun customOrderEnabled(): Boolean {
         return (currentBoard.value != allBoard
                 && filter.value == noFilter
@@ -96,9 +116,23 @@ class Model : CoroutineScope {
                 && search.value == "")
     }
 
+    fun updateItem(item: Item) {
+        UndoRedoManager.handleAction(Actions.updateItem, items, boards, null)
+        runBlocking {
+            ItemService.updateItem(item.boardId, item)
+            updateItems()
+        }
+    }
+
+    fun updateBoard(board: Board) {
+        UndoRedoManager.handleAction(Actions.updateBoard, items, boards, null)
+        runBlocking {
+            BoardService.updateBoard(board)
+            updateBoards()
+        }
+    }
 
     fun toggleMode(mode: String) {
         app.changeThemeMode(mode, "main")
     }
-
 }
