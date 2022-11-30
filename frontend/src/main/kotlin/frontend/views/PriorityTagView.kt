@@ -36,6 +36,7 @@ class PriorityTagView(priorityLevel: Int, showColor: Boolean = true) : HBox() {
             } else {
                 getColor(-1)
             }
+            id = "tags"
             background = Background(BackgroundFill(backgroundColor, CornerRadii(5.0), Insets(0.0)))
         }
 

@@ -110,6 +110,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
     }
 
     init {
+        id = "modal"
         padding = Insets(20.0)
         maxWidth = 300.0
         maxHeight = 300.0

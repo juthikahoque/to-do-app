@@ -74,6 +74,20 @@ class Main : Application() {
         stage.show()
     }
 
+    fun changeThemeMode(mode: String, sceneName: String) {
+        stage.hide()
+
+        var scene = stage.scene
+        scene.stylesheets.clear()
+        var jMetro: JMetro = if (mode == "light") { JMetro(Style.LIGHT) } else { JMetro(Style.DARK)  }
+        jMetro.setScene(scene)
+        scene.stylesheets.add(Main::class.java.getResource("/css/${mode}.css").toExternalForm())
+        stage.scene = scene
+
+        windowPreferences.changeScene(sceneName)
+        stage.show()
+    }
+
     fun addHotkey(key: KeyCombination, func: () -> Unit) {
         hotkeys[key] = Runnable { func() }
     }

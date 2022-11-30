@@ -1,15 +1,19 @@
 package frontend.views
 
+import frontend.Main
 import frontend.Model
 import frontend.app
 import frontend.services.AuthService
 import frontend.services.BoardService
 import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.image.Image
+import javafx.scene.control.ToggleButton
+import javafx.scene.image.ImageView
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
@@ -17,6 +21,9 @@ import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
 import javafx.scene.shape.Circle
@@ -47,10 +54,27 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
         }
         val pictureCircle = Circle(40.0).apply {
             fill = ImagePattern(profilePic)
-            translateX = 35.0
         }
         spacing = 10.0
         children.addAll(pictureCircle, username)
+    }
+
+    private var isLightMode = true
+
+    private val sunImg = Image(Main::class.java.getResource("/icons/themes/sun.png").toExternalForm())
+    private val sunImgView = ImageView(sunImg)
+    private val moonImg = Image(Main::class.java.getResource("/icons/themes/moon.png").toExternalForm())
+    private val moonImgView = ImageView(moonImg)
+
+    private val themeMode = ToggleButton().apply {
+        font = Font(15.0)
+        id = "toggle"
+        graphic = if(isLightMode) moonImgView else sunImgView
+        setOnAction {
+            isLightMode = !isLightMode
+            graphic = if(isLightMode) moonImgView else sunImgView
+            model.toggleMode(if(isLightMode) "light" else "dark")
+        }
     }
 
     private var dragFromIndex = -1
@@ -219,10 +243,17 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
     init {
         padding = Insets(10.0)
         minWidth = 175.0
+        id = "sidebar"
         background = Background(BackgroundFill(Color.web("#343436"), null, null))
-        top = userDetails
+
+        top = HBox(userDetails).apply {
+            alignment = Pos.CENTER
+            padding = Insets(10.0)
+        }
         center = boardList
-        bottom = VBox(newBoardButton, logoutButton)
+        val spacer = Pane().apply {HBox.setHgrow(this, Priority.ALWAYS) }
+        bottom = HBox(VBox(newBoardButton, logoutButton), spacer, themeMode)
+
 
         app.addHotkey(KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)) {
             if (model.additionalModalView.value.isEmpty()) {

@@ -95,4 +95,10 @@ class Model : CoroutineScope {
                 && sort.value == ""
                 && search.value == "")
     }
+
+
+    fun toggleMode(mode: String) {
+        app.changeThemeMode(mode, "main")
+    }
+
 }

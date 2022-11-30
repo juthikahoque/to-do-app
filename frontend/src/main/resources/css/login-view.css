@@ -1,0 +1,59 @@
+.background {
+    -fx-background-color: #252525;
+}
+
+.googleSignInButton {
+    -fx-graphic: url('/icons/google_signin_buttons/blue-black-google-logo.png');
+    -fx-padding: 0;
+    padding: 0;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.cancelLoginButton  {
+    -fx-background-color: #CD5C5C;
+    -fx-background-radius: 10;
+    -fx-text-fill: black;
+    -fx-background-insets: 0,1,2,3;
+    -fx-padding: 10 20 10 20;
+    -fx-pref-width: 345;
+    -fx-pref-height: 54;
+    -fx-font-size: 16px;
+}
+
+.cancelLoginButton:hover {
+    -fx-background-color: derive(#CD5C5C, 50%);
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+}
+
+.cancelLoginButton:pressed {
+    -fx-background-color: white;
+    -fx-border-color: #CD5C5C;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-border-style: solid;
+    -fx-text-fill: #CD5C5C;
+}
+
+.serverStatus {
+    -fx-background-image: url('/icons/status/server-x.png');
+    -fx-background-size: 20px 20px;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-padding: 0;
+    padding: 0;
+}
+
+.serverStatus:disabled {
+    -fx-background-image: url('/icons/status/server-ok.png');
+    -fx-background-size: 20px 20px;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-padding: 0;
+    padding: 0;
+}
+
+.serverUrl, .serverUrl:hover {
+    -fx-background-color: #ADD8E6, white;
+ }

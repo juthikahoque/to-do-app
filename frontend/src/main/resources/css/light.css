@@ -1,0 +1,266 @@
+.root {
+    scroll_pane_background_color: #1c1c1c;
+    accent_color: #ADD8E6;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Button                                                                      *
+ *                                                                             *
+ ******************************************************************************/
+.button, .button:default, .toggle-button {
+    -fx-background-color: accent_color;
+    -fx-background-radius: 4;
+    -fx-text-fill: black;
+}
+
+.button:hover, .button:default:hover, .toggle-button:hover {
+    -fx-background-color: derive(accent_color, 50%);
+    -fx-background-radius: 4;
+    -fx-border-color: transparent;
+}
+
+.button:focused, .button:default:focused, .toggle-button:selected {
+    -fx-background-color: white;
+    -fx-border-color: accent_color;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-style: solid;
+    -fx-text-fill: accent_color;
+}
+
+.toggle-button:focused {
+    -fx-border-style: solid;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.toggle-button:selected:hover {
+    -fx-border-color: accent_color;
+    -fx-background-color: derive(accent_color, -20%);
+}
+
+.toggle-button:selected:pressed {
+    -fx-border-style: solid;
+}
+
+#save {
+    accent_color: #90EE90;
+}
+
+#cancel {
+    accent_color: #CD5C5C;
+}
+
+#labelToggle:selected  {
+    accent_color: #cdb2d4;
+    -fx-background-color: accent_color;
+    -fx-text-fill: white;
+}
+
+#low:selected {
+    accent_color: #2af7a5;
+    -fx-background-color: accent_color;
+    -fx-text-fill: #111;
+}
+
+#medium:selected {
+    accent_color: #f7942a;
+    -fx-background-color: accent_color;
+    -fx-text-fill: #111;
+}
+
+#high:selected {
+    accent_color: #f72a50;
+    -fx-background-color: accent_color;
+    -fx-text-fill: #111;
+}
+
+#create {
+    -fx-font-size: 12px;
+    -fx-background: rgb(52, 52, 54);
+    -fx-background-color: rgb(52, 52, 54);
+    accent_color: #90EE90;
+    -fx-text-fill: accent_color;
+}
+
+#logout {
+    -fx-font-size: 12px;
+    -fx-background: rgb(52, 52, 54);
+    -fx-background-color: rgb(52, 52, 54);
+    accent_color: #CD5C5C;
+    -fx-text-fill: accent_color;
+}
+
+#toggle {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Choice/Combo Box                                                            *
+ *                                                                             *
+ ******************************************************************************/
+
+.choice-box, .combo-box-base {
+    border_color: accent_color;
+    border_hover_color: border_color;
+    border_focused_color: border_color;
+    border_pressed_color: border_color;
+
+    background_pressed_color: white;
+    combo_box_background_color: white;
+    choice_box_background_color: white;
+
+    combo_box_editable_button_hover_color: transparent;
+    combo_box_editable_focused_button_hover_color: combo_box_editable_button_hover_color;
+    combo_box_editable_focused_background_color: white;
+    combo_box_editable_focused_arrow_color: arrow_color;
+
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Date Picker                                                                 *
+ *                                                                             *
+ ******************************************************************************/
+.date-picker {
+    today_border_color: accent_color;
+
+    day_cell_border_hover_color: transparent;
+    day_cell_background_color: derive(accent_color, 60%);
+    day_cell_background_days_from_other_months_color: #fff;
+
+    spinner_button_hover_color: derive(accent_color, 60%);
+}
+
+.date-picker.combo-box-base {
+    -fx-background-color: accent_color, date_picker_background_color;
+}
+
+.date-picker.combo-box-base:hover {
+    -fx-background-color: accent_color, date_picker_background_color;
+}
+
+.date-picker-popup > * > .day-cell.previous-month,
+.date-picker-popup > * > .day-cell.next-month {
+    -fx-border-color: transparent;
+}
+
+.date-picker-popup > * > .day-cell.selected:hover {
+    -fx-background-color: derive(accent_color, 30%);
+    -fx-text-fill: black;
+}
+
+.date-picker-popup > * > .spinner > .button:armed {
+    -fx-background-color: accent_color;
+}
+
+.date-picker-popup > * > .day-cell.previous-month:hover,
+.date-picker-popup > * > .day-cell.next-month:hover {
+    -fx-border-color: accent_color;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Views                                                                       *
+ *                                                                             *
+ ******************************************************************************/
+.list-view,
+.table-view,
+.tree-view,
+.tree-table-view {
+    cell_selected_color: derive(accent_color, 20%);
+
+    cell_hover_color: derive(accent_color, 70%);
+    cell_pressed_color: derive(accent_color, 60%);
+}
+
+#boardView {
+    -fx-background: rgb(52, 52, 54);
+    -fx-background-color: rgb(52, 52, 54)
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Text Field                                                                  *
+ *                                                                             *
+ ******************************************************************************/
+
+ .text-field, .text-field:hover {
+    -fx-background-color: accent_color, text_input_background_color;
+ }
+
+.text-input {
+  graphic_color: accent_color;
+}
+
+ #input {
+    -fx-padding: 0.4866667em 0.667em 0.4866667em 0.416667em;
+ }
+
+ #name {
+    -fx-text-fill: accent_color;
+ }
+
+ /*******************************************************************************
+  *                                                                             *
+  * Boards                                                                      *
+  *                                                                             *
+  ******************************************************************************/
+
+ #currentBoard {
+    -fx-alignment: CENTER_LEFT;
+    -fx-border-radius: 4;
+
+    -fx-background-color: rgb(52, 52, 54);
+    -fx-pref-width: 140.0;
+ }
+
+ #currentBoard .label {
+    -fx-font-size: 15px;
+    -fx-text-fill: white;
+ }
+
+#currentBoard:hover {
+    -fx-background-color: derive(rgb(52, 52, 54), 50%);
+}
+
+#currentBoard:focused {
+    -fx-background-color: derive(rgb(52, 52, 54), 60%);
+}
+
+#currentBoard:selected {
+    -fx-background-color: derive(rgb(52, 52, 54), 20%);
+}
+
+   /*******************************************************************************
+    *                                                                             *
+    * Check Box                                                                      *
+    *                                                                             *
+    ******************************************************************************/
+
+  .check-box {
+    box_border_color: accent_color;
+    box_border_hover_color: accent_color;
+
+    indeterminate_mark_color: accent_color;
+    indeterminate_box_pressed_color: white;
+
+    focus_ring_color: accent_color;
+  }
+
+ .check-box:pressed > .box,
+ .check-box:selected:pressed > .box,
+ .check-box:indeterminate:pressed > .box {
+     -fx-background-color: accent_color;
+     -fx-border-color: accent_color;
+ }
+
+.check-box:focused:pressed > .box,
+.check-box:focused:selected:pressed,
+.check-box:focused:selected:pressed x> .box,
+.check-box:focused:indeterminate:pressed > .box{
+    -fx-border-color: focus_ring_color, accent_color;
+}
