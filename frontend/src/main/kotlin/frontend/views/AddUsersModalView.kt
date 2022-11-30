@@ -3,6 +3,8 @@ package frontend.views
 import frontend.Model
 import frontend.services.BoardService
 import frontend.services.UserService
+import frontend.utils.Actions
+import frontend.utils.UndoRedoManager
 import javafx.geometry.Insets
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -73,14 +75,18 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         id = "save"
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
+            UndoRedoManager.handleAction(Actions.updateBoard, model.items, model.boards, null)
+
+            val updatedBoard = model.currentBoard.value.copy(
+                users = model.currentBoard.value.users.map { user: User -> user.copy() }.toMutableSet()
+            )
             for (user in listOfUsers) {
-                model.currentBoard.value.users.add(user)
+                updatedBoard.users.add(user)
             }
-
             runBlocking {
-                BoardService.updateBoard(model.currentBoard.value)
+                BoardService.updateBoard(updatedBoard)
+                model.updateBoards()
             }
-
             model.additionalModalView.set("")
         }
     }

@@ -2,6 +2,8 @@ package frontend.views
 
 import frontend.Model
 import frontend.services.ItemService
+import frontend.utils.Actions
+import frontend.utils.UndoRedoManager
 import javafx.geometry.Insets
 import javafx.scene.control.Button
 import javafx.scene.control.DatePicker
@@ -65,6 +67,13 @@ class EditItemModalView(private val model: Model, item: Item): VBox() {
         id = "save"
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
+            UndoRedoManager.handleAction(
+                Actions.updateItem,
+                model.items,
+                model.boards,
+                null
+            )
+
             item.title = nameInput.text
             item.priority = selectedPriority
             item.dueDate = datePicker.value.atStartOfDay()
@@ -72,9 +81,7 @@ class EditItemModalView(private val model: Model, item: Item): VBox() {
             runBlocking {
                 ItemService.updateItem(item.boardId, item)
             }
-
             model.additionalModalView.set("")
-            print("saved.")
         }
         isDefaultButton = true
     }
