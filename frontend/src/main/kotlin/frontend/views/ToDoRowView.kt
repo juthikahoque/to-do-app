@@ -1,14 +1,21 @@
 package frontend.views
 
+import frontend.Main
 import frontend.Model
 import frontend.services.ItemService
 import frontend.utils.ActionMetaData
 import frontend.utils.Actions
 import frontend.utils.UndoRedoManager
 import javafx.geometry.Insets
+import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
+
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.input.MouseButton
+import javafx.scene.layout.*
+import javafx.scene.paint.Color
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Priority
@@ -52,16 +59,27 @@ class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope
     private val labelVal = if (item.labels.size == 0) "" else item.labels.first().value
 
     private val tags = if (labelVal != "") {
-        VBox(PriorityTagView(item.priority), LabelView(labelVal)).apply {
+        VBox(LabelView(labelVal), PriorityTagView(item.priority)).apply {
             spacing = 5.0
         }
     } else {
         VBox(PriorityTagView(item.priority), Label()).apply {
-            translateY = 5.0
+            translateY = 10.0
         }
     }
 
     private val ownerLabel = Label(item.owner.name)
+
+    private val editButton = Button().apply{
+        val editImage = Image(Main::class.java.getResource("/icons/ui_icons/edit-small.png").toExternalForm())
+        graphic = ImageView(editImage)
+        background = Background(BackgroundFill(Color.TRANSPARENT, null, null))
+        setOnAction {
+            model.currentItem.set(item)
+            model.additionalModalView.set(Presenter.editItem)
+        }
+
+    }
 
     private val gridPane = GridPane().apply {
         hgap = 10.0
@@ -69,9 +87,9 @@ class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope
         add(completedCheckBox, 1, 0)
         add(titleLabel, 2, 0)
         add(dueDateLabel, 3, 0)
-        //add(PriorityTagView(item.priority, true), 4, 0)
         add(tags, 4, 0)
         add(ownerLabel, 5, 0)
+        add(editButton, 6, 0)
 
         val alwaysGrow = ColumnConstraints().apply {
             hgrow = Priority.ALWAYS
@@ -85,9 +103,9 @@ class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope
             neverGrow, //completedCheckBox
             neverGrow, //titleLabel
             alwaysGrow, //dueDateLabel
-            neverGrow, //PriorityTagView
-            neverGrow, //tagLabel
-            neverGrow //assignedToLabel
+            neverGrow, //tags
+            neverGrow, //assignedToLabel
+            neverGrow //edit button
         )
     }
 
@@ -95,7 +113,8 @@ class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope
         padding = Insets(5.0, 0.0, 5.0, 0.0)
         children.add(gridPane)
         setOnMouseClicked {
-            if (it.button == MouseButton.PRIMARY) {
+            if (it.button == MouseButton.PRIMARY && it.clickCount == 2) {
+                model.currentItem.set(item)
                 model.additionalModalView.set(Presenter.editItem)
             }
         }

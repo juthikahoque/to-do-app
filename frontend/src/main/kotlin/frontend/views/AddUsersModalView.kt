@@ -43,6 +43,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         setDisabled(nameInput.text.isEmpty())
         prefWidth = 60.0
         setOnAction {
+            errorMessage.text = ""
             lateinit var users: List<User>
             runBlocking {
                 users = UserService.getUserByEmail(nameInput.text)
@@ -84,8 +85,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
                 updatedBoard.users.add(user)
             }
             runBlocking {
-                BoardService.updateBoard(updatedBoard)
-                model.updateBoards()
+                BoardService.updateBoard(model.currentBoard.value)
             }
             model.additionalModalView.set("")
         }
@@ -100,7 +100,11 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         isCancelButton = true
     }
 
-    private val buttons = HBox(confirmButton, cancelButton).apply{
+    private val spacer = Pane().apply {
+        HBox.setHgrow(this, Priority.ALWAYS)
+    }
+
+    private val buttons = HBox(spacer, cancelButton, confirmButton).apply{
         spacing = 10.0
     }
 

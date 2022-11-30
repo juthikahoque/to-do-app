@@ -78,6 +78,7 @@
 }
 
 #create {
+    -fx-font-size: 20px;
     -fx-background: transparent;
     -fx-background-color: transparent;
     accent_color: #90EE90;
@@ -85,6 +86,7 @@
 }
 
 #logout {
+    -fx-font-size: 20px;
     -fx-background: transparent;
     -fx-background-color: transparent;
     accent_color: #CD5C5C;
@@ -196,11 +198,12 @@
  *                                                                             *
  ******************************************************************************/
 
- .text-field, .text-field:hover {
+
+ .text-field, .text-field:hover, .text-area , .text-area:hover {
     -fx-background-color: accent_color, #252525;
  }
 
-.text-input {
+.text-input, .text-area {
   text_input_background_color: #252525;
   background_focused_color: #252525;
   background_hover_color: #252525;

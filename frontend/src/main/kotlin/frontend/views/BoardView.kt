@@ -8,13 +8,16 @@ import frontend.utils.Actions
 import frontend.utils.ApplicationState
 import frontend.utils.UndoRedoManager
 import javafx.geometry.Insets
+import javafx.scene.control.Button
+import javafx.scene.control.Label
+import javafx.scene.control.ListCell
+import javafx.scene.control.ListView
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
-import javafx.scene.text.Font
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.javafx.JavaFx
@@ -26,15 +29,13 @@ import kotlin.coroutines.CoroutineContext
 class BoardView(private val model: Model) : VBox(), CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
 
-    private var createToDoHeader = Label("Create To-Do item:").apply {
-        padding = Insets(0.0, 0.0, 10.0, 0.0)
-        font = Font(16.0)
-    }
-    private var createToDoRowView = CreateToDoRowView(model)
+    private val createButton = Button("Create").apply {
+        minWidth = 75.0
+        prefWidth = 75.0
 
-    private var myToDosHeader = Label("My To-Dos:").apply {
-        padding = Insets(20.0, 0.0, 10.0, 0.0)
-        font = Font("Regular", 16.0)
+        setOnAction {
+            model.additionalModalView.set(Presenter.createItem)
+        }
     }
 
     private var dragFromIndex = -1
@@ -51,8 +52,9 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         HBox.setHgrow(this, Priority.ALWAYS)
         setVgrow(this, Priority.ALWAYS)
 
-        model.currentItem.bind(selectionModel.selectedItemProperty())
-
+        model.currentItem.addListener { _, _, newValue ->
+            selectionModel.select(newValue)
+        }
         setCellFactory {
             object : ListCell<Item?>() {
                 override fun updateItem(item: Item?, empty: Boolean) {
@@ -162,6 +164,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
             when (it.code) { // delete item
                 deleteCode -> { delete() }
                 KeyCode.ENTER -> {
+                    model.currentItem.set(model.items[selectionModel.selectedIndex])
                     model.additionalModalView.set(Presenter.editItem)
                 }
                 else -> {}
@@ -281,26 +284,34 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
 
     private fun updateApplicationState() {
         if (model.applicationState.value == ApplicationState.Ready) {
-            children[2] = itemList
+            children[1] = itemList
         } else {
-            children[2] = Label("Loading...")
+            children[1] = Label("Loading...")
         }
     }
 
     init {
         HBox.setHgrow(this, Priority.ALWAYS)
         VBox.setVgrow(this, Priority.ALWAYS)
+        spacing = 5.0
         padding = Insets(10.0)
-        id = "borderPane"
+        children.addAll(createButton, itemList)
 
-        children.addAll(createToDoHeader, createToDoRowView, myToDosHeader)
+        id = "borderPane"
         model.applicationState.addListener { _, _, _ -> updateApplicationState() }
         updateApplicationState()
 
         model.currentBoard.addListener { _, _, board ->
-            createToDoHeader.isVisible = board != model.allBoard
-            createToDoRowView.isVisible = board != model.allBoard
+            if(board == model.allBoard){
+                children.removeAll(createButton, itemList)
+                children.add(itemList)
+            }
+            else{
+                children.removeAll(createButton, itemList)
+                children.addAll(createButton, itemList)
+            }
         }
+
 
         app.addHotkey(KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN)) {
             itemList.requestFocus()

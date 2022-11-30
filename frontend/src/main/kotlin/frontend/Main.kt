@@ -45,7 +45,7 @@ class Main : Application() {
         val scene = Scene(presenter, 800.0, 600.0)
         val jMetro = JMetro(Style.LIGHT)
         jMetro.scene = scene
-        scene.stylesheets.add(Main::class.java.getResource("/css/styles.css")!!.toExternalForm())
+        scene.stylesheets.add(Main::class.java.getResource("/css/light.css")!!.toExternalForm())
 
         stage.scene = scene
 

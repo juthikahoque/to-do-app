@@ -3,6 +3,7 @@ package frontend.views
 import frontend.Model
 import frontend.services.ItemService
 import javafx.beans.property.SimpleObjectProperty
+import javafx.collections.ListChangeListener
 import javafx.geometry.Insets
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.DateCell
@@ -137,6 +138,7 @@ class FilterView(private val model: Model) : VBox() {
     }
 
     private fun addLabelsToLabelFilter() {
+        labelFilter.children.clear()
         labelFilter.children.setAll(model.currentBoard.value.labels.map { label ->
             ToggleButton(label.value).apply {
                 isSelected = selectedLabels.contains(label)
@@ -258,6 +260,10 @@ class FilterView(private val model: Model) : VBox() {
         model.currentBoard.addListener { _, _, _ ->
             addLabelsToLabelFilter()
         }
+
+        model.items.addListener(ListChangeListener {
+            addLabelsToLabelFilter()
+        })
 
         filter.addListener { _, _, new -> model.filter.set(new) }
     }

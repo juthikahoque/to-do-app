@@ -9,10 +9,13 @@ class Presenter(private val model: Model): StackPane() {
     companion object {
         const val newBoard = "newBoard"
         const val addUser = "addUser"
+        const val createItem = "createItem"
         const val editItem = "editItem"
     }
 
-    private var sidebar = SidebarView(model)
+    private var sidebar = SidebarView(model).apply {
+        HBox.setHgrow(this, Priority.ALWAYS)
+    }
     private var toolbar = ToolbarView(model)
     private var board = BoardView(model)
     private val boardContainer = VBox(toolbar, board)
@@ -44,19 +47,23 @@ class Presenter(private val model: Model): StackPane() {
                 children.add(applicationStackPane)
                 addUserModalView.requestFocus()
             }
-            editItem -> {
-                val editItemModal = EditItemModalView(model, model.currentItem.value!!)
+
+            createItem, editItem -> {
+                val itemModal = if(modal == editItem) {
+                    ItemModalView(model, model.currentItem.value!!)
+                } else {
+                    ItemModalView(model, null)
+                }
                 val editItemBorderPane = BorderPane()
                 editItemBorderPane.background = Background(BackgroundFill(Color.rgb(50, 50, 50, 0.8), CornerRadii(0.9), Insets(0.0)))
-                editItemBorderPane.center = editItemModal
+                editItemBorderPane.center = itemModal
                 applicationStackPane.children.addAll(applicationContainer, editItemBorderPane)
 
                 children.add(applicationStackPane)
-                editItemModal.requestFocus()
+                itemModal.requestFocus()
             }
             else -> {
                 applicationStackPane.children.add(applicationContainer)
-
                 children.add(applicationStackPane)
             }
         }

@@ -51,9 +51,11 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
             textFill = Color.LIGHTBLUE
             font = Font(20.0)
             id = "name"
+            alignment = Pos.CENTER
         }
         val pictureCircle = Circle(40.0).apply {
             fill = ImagePattern(profilePic)
+            alignment = Pos.CENTER
         }
         spacing = 10.0
         children.addAll(pictureCircle, username)
@@ -242,7 +244,8 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
 
     init {
         padding = Insets(10.0)
-        minWidth = 175.0
+        prefWidth = 175.0
+        maxWidth = 300.0
         id = "sidebar"
         background = Background(BackgroundFill(Color.web("#343436"), null, null))
 
@@ -251,7 +254,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
             padding = Insets(10.0)
         }
         center = boardList
-        val spacer = Pane().apply {HBox.setHgrow(this, Priority.ALWAYS) }
+        val spacer = Pane().apply { HBox.setHgrow(this, Priority.ALWAYS) }
         bottom = HBox(VBox(newBoardButton, logoutButton), spacer, themeMode)
 
 
