@@ -1,6 +1,7 @@
 .root {
-    scroll_pane_background_color: #252525;
     accent_color: #ADD8E6;
+
+    scroll_pane_background_color: #1c1c1c;
 }
 
 /*******************************************************************************
@@ -15,13 +16,13 @@
 }
 
 .button:hover, .button:default:hover, .toggle-button:hover {
-    -fx-background-color: derive(accent_color, 50%);
+    -fx-background-color: derive(accent_color, -20%);
     -fx-background-radius: 4;
     -fx-border-color: transparent;
 }
 
 .button:focused, .button:default:focused, .toggle-button:selected {
-    -fx-background-color: white;
+    -fx-background-color: derive(accent_color, -60%);
     -fx-border-color: accent_color;
     -fx-border-radius: 4;
     -fx-background-radius: 4;
@@ -55,7 +56,7 @@
 #labelToggle:selected  {
     accent_color: #cdb2d4;
     -fx-background-color: accent_color;
-    -fx-text-fill: white;
+    -fx-text-fill: #111;
 }
 
 #low:selected {
@@ -77,19 +78,27 @@
 }
 
 #create {
-    -fx-font-size: 12px;
-    -fx-background: rgb(52, 52, 54);
-    -fx-background-color: rgb(52, 52, 54);
+    -fx-background: transparent;
+    -fx-background-color: transparent;
     accent_color: #90EE90;
     -fx-text-fill: accent_color;
 }
 
 #logout {
-    -fx-font-size: 12px;
-    -fx-background: rgb(52, 52, 54);
-    -fx-background-color: rgb(52, 52, 54);
+    -fx-background: transparent;
+    -fx-background-color: transparent;
     accent_color: #CD5C5C;
     -fx-text-fill: accent_color;
+}
+
+#tags {
+    -fx-text-fill: #111;
+}
+
+#toggle {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
 /*******************************************************************************
@@ -104,16 +113,16 @@
     border_focused_color: border_color;
     border_pressed_color: border_color;
 
-    background_pressed_color: white;
-    combo_box_background_color: white;
-    choice_box_background_color: white;
+    background_pressed_color: #252525;
+    combo_box_background_color: #252525;
+    choice_box_background_color: #252525;
 
     combo_box_editable_button_hover_color: transparent;
     combo_box_editable_focused_button_hover_color: combo_box_editable_button_hover_color;
-    combo_box_editable_focused_background_color: white;
+    combo_box_editable_focused_background_color: #252525;
     combo_box_editable_focused_arrow_color: arrow_color;
-
 }
+
 
 /*******************************************************************************
  *                                                                             *
@@ -121,21 +130,21 @@
  *                                                                             *
  ******************************************************************************/
 .date-picker {
+    date_picker_background_color: #252525;
+    background_focused_color: #252525;
+    graphic_focused_color: accent_color;
+    graphic_disabled_color: accent_color;
+    background_hover_color: date_picker_background_color;
+    text_field_disabled_background_color: accent_color;
+
     today_border_color: accent_color;
 
     day_cell_border_hover_color: transparent;
-    day_cell_background_color: derive(accent_color, 60%);
-    day_cell_background_days_from_other_months_color: #fff;
+    day_cell_background_color: derive(accent_color, -60%);
+    day_cell_background_days_from_other_months_color: #252525;
 
-    spinner_button_hover_color: derive(accent_color, 60%);
-}
+    spinner_button_hover_color: derive(accent_color, -60%);
 
-.date-picker.combo-box-base {
-    -fx-background-color: accent_color, date_picker_background_color;
-}
-
-.date-picker.combo-box-base:hover {
-    -fx-background-color: accent_color, date_picker_background_color;
 }
 
 .date-picker-popup > * > .day-cell.previous-month,
@@ -144,8 +153,8 @@
 }
 
 .date-picker-popup > * > .day-cell.selected:hover {
-    -fx-background-color: derive(accent_color, 30%);
-    -fx-text-fill: black;
+    -fx-background-color: derive(accent_color, -30%);
+    -fx-text-fill: white;
 }
 
 .date-picker-popup > * > .spinner > .button:armed {
@@ -166,15 +175,19 @@
 .table-view,
 .tree-view,
 .tree-table-view {
-    cell_selected_color: derive(accent_color, 20%);
+    cell_selected_color: derive(accent_color, -20%);
 
-    cell_hover_color: derive(accent_color, 70%);
-    cell_pressed_color: derive(accent_color, 60%);
+    cell_hover_color: derive(accent_color, -50%);
+    cell_pressed_color: derive(accent_color, -40%);
 }
 
-#boardView {
-    -fx-background: rgb(52, 52, 54);
-    -fx-background-color: rgb(52, 52, 54)
+#borderPane {
+    -fx-background-color: #252525;
+}
+
+#modal {
+    -fx-background-color: #252525;
+    -fx-background-radius: 5;
 }
 
 /*******************************************************************************
@@ -183,15 +196,24 @@
  *                                                                             *
  ******************************************************************************/
 
- .text-field {
-    -fx-background-color: accent_color, text_input_background_color;
- }
- #input {
-    -fx-padding: 0.4866667em 0.667em 0.4866667em 0.416667em;
+ .text-field, .text-field:hover {
+    -fx-background-color: accent_color, #252525;
  }
 
- .text-input:hover {
-     -fx-background-color: accent_color, background_hover_color;
+.text-input {
+  text_input_background_color: #252525;
+  background_focused_color: #252525;
+  background_hover_color: #252525;
+  background_disabled_color: #252525;
+
+  text_focused_color: white;
+  text_disabled_color: white;
+
+  graphic_color: accent_color;
+}
+
+ #input {
+    -fx-padding: 0.4866667em 0.667em 0.4866667em 0.416667em;
  }
 
  #name {
@@ -207,37 +229,38 @@
  #currentBoard {
     -fx-alignment: CENTER_LEFT;
     -fx-border-radius: 4;
-
-    -fx-background-color: rgb(52, 52, 54);
-    -fx-pref-width: 140.0;
- }
-
- #currentBoard .label {
     -fx-font-size: 15px;
     -fx-text-fill: white;
+
+    -fx-background-color: #1c1c1c;
+    -fx-pref-width: 140.0;
+
  }
 
-#currentBoard:hover {
-    -fx-background-color: derive(rgb(52, 52, 54), 50%);
-}
+  #currentBoard:hover {
+     -fx-text-fill: white;
+     -fx-background-color: derive(#1c1c1c, 50%);
+  }
 
-#currentBoard:focused {
-    -fx-background-color: derive(rgb(52, 52, 54), 60%);
-}
+  #currentBoard:hover .button {
+    -fx-background-color: derive(#1c1c1c, 50%);
+  }
 
-#currentBoard:selected {
-    -fx-background-color: derive(rgb(52, 52, 54), 20%);
-}
+  #currentBoard .button {
+      -fx-text-fill: white;
+      -fx-background-color: #1c1c1c;
+    }
+
 
    /*******************************************************************************
     *                                                                             *
-    * Check Box                                                                      *
+    * Check Box                                                                   *
     *                                                                             *
     ******************************************************************************/
 
   .check-box {
     box_border_color: accent_color;
-    box_border_hover_color: derive(accent_color, -20%);
+    box_border_hover_color: accent_color;
 
     indeterminate_mark_color: accent_color;
     indeterminate_box_pressed_color: white;
@@ -254,6 +277,25 @@
 
 .check-box:focused:pressed > .box,
 .check-box:focused:selected:pressed,
+.check-box:focused:selected:pressed > .box,
 .check-box:focused:indeterminate:pressed > .box{
     -fx-border-color: focus_ring_color, accent_color;
+}
+
+/*******************************************************************************
+*                                                                             *
+* Side Bar                                                                    *
+*                                                                             *
+******************************************************************************/
+
+#sidebar {
+    -fx-background: #1c1c1c;
+    -fx-background-color: #1c1c1c;
+    -fx-border-color: #1c1c1c;
+}
+
+#boardView {
+    -fx-background: #1c1c1c;
+    -fx-background-color: #1c1c1c;
+    -fx-border-color: #1c1c1c;
 }

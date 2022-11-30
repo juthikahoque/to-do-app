@@ -9,7 +9,9 @@ import javafx.scene.paint.Color
 class LabelView(labelVal: String): HBox() {
 
     init {
-        val label = Label(labelVal)
+        val label = Label(labelVal).apply {
+            id = "tags"
+        }
         label.prefWidth = 50.0
         label.alignment = Pos.CENTER
         val backgroundColor = Color.web("#cdb2d4")

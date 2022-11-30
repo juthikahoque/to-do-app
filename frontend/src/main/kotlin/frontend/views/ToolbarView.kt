@@ -45,6 +45,7 @@ class ToolbarView(private val model: Model) : BorderPane() {
         left = VBox(searchField, sortFilterGroup).apply {
             HBox.setHgrow(this, Priority.NEVER)
         }
+        id = "borderPane"
 
         //add a pane that always grow to make the UI responsive
         val spacer = Pane().apply {

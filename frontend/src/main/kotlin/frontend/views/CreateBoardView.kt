@@ -65,6 +65,7 @@ class CreateBoardView(private val model: Model): VBox(), CoroutineScope {
     }
 
     init {
+        id = "modal"
         padding = Insets(20.0)
         spacing = 20.0
         maxWidth = 300.0

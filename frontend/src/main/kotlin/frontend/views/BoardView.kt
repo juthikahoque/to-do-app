@@ -252,6 +252,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         HBox.setHgrow(this, Priority.ALWAYS)
         VBox.setVgrow(this, Priority.ALWAYS)
         padding = Insets(10.0)
+        id = "borderPane"
 
         children.addAll(createToDoHeader, createToDoRowView, myToDosHeader)
         model.applicationState.addListener { _, _, _ -> updateApplicationState() }
