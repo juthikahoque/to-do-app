@@ -5,9 +5,7 @@ import frontend.app
 import frontend.services.ItemService
 import frontend.utils.ApplicationState
 import javafx.geometry.Insets
-import javafx.scene.control.Label
-import javafx.scene.control.ListCell
-import javafx.scene.control.ListView
+import javafx.scene.control.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
@@ -96,6 +94,20 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
 
                         selectionModel.select(index)
                     }
+
+                    contextMenu = ContextMenu()
+                    val miNew = MenuItem("New").apply { setOnAction { model.additionalModalView.set(Presenter.editItem) } }
+                    val miEdit = MenuItem("Edit").apply { setOnAction { model.additionalModalView.set(Presenter.editItem) } }
+                    val miCut = MenuItem("Cut").apply { setOnAction { copy(true) } }
+                    val miCopy = MenuItem("Copy").apply { setOnAction { copy() } }
+                    val miPaste = MenuItem("Paste").apply { setOnAction { paste() } }
+                    val miDelete = MenuItem("Delete").apply { setOnAction { delete() } }
+
+                    if (item == null) {
+                        contextMenu.items.setAll(miNew, miPaste)
+                    } else {
+                        contextMenu.items.setAll(miNew, miEdit, miCut, miCopy, miPaste, miDelete)
+                    }
                 }
             }
         }
@@ -133,6 +145,43 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
 
         model.currentItem.bind(selectionModel.selectedItemProperty())
     }
+
+    private fun copy(cut: Boolean = false) {
+        if (itemList.isFocused) {
+            copiedItem = itemList.selectionModel.selectedItem.copy()
+            isCut = cut
+        }
+    }
+    private fun paste() {
+        val item = copiedItem
+        if (item != null) {
+            val newItem = item.copy(
+                boardId = model.currentBoard.value.id,
+                id = UUID.randomUUID()
+            )
+            model.items.add(newItem)
+            launch {
+                ItemService.addItem(model.currentBoard.value.id, newItem)
+                if (isCut) {
+                    model.items.remove(item)
+                    ItemService.deleteItem(item.boardId, item.id)
+                    isCut = false
+                }
+            }
+        }
+    }
+
+    private fun delete() {
+        if (itemList.isFocused) {
+            val item = itemList.selectionModel.selectedItem
+            model.items.remove(item)
+            launch {
+                ItemService.deleteItem(item.boardId, item.id)
+            }
+        }
+    }
+
+
     private fun updateApplicationState() {
         if (model.applicationState.value == ApplicationState.Ready) {
             children[2] = itemList
@@ -173,45 +222,19 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         }
 
         app.addHotkey(KeyCodeCombination(KeyCode.DELETE)) {
-            if (itemList.isFocused) {
-                val item = itemList.selectionModel.selectedItem
-                model.items.remove(item)
-                launch {
-                    ItemService.deleteItem(item.boardId, item.id)
-                }
-            }
+            delete()
         }
 
         app.addHotkey(KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN)) {
-            if (itemList.isFocused) {
-                copiedItem = itemList.selectionModel.selectedItem.copy()
-            }
+            copy()
         }
 
         app.addHotkey(KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN)) {
-            val item = copiedItem
-            if (item != null) {
-                val newItem = item.copy(
-                    boardId = model.currentBoard.value.id,
-                    id = UUID.randomUUID()
-                )
-                model.items.add(newItem)
-                launch {
-                    ItemService.addItem(model.currentBoard.value.id, newItem)
-                    if (isCut) {
-                        model.items.remove(item)
-                        ItemService.deleteItem(item.boardId, item.id)
-                        isCut = false
-                    }
-                }
-            }
+            paste()
         }
 
         app.addHotkey(KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN)) {
-            if (itemList.isFocused) {
-                copiedItem = itemList.selectionModel.selectedItem.copy()
-                isCut = true
-            }
+            copy(true)
         }
     }
 }
