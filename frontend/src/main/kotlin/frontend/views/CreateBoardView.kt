@@ -10,8 +10,14 @@ import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import models.Board
 import frontend.services.AuthService
+import frontend.services.BoardService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.javafx.JavaFx
+import kotlinx.coroutines.launch
 
-class CreateBoardView(private val model: Model): VBox() {
+class CreateBoardView(private val model: Model): VBox(), CoroutineScope {
+    override val coroutineContext = Dispatchers.JavaFx
 
     private val header = Label("Create a Board:").apply {
         font = Font(18.0)
@@ -28,11 +34,16 @@ class CreateBoardView(private val model: Model): VBox() {
         id = "save"
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
-            if (nameInput.text == "") {
+            val name = if (nameInput.text == "") {
                 println("No board name entered! This is probably an error!")
-                model.addBoard(Board("NO NAME", mutableSetOf(AuthService.user)))
+                "NO NAME"
             } else {
-                model.addBoard(Board(nameInput.text, mutableSetOf(AuthService.user)))
+                nameInput.text
+            }
+            val board = Board(name, mutableSetOf(AuthService.user))
+            model.boards.add(board)
+            launch {
+                BoardService.addBoard(board)
             }
             model.additionalModalView.set("")
         }

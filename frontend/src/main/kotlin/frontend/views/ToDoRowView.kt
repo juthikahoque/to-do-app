@@ -1,6 +1,7 @@
 package frontend.views
 
 import frontend.Model
+import frontend.services.ItemService
 import javafx.geometry.Insets
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
@@ -9,14 +10,26 @@ import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.javafx.JavaFx
+import kotlinx.coroutines.launch
 import models.Item
 import java.time.format.DateTimeFormatter
+import kotlin.coroutines.CoroutineContext
 
-class ToDoRowView(private val item: Item, model: Model) : VBox() {
+class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope {
+    override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
+
     private val completedCheckBox = CheckBox().apply {
         isSelected = item.done
         setOnAction {
-            model.updateItem(item.copy(done = isSelected))
+            val idx = model.items.indexOf(item)
+            val new = item.copy(done = isSelected)
+            model.items[idx] = new
+            launch {
+                ItemService.updateItem(item.boardId, new)
+            }
         }
     }
     private val titleLabel = Label(item.title).apply {

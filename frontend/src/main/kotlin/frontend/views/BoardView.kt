@@ -36,9 +36,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
 
     private var dragFromIndex = -1
     private var dragToIndex = -1
-    private var selectIdx = 0
     private var copiedItem: Item? = null
-    private var isCut: Boolean = false
 
     private val itemList = ListView(model.items).apply {
         background = Background(
@@ -50,20 +48,20 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         HBox.setHgrow(this, Priority.ALWAYS)
         setVgrow(this, Priority.ALWAYS)
 
+        model.currentItem.bind(selectionModel.selectedItemProperty())
+
         setCellFactory {
             object : ListCell<Item?>() {
                 override fun updateItem(item: Item?, empty: Boolean) {
                     super.updateItem(item, empty)
+
                     graphic = if (item != null) {
-                        ToDoRowView(item, model)
+                        val pad = if (dragFromIndex != -1 && isSelected) 15.0 else 0.0
+                        ToDoRowView(item, model).apply {
+                            padding = Insets(5.0, 0.0, 5.0, pad)
+                        }
                     } else {
                         null
-                    }
-
-                    padding = if (dragFromIndex != -1 && isSelected) {
-                        Insets(1.0, 1.0, 1.0, 15.0)
-                    } else {
-                        Insets(1.0)
                     }
 
                     setOnDragDetected {
@@ -133,40 +131,100 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         }
 
         setOnMouseDragReleased {
-            if (dragFromIndex != dragToIndex) {
-                selectIdx = dragToIndex
+            val from = dragFromIndex
+            val to = dragToIndex
+            dragFromIndex = -1
+            refresh()
+
+            if (from != to && from != -1) {
                 launch {
-                    ItemService.orderItem(model.currentBoard.value.id, dragFromIndex, dragToIndex)
-                    model.updateItems()
-                    dragFromIndex = -1
+                    ItemService.orderItem(model.currentBoard.value.id, from, to)
                 }
             }
         }
 
-        model.currentItem.bind(selectionModel.selectedItemProperty())
+        // shortcuts for items
+        setOnKeyPressed {
+            val deleteCode = if (System.getProperty("os.name").lowercase().contains("mac")) {
+                KeyCode.BACK_SPACE
+            } else {
+                KeyCode.DELETE
+            }
+            when (it.code) { // delete item
+                deleteCode -> { delete() }
+                KeyCode.ENTER -> {
+                    model.additionalModalView.set(Presenter.editItem)
+                }
+                else -> {}
+            }
+
+            if (!it.isShortcutDown) return@setOnKeyPressed
+            // everything else requires shortcut down
+            when (it.code) {
+                KeyCode.UP -> { // re-order up
+                    reorderShortcut(-1)
+                }
+                KeyCode.DOWN -> {
+                    reorderShortcut(1)
+                }
+                KeyCode.C -> { // copy
+                    copy()
+                }
+                KeyCode.X -> { // cut
+                    copy(true)
+                }
+                KeyCode.D -> { // mark as done
+                    val item = selectionModel.selectedItem
+                    val new = item.copy(done = !item.done)
+                    items[selectionModel.selectedIndex] = new
+                    launch {
+                        ItemService.updateItem(model.currentBoard.value.id, new)
+                    }
+                }
+                else -> {}
+            }
+        }
     }
 
+    private fun reorderShortcut(dir: Int) {
+        if (model.currentBoard.value == model.allBoard) return
+        val idx = itemList.selectionModel.selectedIndex
+        if (idx + dir < itemList.items.size && idx + dir >= 0) {
+            // swap
+            val temp = model.items[idx]
+            model.items[idx] = model.items[idx + dir]
+            model.items[idx + dir] = temp
+            itemList.selectionModel.select(idx + dir)
+
+            launch {
+                ItemService.orderItem(model.currentBoard.value.id, idx, idx + dir)
+            }
+        }
+    }
     private fun copy(cut: Boolean = false) {
         if (itemList.isFocused) {
-            copiedItem = itemList.selectionModel.selectedItem.copy()
-            isCut = cut
+            val item = itemList.selectionModel.selectedItem.copy()
+            copiedItem = item
+            if (cut) {
+                model.items.remove(item)
+                launch {
+                    ItemService.deleteItem(item.boardId, item.id)
+                }
+            }
         }
     }
     private fun paste() {
         val item = copiedItem
-        if (item != null) {
+        if (item != null && model.currentBoard.value != model.allBoard) {
             val newItem = item.copy(
                 boardId = model.currentBoard.value.id,
-                id = UUID.randomUUID()
+                id = UUID.randomUUID(),
+                labels = item.labels.map { it }.toMutableSet(),
+                attachments = item.attachments.map { it }.toMutableSet(),
             )
             model.items.add(newItem)
             launch {
                 ItemService.addItem(model.currentBoard.value.id, newItem)
-                if (isCut) {
-                    model.items.remove(item)
-                    ItemService.deleteItem(item.boardId, item.id)
-                    isCut = false
-                }
             }
         }
     }
@@ -209,32 +267,9 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
             itemList.selectionModel.select(0)
         }
 
-        app.addHotkey(KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN)) {
-            if (itemList.isFocused) {
-                val item = itemList.focusModel.focusedItem
-                selectIdx = itemList.focusModel.focusedIndex
-                val new = item.copy(done = !item.done)
-                itemList.items[selectIdx] = new
-                launch {
-                    ItemService.updateItem(model.currentBoard.value.id, new)
-                }
-            }
-        }
-
-        app.addHotkey(KeyCodeCombination(KeyCode.DELETE)) {
-            delete()
-        }
-
-        app.addHotkey(KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN)) {
-            copy()
-        }
-
+        // paste, can paste without focus on item list, so the shortcut is global
         app.addHotkey(KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN)) {
             paste()
-        }
-
-        app.addHotkey(KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN)) {
-            copy(true)
         }
     }
 }

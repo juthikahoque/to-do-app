@@ -46,14 +46,14 @@ class LoginController : CoroutineScope {
 
     @FXML
     fun initialize() {
+        serverUrl.text = Settings.get("serverUrl", "http://127.0.0.1:8080")
+
         serverUrl.textProperty().addListener { _, _, _ ->
             statusChecker.playFromStart()
         }
         statusChecker.onFinished = EventHandler { _: ActionEvent? ->
             checkServerStatus()
         }
-
-        serverUrl.text = Settings.get("serverUrl", "http://127.0.0.1:8080")
 
         checkServerStatus()
 
@@ -132,6 +132,7 @@ class LoginController : CoroutineScope {
 
     @FXML
     private fun checkServerStatus() {
+        println("status checked")
         launch {
             serverStatus.isDisable = AuthService.serverStatusCheck(serverUrl.text)
             if (serverStatus.isDisable) {
