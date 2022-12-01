@@ -7,6 +7,7 @@ module frontend {
     opens icons.google_signin_buttons;
     opens icons.sort_icons;
     opens icons.status;
+    opens icons.ui_icons;
 
     requires shared;
     requires kotlinx.coroutines.core.jvm;

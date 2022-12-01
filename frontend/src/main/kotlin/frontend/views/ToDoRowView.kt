@@ -16,10 +16,6 @@ import javafx.scene.image.ImageView
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
-import javafx.scene.layout.ColumnConstraints
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.Priority
-import javafx.scene.layout.VBox
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.javafx.JavaFx
@@ -71,14 +67,12 @@ class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope
     private val ownerLabel = Label(item.owner.name)
 
     private val editButton = Button().apply{
-        val editImage = Image(Main::class.java.getResource("/icons/ui_icons/edit-small.png").toExternalForm())
-        graphic = ImageView(editImage)
+        id = "edit-button"
         background = Background(BackgroundFill(Color.TRANSPARENT, null, null))
         setOnAction {
             model.currentItem.set(item)
             model.additionalModalView.set(Presenter.editItem)
         }
-
     }
 
     private val gridPane = GridPane().apply {
@@ -100,12 +94,12 @@ class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope
         }
 
         columnConstraints.addAll(
-            neverGrow, //completedCheckBox
-            neverGrow, //titleLabel
+            neverGrow,  //completedCheckBox
+            neverGrow,  //titleLabel
             alwaysGrow, //dueDateLabel
-            neverGrow, //tags
-            neverGrow, //assignedToLabel
-            neverGrow //edit button
+            neverGrow,  //tags
+            neverGrow,  //assignedToLabel
+            neverGrow,  //edit button
         )
     }
 

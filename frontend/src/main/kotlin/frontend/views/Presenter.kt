@@ -64,6 +64,7 @@ class Presenter(private val model: Model): StackPane() {
             }
             else -> {
                 applicationStackPane.children.add(applicationContainer)
+
                 children.add(applicationStackPane)
             }
         }

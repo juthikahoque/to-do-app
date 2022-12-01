@@ -2,7 +2,6 @@ package backend.services
 
 import models.*
 import java.io.File
-import java.io.InputStream
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -57,7 +56,6 @@ object ItemService {
             )
             """.trimIndent()
         )
-
     }
 
     fun addItem(item: Item): Item {
@@ -90,6 +88,9 @@ object ItemService {
                 insertLabels.setString(1, item.id.toString())
                 insertLabels.setString(2, label.value)
                 insertLabels.executeUpdate()
+            }
+            for (attach in item.attachments) {
+                addAttachment(item.id, attach)
             }
             return item
         } catch (ex: SQLException) {
@@ -242,6 +243,14 @@ object ItemService {
                 addLabels.executeUpdate()
             }
 
+            val old = getItem(new.id)
+            for (attachment in old.attachments.subtract(new.attachments)) {
+                deleteAttachment(new.id, attachment.name)
+            }
+            for (attachment in new.attachments.subtract(old.attachments)) {
+                addAttachment(new.id, attachment)
+            }
+
             return getItem(new.id)
         } catch (ex: SQLException) {
             appError(ex.message ?: "sql update item failed")
@@ -292,27 +301,12 @@ object ItemService {
         conn.prepareStatement("""INSERT INTO items_attachments (itemId, path) VALUES (?, ?)""")
     }
 
-    fun addAttachment(itemId: UUID, name: String, data: InputStream) {
-        try {
-            // save file
-            val file = File("data/$itemId/$name")
-            file.parentFile.mkdirs()
-            data.use { input ->
-                // copy the stream to the file with buffering
-                file.outputStream().buffered().use {
-                    // note that this is blocking
-                    input.copyTo(it)
-                }
-            }
+    fun addAttachment(itemId: UUID, attachment: Attachment) {
+        // add to db
+        addAttachment.setString(1, itemId.toString())
+        addAttachment.setString(2, attachment.name)
 
-            // add to db
-            addAttachment.setString(1, itemId.toString())
-            addAttachment.setString(2, name)
-
-            addAttachment.executeUpdate()
-        } catch (ex: SQLException) {
-            appError(ex.message ?: "sql add attachments failed")
-        }
+        addAttachment.executeUpdate()
     }
 
     private val deleteAttachment by lazy {
@@ -320,20 +314,17 @@ object ItemService {
     }
 
     fun deleteAttachment(itemId: UUID, name: String) {
-        try {
-            if (name == "%") { // delete all
-                File("data/$itemId").deleteRecursively()
-            } else {
-                File("data/$itemId/$name").delete()
-            }
-
-            deleteAttachment.setString(1, itemId.toString())
-            deleteAttachment.setString(2, name)
-
-            deleteAttachment.executeUpdate() // == 0 if no item exist
-        } catch (ex: SQLException) {
-            appError(ex.message ?: "sql delete attachment failed")
+        if (name == "%") { // delete all
+            File("data/$itemId").deleteRecursively()
+        } else {
+            val storedName = Base64.getUrlEncoder().encodeToString(name.toByteArray())
+            File("data/$itemId/$storedName").delete()
         }
+
+        deleteAttachment.setString(1, itemId.toString())
+        deleteAttachment.setString(2, name)
+
+        deleteAttachment.executeUpdate() // == 0 if no item exist
     }
 
     private fun getItemQuery(allBoard: Boolean, query: String, sort: String): PreparedStatement {

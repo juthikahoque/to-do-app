@@ -272,3 +272,16 @@
 .check-box:focused:indeterminate:pressed > .box{
     -fx-border-color: focus_ring_color, accent_color;
 }
+
+.hyperlink {
+    -fx-text-fill: rgb(52, 52, 54);
+}
+
+#x-button {
+    -fx-background-color: transparent;
+    -fx-graphic: url('/icons/ui_icons/x-button.png');
+}
+
+#edit-button {
+    -fx-graphic: url('/icons/ui_icons/edit-small.png');
+}
