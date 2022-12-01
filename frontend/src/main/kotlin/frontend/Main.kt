@@ -1,5 +1,6 @@
 package frontend
 
+import frontend.services.Settings
 import frontend.services.WindowPreferences
 import frontend.views.Presenter
 import javafx.application.Application
@@ -31,6 +32,16 @@ class Main : Application() {
         stage.show()
     }
 
+    fun getTheme(): String {
+        val themeStr = Settings.get("themeMode", "")
+        return if (themeStr != "") themeStr else "light"
+    }
+
+    private fun setTheme(mode: String) {
+        println(mode)
+        Settings.put("themeMode", mode)
+    }
+
     fun switchToMain() {
         val sceneName = "main"
 
@@ -43,16 +54,15 @@ class Main : Application() {
 
         // set the scene
         val scene = Scene(presenter, 800.0, 600.0)
-        val jMetro = JMetro(Style.LIGHT)
-        jMetro.scene = scene
-        scene.stylesheets.add(Main::class.java.getResource("/css/light.css")!!.toExternalForm())
-
         stage.scene = scene
 
         for (hotkey in hotkeys) {
             scene.accelerators[hotkey.key] = hotkey.value
         }
         hotkeys.clear()
+
+        val mode = getTheme()
+        changeThemeMode(mode)
 
         windowPreferences.changeScene(sceneName)
         stage.show()
@@ -74,17 +84,15 @@ class Main : Application() {
         stage.show()
     }
 
-    fun changeThemeMode(mode: String, sceneName: String) {
-        stage.hide()
-
-        var scene = stage.scene
+    fun changeThemeMode(mode: String) {
+        setTheme(mode)
+        val scene = stage.scene
         scene.stylesheets.clear()
-        var jMetro: JMetro = if (mode == "light") { JMetro(Style.LIGHT) } else { JMetro(Style.DARK)  }
-        jMetro.setScene(scene)
-        scene.stylesheets.add(Main::class.java.getResource("/css/${mode}.css").toExternalForm())
+        val jMetro = JMetro(if (mode == "light") Style.LIGHT else Style.DARK)
+        jMetro.scene = scene
+        scene.stylesheets.add(Main::class.java.getResource("/css/${mode}.css")!!.toExternalForm())
         stage.scene = scene
 
-        windowPreferences.changeScene(sceneName)
         stage.show()
     }
 
