@@ -29,7 +29,9 @@ class WindowPreferences(private val stage: Stage) {
         stage.widthProperty().addListener { _, _, _ -> pauseTransition.playFromStart() }
         stage.heightProperty().addListener { _, _, _ -> pauseTransition.playFromStart() }
 
-        stage.onCloseRequest = EventHandler { save(scene) }
+        stage.onCloseRequest = EventHandler {
+            save(scene)
+        }
     }
 
     fun changeScene(newScene: String?) {
@@ -53,10 +55,10 @@ class WindowPreferences(private val stage: Stage) {
         Settings.put("win.${scene}", Json.encodeToString(curPref))
     }
 
+
     private fun set(scene: String?) {
         if (scene == null) return
         val winStr = Settings.get("win.${scene}", "")
-        println(winStr)
         curPref = if (winStr != "") Json.decodeFromString(winStr) else WindowPreference()
 
         stage.width = curPref.width
