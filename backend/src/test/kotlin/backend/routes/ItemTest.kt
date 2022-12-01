@@ -223,7 +223,5 @@ class ItemTest {
 
         assertEquals(HttpStatusCode.OK, result.status)
         assertEquals(expectedResult, result.body<List<Item>>())
-
     }
-
 }

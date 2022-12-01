@@ -110,7 +110,17 @@ fun Route.itemRouting() {
                     if (part is PartData.FileItem) {
                         // retrieve file name of upload
                         val name = part.originalFileName!!
-                        ItemService.addAttachment(id, name, part.streamProvider())
+
+                        // save file
+                        val file = File("data/$id/$name")
+                        file.parentFile.mkdirs()
+                        part.streamProvider().use { input ->
+                            // copy the stream to the file with buffering
+                            file.outputStream().buffered().use {
+                                // note that this is blocking
+                                input.copyTo(it)
+                            }
+                        }
                     }
                     // make sure to dispose of the part after use to prevent leaks
                     part.dispose()
@@ -136,7 +146,7 @@ fun Route.itemRouting() {
                 val id = UUID.fromString(call.parameters["id"])
                 // get filename from request url
                 val filename = call.parameters["name"]!!
-                ItemService.deleteAttachment(id, filename)
+                File("data/$id/$filename").delete()
 
                 call.respond(HttpStatusCode.NoContent)
             }

@@ -2,6 +2,7 @@ package frontend.views
 
 import frontend.Model
 import frontend.app
+import frontend.services.BoardService
 import frontend.services.ItemService
 import frontend.utils.ActionMetaData
 import frontend.utils.Actions
@@ -99,12 +100,24 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
                     }
 
                     contextMenu = ContextMenu()
-                    val miNew = MenuItem("New").apply { setOnAction { model.additionalModalView.set(Presenter.editItem) } }
-                    val miEdit = MenuItem("Edit").apply { setOnAction { model.additionalModalView.set(Presenter.editItem) } }
-                    val miCut = MenuItem("Cut").apply { setOnAction { copy(true) } }
-                    val miCopy = MenuItem("Copy").apply { setOnAction { copy() } }
-                    val miPaste = MenuItem("Paste").apply { setOnAction { paste() } }
-                    val miDelete = MenuItem("Delete").apply { setOnAction { delete() } }
+                    val miNew = MenuItem("New").apply {
+                        setOnAction { model.additionalModalView.set(Presenter.createItem) }
+                    }
+                    val miEdit = MenuItem("Edit").apply {
+                        setOnAction { model.additionalModalView.set(Presenter.editItem) }
+                    }
+                    val miCut = MenuItem("Cut").apply {
+                        setOnAction { copy(true) }
+                    }
+                    val miCopy = MenuItem("Copy").apply {
+                        setOnAction { copy() }
+                    }
+                    val miPaste = MenuItem("Paste").apply {
+                        setOnAction { paste() }
+                    }
+                    val miDelete = MenuItem("Delete").apply {
+                        setOnAction { delete() }
+                    }
 
                     if (item == null) {
                         contextMenu.items.setAll(miNew, miPaste)
@@ -162,11 +175,15 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
                 KeyCode.DELETE
             }
             when (it.code) { // delete item
-                deleteCode -> { delete() }
+                deleteCode -> {
+                    delete()
+                }
+
                 KeyCode.ENTER -> {
                     model.currentItem.set(model.items[selectionModel.selectedIndex])
                     model.additionalModalView.set(Presenter.editItem)
                 }
+
                 else -> {}
             }
 
@@ -176,15 +193,19 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
                 KeyCode.UP -> { // re-order up
                     reorderShortcut(-1)
                 }
+
                 KeyCode.DOWN -> {
                     reorderShortcut(1)
                 }
+
                 KeyCode.C -> { // copy
                     copy()
                 }
+
                 KeyCode.X -> { // cut
                     copy(true)
                 }
+
                 KeyCode.D -> { // mark as done
                     UndoRedoManager.handleAction(
                         Actions.updateItem,
@@ -199,6 +220,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
                         ItemService.updateItem(model.currentBoard.value.id, new)
                     }
                 }
+
                 else -> {}
             }
         }
@@ -225,6 +247,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
             }
         }
     }
+
     private fun copy(cut: Boolean = false) {
         if (itemList.isFocused) {
             val item = itemList.selectionModel.selectedItem.copy()
@@ -243,6 +266,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
             }
         }
     }
+
     private fun paste() {
         val item = copiedItem
         if (item != null && model.currentBoard.value != model.allBoard) {
@@ -261,6 +285,13 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
             model.items.add(newItem)
             launch {
                 ItemService.addItem(model.currentBoard.value.id, newItem)
+            }
+
+            // update board labels if necessary
+            if (model.currentBoard.value.labels.addAll(item.labels)) {
+                launch {
+                    BoardService.updateBoard(model.currentBoard.value)
+                }
             }
         }
     }
@@ -298,20 +329,19 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         children.addAll(createButton, itemList)
 
         id = "borderPane"
+
         model.applicationState.addListener { _, _, _ -> updateApplicationState() }
         updateApplicationState()
 
         model.currentBoard.addListener { _, _, board ->
-            if(board == model.allBoard){
+            if (board == model.allBoard) {
                 children.removeAll(createButton, itemList)
                 children.add(itemList)
-            }
-            else{
+            } else {
                 children.removeAll(createButton, itemList)
                 children.addAll(createButton, itemList)
             }
         }
-
 
         app.addHotkey(KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN)) {
             itemList.requestFocus()
@@ -321,6 +351,12 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         // paste, can paste without focus on item list, so the shortcut is global
         app.addHotkey(KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN)) {
             paste()
+        }
+
+        app.addHotkey(KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)) {
+            if (model.additionalModalView.value == "") {
+                model.additionalModalView.set(Presenter.createItem)
+            }
         }
     }
 }

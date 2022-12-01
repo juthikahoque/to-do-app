@@ -123,6 +123,7 @@ object UndoRedoManager {
         if (boardToDelete.isNotEmpty()) {
             runBlocking {
                 BoardService.deleteBoard(boardToDelete.first().id)
+                model.updateBoards()
             }
         }
     }
@@ -132,6 +133,7 @@ object UndoRedoManager {
         if (boardToAdd.isNotEmpty()) {
             runBlocking {
                 BoardService.addBoard(boardToAdd.first())
+                model.updateBoards()
             }
         }
     }
@@ -141,6 +143,7 @@ object UndoRedoManager {
         if (boardToUpdate.isNotEmpty()) {
             runBlocking {
                 BoardService.updateBoard(boardToUpdate.first())
+                model.updateBoards()
             }
         }
     }
@@ -150,6 +153,7 @@ object UndoRedoManager {
         if (boardToUpdate.isNotEmpty()) {
             runBlocking {
                 BoardService.updateBoard(boardToUpdate.first())
+                model.updateBoards()
             }
         }
     }
@@ -159,6 +163,7 @@ object UndoRedoManager {
         if (itemToDelete.isNotEmpty()) {
             runBlocking {
                 ItemService.deleteItem(itemToDelete.first().boardId, itemToDelete.first().id)
+                model.updateItems()
             }
         }
     }
@@ -168,6 +173,7 @@ object UndoRedoManager {
         if (itemToAdd.isNotEmpty()) {
             runBlocking {
                 ItemService.addItem(itemToAdd.first().boardId, itemToAdd.first())
+                model.updateItems()
             }
         }
     }
@@ -177,6 +183,7 @@ object UndoRedoManager {
         if (itemToUpdate.isNotEmpty()) {
             runBlocking {
                 ItemService.updateItem(itemToUpdate.first().boardId, itemToUpdate.first())
+                model.updateItems()
             }
         }
     }
@@ -186,6 +193,7 @@ object UndoRedoManager {
         if (itemToUpdate.isNotEmpty()) {
             runBlocking {
                 ItemService.updateItem(itemToUpdate.first().boardId, itemToUpdate.first())
+                model.updateItems()
             }
         }
     }
@@ -195,6 +203,7 @@ object UndoRedoManager {
         if (itemToAdd.isNotEmpty()) {
             runBlocking {
                 ItemService.addItem(itemToAdd.first().boardId, itemToAdd.first())
+                model.updateItems()
             }
         }
     }
@@ -204,6 +213,7 @@ object UndoRedoManager {
         if (itemToDelete.isNotEmpty()) {
             runBlocking {
                 ItemService.deleteItem(itemToDelete.first().boardId, itemToDelete.first().id)
+                model.updateItems()
             }
         }
     }
@@ -213,8 +223,9 @@ object UndoRedoManager {
             ItemService.orderItem(
                 model.currentBoard.value.id,
                 previousState.actionMetaData!!.to,
-                previousState.actionMetaData!!.from
+                previousState.actionMetaData.from
             )
+            model.updateItems()
         }
     }
 
@@ -223,8 +234,9 @@ object UndoRedoManager {
             ItemService.orderItem(
                 model.currentBoard.value.id,
                 nextState.actionMetaData!!.from,
-                nextState.actionMetaData!!.to
+                nextState.actionMetaData.to
             )
+            model.updateItems()
         }
     }
 }

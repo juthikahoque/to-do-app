@@ -1,6 +1,7 @@
 package backend.services
 
 import backend.services.ItemService.getItems
+import models.Attachment
 import models.Item
 import models.Label
 import org.junit.jupiter.api.AfterEach
@@ -639,13 +640,12 @@ internal class ItemServiceTest {
 
         ItemService.addItem(item)
 
-        ItemService.addAttachment(item.id, "attachment", File("build.gradle").inputStream())
+        ItemService.addAttachment(item.id, Attachment("attachment"))
 
         val res = ItemService.getItem(item.id)
 
         assertEquals(1, res.attachments.size)
         assertEquals("attachment", res.attachments.first().name)
-        assert(File("data/${item.id}/attachment").exists())
 
         // Test delete
         ItemService.deleteAttachment(item.id, "attachment")

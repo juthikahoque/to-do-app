@@ -259,24 +259,18 @@ object BoardService {
             updateBoard.setString(3, boardIdString)
             updateBoard.executeUpdate()
             // update boards_users
-            val users = new.users.toMutableSet()
-            for (oldUser in old.users) {
-                if (!users.remove(oldUser)) {
-                    removeUser(boardIdString, oldUser.userId)
-                }
+            for (user in old.users.subtract(new.users)) {
+                removeUser(boardIdString, user.userId)
             }
-            for (unAddedUsers in users) {
-                addUser(new.id.toString(), unAddedUsers.userId)
+            for (user in new.users.subtract(old.users)) {
+                addUser(boardIdString, user.userId)
             }
             // update boards_labels
-            val labels = new.labels.toMutableSet()
-            for (oldLabel in old.labels) {
-                if (!labels.remove(oldLabel)) {
-                    removeLabel(boardIdString, oldLabel.value)
-                }
+            for (label in old.labels.subtract(new.labels)) {
+                removeLabel(boardIdString, label.value)
             }
-            for (unAddedLabel in labels) {
-                addLabel(boardIdString, unAddedLabel.value)
+            for (label in new.labels.subtract(old.labels)) {
+                addLabel(boardIdString, label.value)
             }
             // conn.commit() // if using transactions
             new

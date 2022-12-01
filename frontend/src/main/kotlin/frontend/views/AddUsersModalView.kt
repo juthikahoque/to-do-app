@@ -78,11 +78,8 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         setOnAction {
             UndoRedoManager.handleAction(Actions.updateBoard, model.items, model.boards, null)
 
-            val updatedBoard = model.currentBoard.value.copy(
-                users = model.currentBoard.value.users.map { user: User -> user.copy() }.toMutableSet()
-            )
             for (user in listOfUsers) {
-                updatedBoard.users.add(user)
+                model.currentBoard.value.users.add(user)
             }
             runBlocking {
                 BoardService.updateBoard(model.currentBoard.value)

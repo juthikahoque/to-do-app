@@ -11,6 +11,8 @@ import javafx.scene.text.Font
 import models.Board
 import frontend.services.AuthService
 import frontend.services.BoardService
+import frontend.utils.Actions
+import frontend.utils.UndoRedoManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.javafx.JavaFx
@@ -41,6 +43,8 @@ class CreateBoardView(private val model: Model): VBox(), CoroutineScope {
                 nameInput.text
             }
             val board = Board(name, mutableSetOf(AuthService.user))
+
+            UndoRedoManager.handleAction(Actions.addBoard, model.items, model.boards, null)
             model.boards.add(board)
             launch {
                 BoardService.addBoard(board)

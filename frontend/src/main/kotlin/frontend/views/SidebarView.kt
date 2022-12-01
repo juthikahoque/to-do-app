@@ -63,9 +63,9 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
 
     private var isLightMode = true
 
-    private val sunImg = Image(Main::class.java.getResource("/icons/themes/sun.png").toExternalForm())
+    private val sunImg = Image(Main::class.java.getResource("/icons/themes/sun.png")!!.toExternalForm())
     private val sunImgView = ImageView(sunImg)
-    private val moonImg = Image(Main::class.java.getResource("/icons/themes/moon.png").toExternalForm())
+    private val moonImg = Image(Main::class.java.getResource("/icons/themes/moon.png")!!.toExternalForm())
     private val moonImgView = ImageView(moonImg)
 
     private val themeMode = ToggleButton().apply {
@@ -74,8 +74,8 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
         graphic = if(isLightMode) moonImgView else sunImgView
         setOnAction {
             isLightMode = !isLightMode
-            graphic = if(isLightMode) moonImgView else sunImgView
-            model.toggleMode(if(isLightMode) "light" else "dark")
+            graphic = if (isLightMode) moonImgView else sunImgView
+            app.changeThemeMode(if (isLightMode) "light" else "dark", "main")
         }
     }
 

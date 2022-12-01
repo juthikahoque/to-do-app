@@ -78,20 +78,26 @@ object ItemService {
     }
 
     suspend fun uploadFile(bid: UUID, id: UUID, file: File) {
+        val name = Base64.getUrlEncoder().encodeToString(file.name.toByteArray())
         client.submitFormWithBinaryData(
             url = "board/$bid/items/$id/file",
             formData = formData {
                 append("file", file.readBytes(), Headers.build {
                     append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
-                    append(HttpHeaders.ContentDisposition, "filename=${file.name}")
+                    append(HttpHeaders.ContentDisposition, "filename=$name")
                 })
             }
         )
     }
 
     suspend fun downloadFile(bid: UUID, id: UUID, attachment: Attachment): ByteArray {
-        val name = attachment.name
+        val name = Base64.getUrlEncoder().encodeToString(attachment.name.toByteArray())
         val response = client.get("board/$bid/items/$id/file/$name")
         return response.body()
+    }
+
+    suspend fun deleteFile(bid: UUID, id: UUID, attachment: Attachment) {
+        val name = Base64.getUrlEncoder().encodeToString(attachment.name.toByteArray())
+        client.delete("board/$bid/items/$id/file/$name")
     }
 }

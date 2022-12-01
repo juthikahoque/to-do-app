@@ -88,6 +88,7 @@ class Main : Application() {
         stage.show()
     }
 
+
     fun addHotkey(key: KeyCombination, func: () -> Unit) {
         hotkeys[key] = Runnable { func() }
     }

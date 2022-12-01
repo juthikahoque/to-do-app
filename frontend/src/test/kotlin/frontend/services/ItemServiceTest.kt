@@ -47,7 +47,7 @@ internal class ItemServiceTest {
                 HttpStatusCode.OK,
                 headersOf(HttpHeaders.ContentType, "application/json")
             )
-            "/board/$bid/items/${i1.id}/file/build.gradle" -> respond(
+            "/board/$bid/items/${i1.id}/file/${Base64.getUrlEncoder().encodeToString("build.gradle".toByteArray())}" -> respond(
                 File("build.gradle").readBytes(),
                 HttpStatusCode.OK,
                 headersOf(HttpHeaders.ContentType, "application/octet-stream")
@@ -146,7 +146,9 @@ internal class ItemServiceTest {
             val data = ItemService.downloadFile(bid, i1.id, Attachment("build.gradle"))
 
             // compare byte array are equal
-            File("build.gradle").readBytes().forEachIndexed { idx, byte -> assertEquals(byte, data[idx]) }
+            File("build.gradle").readBytes().forEachIndexed { idx, byte ->
+                assertEquals(byte, data[idx])
+            }
         }
     }
 }
