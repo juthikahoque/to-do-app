@@ -134,6 +134,14 @@
     -fx-graphic: url('/icons/ui_icons/edit-blue.png');
 }
 
+#help-button {
+    -fx-background-image: url('/icons/ui_icons/question-mark.png');
+    -fx-background-size: 30px 30px;
+    -fx-border-color: transparent;
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+}
+
 /*******************************************************************************
  *                                                                             *
  * Choice/Combo Box                                                            *

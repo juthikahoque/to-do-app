@@ -12,6 +12,7 @@ class Presenter(private val model: Model) : StackPane() {
         const val editBoard = "editBoard"
         const val createItem = "createItem"
         const val editItem = "editItem"
+        const val helpMenu = "helpMenu"
     }
 
     private var sidebar = SidebarView(model).apply {
@@ -71,9 +72,19 @@ class Presenter(private val model: Model) : StackPane() {
                 itemModal.requestFocus()
             }
 
+            helpMenu -> {
+                val helpModal = HotkeysModalView(model)
+                val helpModelBorderPane = BorderPane()
+                helpModelBorderPane.background = Background(BackgroundFill(Color.rgb(50, 50, 50, 0.8), CornerRadii(0.9), Insets(0.0)))
+                helpModelBorderPane.center = helpModal
+                applicationStackPane.children.addAll(applicationContainer, helpModelBorderPane)
+                children.add(applicationStackPane)
+                helpModal.requestFocus()
+
+            }
+
             else -> {
                 applicationStackPane.children.add(applicationContainer)
-
                 children.add(applicationStackPane)
             }
         }
