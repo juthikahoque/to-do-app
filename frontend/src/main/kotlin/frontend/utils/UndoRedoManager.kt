@@ -64,6 +64,22 @@ object UndoRedoManager {
         stacks[model.currentBoard.value.id.toString()]?.get(1)?.clear()
     }
 
+    private fun addCurrentStateToRedoStack(state: ApplicationSnapshot) {
+        val copiedItems = makeDeepCopyOfItems(model.items)
+        val copiedBoards = makeDeepCopyOfBoards(model.boards)
+        stacks[model.currentBoard.value.id.toString()]?.get(1)?.add(
+            ApplicationSnapshot(state.action, copiedItems, copiedBoards, state.actionMetaData)
+        )
+    }
+
+    private fun addCurrentStateToUndoStack(state: ApplicationSnapshot) {
+        val copiedItems = makeDeepCopyOfItems(model.items)
+        val copiedBoards = makeDeepCopyOfBoards(model.boards)
+        stacks[model.currentBoard.value.id.toString()]?.get(0)?.add(
+            ApplicationSnapshot(state.action, copiedItems, copiedBoards, state.actionMetaData)
+        )
+    }
+
     private fun handleUndo() {
         val boardStacks = stacks[model.currentBoard.value.id.toString()]
         if (boardStacks != null) {
@@ -78,14 +94,6 @@ object UndoRedoManager {
                     Actions.deleteItem -> undoDeleteItem(previousState)
                     Actions.reorderItem -> undoItemReorder(previousState)
                     else -> println("Invalid action provided")
-                }
-                val copiedItems = makeDeepCopyOfItems(model.items)
-                val copiedBoards = makeDeepCopyOfBoards(model.boards)
-                val redoStack = boardStacks[1]
-                redoStack.add(ApplicationSnapshot(previousState.action, copiedItems, copiedBoards, previousState.actionMetaData))
-                suspend {
-                    model.updateBoards()
-                    model.updateItems()
                 }
             }
         }
@@ -106,14 +114,6 @@ object UndoRedoManager {
                     Actions.reorderItem -> redoItemReorder(nextState)
                     else -> println("Invalid action provided")
                 }
-                val copiedItems = makeDeepCopyOfItems(model.items)
-                val copiedBoards = makeDeepCopyOfBoards(model.boards)
-                val undoStack = boardStacks[0]
-                undoStack.add(ApplicationSnapshot(nextState.action, copiedItems, copiedBoards, nextState.actionMetaData))
-                suspend {
-                    model.updateBoards()
-                    model.updateItems()
-                }
             }
         }
     }
@@ -123,6 +123,7 @@ object UndoRedoManager {
         if (boardToDelete.isNotEmpty()) {
             runBlocking {
                 BoardService.deleteBoard(boardToDelete.first().id)
+                addCurrentStateToRedoStack(previousState)
                 model.updateBoards()
             }
         }
@@ -133,6 +134,7 @@ object UndoRedoManager {
         if (boardToAdd.isNotEmpty()) {
             runBlocking {
                 BoardService.addBoard(boardToAdd.first())
+                addCurrentStateToUndoStack(nextState)
                 model.updateBoards()
             }
         }
@@ -143,6 +145,7 @@ object UndoRedoManager {
         if (boardToUpdate.isNotEmpty()) {
             runBlocking {
                 BoardService.updateBoard(boardToUpdate.first())
+                addCurrentStateToRedoStack(previousState)
                 model.updateBoards()
             }
         }
@@ -153,6 +156,7 @@ object UndoRedoManager {
         if (boardToUpdate.isNotEmpty()) {
             runBlocking {
                 BoardService.updateBoard(boardToUpdate.first())
+                addCurrentStateToUndoStack(nextState)
                 model.updateBoards()
             }
         }
@@ -163,6 +167,7 @@ object UndoRedoManager {
         if (itemToDelete.isNotEmpty()) {
             runBlocking {
                 ItemService.deleteItem(itemToDelete.first().boardId, itemToDelete.first().id)
+                addCurrentStateToRedoStack(previousState)
                 model.updateItems()
             }
         }
@@ -173,6 +178,7 @@ object UndoRedoManager {
         if (itemToAdd.isNotEmpty()) {
             runBlocking {
                 ItemService.addItem(itemToAdd.first().boardId, itemToAdd.first())
+                addCurrentStateToUndoStack(nextState)
                 model.updateItems()
             }
         }
@@ -183,6 +189,7 @@ object UndoRedoManager {
         if (itemToUpdate.isNotEmpty()) {
             runBlocking {
                 ItemService.updateItem(itemToUpdate.first().boardId, itemToUpdate.first())
+                addCurrentStateToRedoStack(previousState)
                 model.updateItems()
             }
         }
@@ -193,6 +200,7 @@ object UndoRedoManager {
         if (itemToUpdate.isNotEmpty()) {
             runBlocking {
                 ItemService.updateItem(itemToUpdate.first().boardId, itemToUpdate.first())
+                addCurrentStateToUndoStack(nextState)
                 model.updateItems()
             }
         }
@@ -203,6 +211,7 @@ object UndoRedoManager {
         if (itemToAdd.isNotEmpty()) {
             runBlocking {
                 ItemService.addItem(itemToAdd.first().boardId, itemToAdd.first())
+                addCurrentStateToRedoStack(previousState)
                 model.updateItems()
             }
         }
@@ -213,6 +222,7 @@ object UndoRedoManager {
         if (itemToDelete.isNotEmpty()) {
             runBlocking {
                 ItemService.deleteItem(itemToDelete.first().boardId, itemToDelete.first().id)
+                addCurrentStateToUndoStack(nextState)
                 model.updateItems()
             }
         }
@@ -225,6 +235,7 @@ object UndoRedoManager {
                 previousState.actionMetaData!!.to,
                 previousState.actionMetaData.from
             )
+            addCurrentStateToRedoStack(previousState)
             model.updateItems()
         }
     }
@@ -236,6 +247,7 @@ object UndoRedoManager {
                 nextState.actionMetaData!!.from,
                 nextState.actionMetaData.to
             )
+            addCurrentStateToUndoStack(nextState)
             model.updateItems()
         }
     }
