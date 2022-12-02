@@ -112,21 +112,21 @@ class ItemTest {
             Item(
                 title = "CS 346",
                 priority = 1,
-                labels = mutableSetOf(Label("CS 346")),
+                labels = setOf(Label("CS 346")),
                 boardId = boardId1,
                 owner = user
             ),
             Item(
                 title = "CS 346",
                 priority = 0,
-                labels = mutableSetOf(Label("CS 346"), Label("CS 341")),
+                labels = setOf(Label("CS 346"), Label("CS 341")),
                 boardId = boardId1,
                 owner = user
             ),
             Item(
                 title = "CS 341",
                 priority = 0,
-                labels = mutableSetOf(Label("CS 341")),
+                labels = setOf(Label("CS 341")),
                 boardId = boardId1,
                 owner = user
             ),
@@ -157,7 +157,7 @@ class ItemTest {
                 title = "CS 346",
                 priority = 0,
                 dueDate = LocalDateTime.now(),
-                labels = mutableSetOf(Label("CS 346"), Label("CS 341")),
+                labels = setOf(Label("CS 346"), Label("CS 341")),
                 boardId = boardId1,
                 owner = user
             ),
@@ -165,7 +165,7 @@ class ItemTest {
                 title = "CS 346",
                 priority = 1,
                 dueDate = LocalDateTime.now().plusDays(1),
-                labels = mutableSetOf(Label("CS 346")),
+                labels = setOf(Label("CS 346")),
                 boardId = boardId1,
                 owner = user
             ),
@@ -173,7 +173,7 @@ class ItemTest {
                 title = "CS 341",
                 priority = 0,
                 dueDate = LocalDateTime.now().plusHours(1),
-                labels = mutableSetOf(Label("CS 341")),
+                labels = setOf(Label("CS 341")),
                 boardId = boardId1,
                 owner = user
             ),

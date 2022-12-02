@@ -24,12 +24,10 @@ fun Route.itemRouting() {
 
                 // for filtering
                 val filterByPriority = call.request.queryParameters.getAll("priority")
-                val priorities = mutableSetOf<Int>()
-                filterByPriority?.forEach { priorities.add(it.toInt()) }
+                val priorities = filterByPriority?.map { it.toInt() }?.toSet() ?: setOf()
 
                 val filterByLabel = call.request.queryParameters.getAll("label")
-                val labels = mutableSetOf<Label>()
-                filterByLabel?.forEach { labels.add(Label(it)) }
+                val labels = filterByLabel?.map { Label(it) }?.toSet() ?: setOf()
 
                 val sDateStr = call.request.queryParameters["sDate"]
                 val startDate = if (sDateStr == null) null else LocalDateTime.parse(sDateStr)

@@ -1,11 +1,11 @@
 package frontend.utils
 
 enum class Actions {
-    initialization,
-    addBoard,
-    updateBoard,
-    addItem,
-    updateItem,
-    deleteItem,
-    reorderItem
+    INITIALIZE,
+    ADD_BOARD,
+    UPDATE_BOARD,
+    ADD_ITEM,
+    UPDATE_ITEM,
+    DELETE_ITEM,
+    REORDER_ITEM
 }

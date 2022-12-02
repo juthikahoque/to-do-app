@@ -14,7 +14,7 @@ import models.User
 
 class BoardTest {
 
-    val users = mutableSetOf(User("rIliX3UCwhY7qvdPeh0jJsQL1UR2", "test", "test@email.com"))
+    private val users = setOf(User("rIliX3UCwhY7qvdPeh0jJsQL1UR2", "test", "test@email.com"))
 
     @BeforeEach
     fun init() {

@@ -168,7 +168,7 @@ class ItemModalView(private val model: Model, private val inputItem: Item?) : VB
         text = item.description
     }
 
-    private val attachmentList = item.attachments.map { it }.toMutableSet()
+    private val attachmentList = item.attachments.toMutableSet()
     private fun attachmentView(attachment: Attachment): HBox {
         val openFile = Hyperlink(attachment.name).apply {
             setOnAction {
@@ -239,13 +239,6 @@ class ItemModalView(private val model: Model, private val inputItem: Item?) : VB
         isDefaultButton = true
 
         setOnAction {
-            if (labelsComboBox.value != null && labelsComboBox.value.value.isNotBlank()) {
-                if (model.currentBoard.value.labels.add(labelsComboBox.value)) {
-                    launch {
-                        BoardService.updateBoard(model.currentBoard.value)
-                    }
-                }
-            }
             updateTodo()
             model.additionalModalView.set("")
         }
@@ -295,13 +288,13 @@ class ItemModalView(private val model: Model, private val inputItem: Item?) : VB
          )
 
          if (inputItem == null) {
-             UndoRedoManager.handleAction(Actions.addItem, model.items, model.boards, null)
+             UndoRedoManager.handleAction(Actions.ADD_ITEM, model.items, model.boards, null)
              model.items.add(updatedItem)
              launch {
                  ItemService.addItem(model.currentBoard.value.id, updatedItem)
              }
          } else {
-             UndoRedoManager.handleAction(Actions.updateItem, model.items, model.boards, null)
+             UndoRedoManager.handleAction(Actions.UPDATE_ITEM, model.items, model.boards, null)
              val item = model.items.indexOf(inputItem)
              model.items[item] = updatedItem
              launch {
@@ -310,7 +303,12 @@ class ItemModalView(private val model: Model, private val inputItem: Item?) : VB
          }
 
          // update board labels if necessary
-         if (model.currentBoard.value.labels.addAll(item.labels)) {
+         val newLabels = item.labels.subtract(model.currentBoard.value.labels)
+         if (newLabels.isNotEmpty()) {
+             val updatedBoard = model.currentBoard.value.copy(
+                 labels = model.currentBoard.value.labels.plus(newLabels)
+             )
+             model.boards[model.boards.indexOf(model.currentBoard.value)] = updatedBoard
              launch {
                  BoardService.updateBoard(model.currentBoard.value)
              }
