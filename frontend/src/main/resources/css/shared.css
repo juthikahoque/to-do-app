@@ -104,8 +104,16 @@
     -fx-graphic: url('/icons/ui_icons/x-button-light.png');
 }
 
-#edit-button {
+#edit-item {
     -fx-graphic: url('/icons/ui_icons/edit-small.png');
+}
+
+#edit-board {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-radius: 4;
+    -fx-graphic: url('/icons/ui_icons/edit-blue.png');
 }
 
 

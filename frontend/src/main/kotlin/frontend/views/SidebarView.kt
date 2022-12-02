@@ -86,7 +86,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
         }
 
         model.currentBoard.addListener { _, old, new ->
-            if(new != null && old != null && old.id == new.id && old.users.size != new.users.size) {
+            if (new != null && old != null && old.id == new.id && old.users.size != new.users.size) {
                 refresh()
             }
         }
@@ -98,26 +98,45 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
 
                     graphic = if (item != null) {
                         id = "currentBoard"
-                        val pad = if (dragFromIndex != -1 && isSelected) 15.0 else 0.0
-
-                        if(item.users.size > 1) {
-                            val img = Image(Main::class.java.getResource("/icons/ui_icons/Group.png")!!.toExternalForm())
-                            val imgView = ImageView(img)
-                            val shared = VBox(imgView).apply {
+                        HBox().apply {
+                            spacing = 10.0
+                            if (item != model.allBoard) {
                                 alignment = Pos.CENTER
                             }
-                            HBox(shared, Label(item.name).apply {
-                                textFill = Color.WHITE
-                                font = Font(15.0)
-                            }).apply {
-                                spacing = 10.0
-                                padding = Insets(5.0, 0.0, 5.0, pad)
+                            val pad = if (dragFromIndex != -1 && isSelected) 15.0 else 0.0
+                            padding = Insets(5.0, 0.0, 5.0, pad)
+
+                            if (item.users.size > 1) {
+                                val img =
+                                    Image(
+                                        Main::class.java.getResource("/icons/ui_icons/Group.png")!!.toExternalForm()
+                                    )
+                                val shared = ImageView(img).apply {
+                                    alignment = Pos.CENTER
+                                }
+                                children.add(shared)
                             }
-                        } else {
-                            Label(item.name).apply {
+
+                            val name = Label(item.name).apply {
                                 textFill = Color.WHITE
                                 font = Font(15.0)
-                                padding = Insets(5.0, 0.0, 5.0, pad)
+                            }
+                            children.add(name)
+
+                            val editButton = Button().apply {
+                                id = "edit-board"
+                                alignment = Pos.CENTER
+                                setOnAction {
+                                    selectionModel.select(item)
+                                    model.additionalModalView.set(Presenter.editBoard)
+                                }
+                            }
+
+                            if (item != model.allBoard) {
+                                val spacer = Pane().apply {
+                                    HBox.setHgrow(this, Priority.ALWAYS)
+                                }
+                                children.addAll(spacer, editButton)
                             }
                         }
 

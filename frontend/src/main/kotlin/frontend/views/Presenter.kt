@@ -5,10 +5,11 @@ import javafx.geometry.Insets
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 
-class Presenter(private val model: Model): StackPane() {
+class Presenter(private val model: Model) : StackPane() {
     companion object {
-        const val newBoard = "newBoard"
         const val addUser = "addUser"
+        const val newBoard = "newBoard"
+        const val editBoard = "editBoard"
         const val createItem = "createItem"
         const val editItem = "editItem"
     }
@@ -27,20 +28,27 @@ class Presenter(private val model: Model): StackPane() {
         val applicationStackPane = StackPane()
 
         when (modal) {
-            newBoard -> {
-                val createBoardView = CreateBoardView(model)
+            editBoard, newBoard -> {
+                val itemModal = if (modal == editBoard) {
+                    BoardModalView(model, model.currentBoard.value!!)
+                } else {
+                    BoardModalView(model, null)
+                }
                 val createBoardBorderPane = BorderPane()
-                createBoardBorderPane.background = Background(BackgroundFill(Color.rgb(50, 50, 50, 0.8), CornerRadii(0.9), Insets(0.0)))
-                createBoardBorderPane.center = createBoardView
+                createBoardBorderPane.background =
+                    Background(BackgroundFill(Color.rgb(50, 50, 50, 0.8), CornerRadii(0.9), Insets(0.0)))
+                createBoardBorderPane.center = itemModal
                 applicationStackPane.children.addAll(applicationContainer, createBoardBorderPane)
 
                 children.add(applicationStackPane)
-                createBoardView.requestFocus()
+                itemModal.requestFocus()
             }
+
             addUser -> {
                 val addUserModalView = AddUsersModalView(model)
                 val addUserBorderPane = BorderPane()
-                addUserBorderPane.background = Background(BackgroundFill(Color.rgb(50, 50, 50, 0.8), CornerRadii(0.9), Insets(0.0)))
+                addUserBorderPane.background =
+                    Background(BackgroundFill(Color.rgb(50, 50, 50, 0.8), CornerRadii(0.9), Insets(0.0)))
                 addUserBorderPane.center = addUserModalView
                 applicationStackPane.children.addAll(applicationContainer, addUserBorderPane)
 
@@ -49,7 +57,7 @@ class Presenter(private val model: Model): StackPane() {
             }
 
             createItem, editItem -> {
-                val itemModal = if(modal == editItem) {
+                val itemModal = if (modal == editItem) {
                     ItemModalView(model, model.currentItem.value!!)
                 } else {
                     ItemModalView(model, null)
@@ -62,6 +70,7 @@ class Presenter(private val model: Model): StackPane() {
                 children.add(applicationStackPane)
                 itemModal.requestFocus()
             }
+
             else -> {
                 applicationStackPane.children.add(applicationContainer)
 
