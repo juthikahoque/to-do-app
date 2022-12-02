@@ -128,6 +128,7 @@ class AddUsersModalView(private val model: Model) : BorderPane() {
             )
         }
         center = addAndListUsersVbox
+        bottom = buttons
     }
 
     init {
@@ -137,7 +138,6 @@ class AddUsersModalView(private val model: Model) : BorderPane() {
         maxHeight = 300.0
         background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
         top = header
-        bottom = buttons
         updateView()
 
         Platform.runLater { nameInput.requestFocus() }

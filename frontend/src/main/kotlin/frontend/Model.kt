@@ -61,7 +61,7 @@ class Model : CoroutineScope {
         search.addListener { _, _, _ -> launch { updateItems() } }
         filter.addListener { _, _, _ -> launch { updateItems() } }
 
-        currentBoard.addListener { _, _, _ -> launch { updateItems() } }
+        currentBoard.addListener { _, old, new -> if (new?.id != old?.id) launch { updateItems() } }
         currentBoard.set(boards[1])
 
         applicationState.set(ApplicationState.Ready)

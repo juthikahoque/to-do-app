@@ -303,14 +303,14 @@ class ItemModalView(private val model: Model, private val inputItem: Item?) : VB
          }
 
          // update board labels if necessary
-         val newLabels = item.labels.subtract(model.currentBoard.value.labels)
+         val newLabels = labels.subtract(model.currentBoard.value.labels)
          if (newLabels.isNotEmpty()) {
              val updatedBoard = model.currentBoard.value.copy(
                  labels = model.currentBoard.value.labels.plus(newLabels)
              )
              model.boards[model.boards.indexOf(model.currentBoard.value)] = updatedBoard
              launch {
-                 BoardService.updateBoard(model.currentBoard.value)
+                 BoardService.updateBoard(updatedBoard)
              }
          }
      }

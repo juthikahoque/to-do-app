@@ -215,9 +215,11 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
                     )
                     val item = selectionModel.selectedItem
                     val new = item.copy(done = !item.done)
-                    items[selectionModel.selectedIndex] = new
+                    val index = selectionModel.selectedIndex
+                    items[index] = new
+                    selectionModel.select(index)
                     launch {
-                        ItemService.updateItem(model.currentBoard.value.id, new)
+                        ItemService.updateItem(new.boardId, new)
                     }
                 }
 
