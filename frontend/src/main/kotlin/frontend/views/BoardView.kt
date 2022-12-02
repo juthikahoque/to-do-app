@@ -30,15 +30,6 @@ import kotlin.coroutines.CoroutineContext
 class BoardView(private val model: Model) : VBox(), CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.JavaFx
 
-    private val createButton = Button("Create").apply {
-        minWidth = 75.0
-        prefWidth = 75.0
-
-        setOnAction {
-            model.additionalModalView.set(Presenter.createItem)
-        }
-    }
-
     private var dragFromIndex = -1
     private var dragToIndex = -1
     private var copiedItem: Item? = null
@@ -118,11 +109,17 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
                     val miDelete = MenuItem("Delete").apply {
                         setOnAction { delete() }
                     }
+                    val miUndo = MenuItem("Undo").apply {
+                        setOnAction { UndoRedoManager.handleUndo() }
+                    }
+                    val miRedo = MenuItem("Redo").apply {
+                        setOnAction { UndoRedoManager.handleRedo() }
+                    }
 
                     if (item == null) {
-                        contextMenu.items.setAll(miNew, miPaste)
+                        contextMenu.items.setAll(miNew, miPaste, miUndo, miRedo)
                     } else {
-                        contextMenu.items.setAll(miNew, miEdit, miCut, miCopy, miPaste, miDelete)
+                        contextMenu.items.setAll(miNew, miEdit, miCut, miCopy, miPaste, miDelete, miUndo, miRedo)
                     }
                 }
             }
@@ -322,9 +319,9 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
 
     private fun updateApplicationState() {
         if (model.applicationState.value == ApplicationState.Ready) {
-            children[1] = itemList
+            children[0] = itemList
         } else {
-            children[1] = Label("Loading...")
+            children[0] = Label("Loading...")
         }
     }
 
@@ -333,22 +330,12 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         VBox.setVgrow(this, Priority.ALWAYS)
         spacing = 5.0
         padding = Insets(10.0)
-        children.addAll(createButton, itemList)
+        children.add(itemList)
 
         id = "borderPane"
 
         model.applicationState.addListener { _, _, _ -> updateApplicationState() }
         updateApplicationState()
-
-        model.currentBoard.addListener { _, _, board ->
-            if (board == model.allBoard) {
-                children.removeAll(createButton, itemList)
-                children.add(itemList)
-            } else {
-                children.removeAll(createButton, itemList)
-                children.addAll(createButton, itemList)
-            }
-        }
 
         app.addHotkey(KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN)) {
             itemList.requestFocus()

@@ -5,6 +5,7 @@ import frontend.Model
 import frontend.app
 import frontend.services.AuthService
 import frontend.services.BoardService
+import frontend.utils.UndoRedoManager
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.*
@@ -109,7 +110,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
                             if (item.users.size > 1) {
                                 val img =
                                     Image(
-                                        Main::class.java.getResource("/icons/ui_icons/Group.png")!!.toExternalForm()
+                                        Main::class.java.getResource("/icons/ui_icons/shared-icon.png")!!.toExternalForm()
                                     )
                                 val shared = ImageView(img).apply {
                                     alignment = Pos.CENTER
@@ -171,6 +172,36 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
 
                         selectionModel.select(index)
                     }
+
+                    contextMenu = ContextMenu()
+                    val miNew = MenuItem("New").apply {
+                        setOnAction { model.additionalModalView.set(Presenter.newBoard) }
+                    }
+                    val miEdit = MenuItem("Edit").apply {
+                        setOnAction { model.additionalModalView.set(Presenter.editBoard) }
+                    }
+                    val miDelete = MenuItem("Delete").apply {
+                        setOnAction {
+                            val item = selectionModel.selectedItem
+                            model.boards.remove(item)
+                            launch {
+                                BoardService.deleteBoard(item.id)
+                            }
+                        }
+                    }
+                    val miUndo = MenuItem("Undo").apply {
+                        setOnAction { UndoRedoManager.handleUndo() }
+                    }
+                    val miRedo = MenuItem("Redo").apply {
+                        setOnAction { UndoRedoManager.handleRedo() }
+                    }
+
+
+                    if (item == null || item == model.allBoard) {
+                        contextMenu.items.setAll(miNew, miUndo, miRedo)
+                    } else {
+                        contextMenu.items.setAll(miNew, miEdit, miDelete, miUndo, miRedo)
+                    }
                 }
             }
         }
@@ -221,6 +252,12 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
                     model.boards.remove(item)
                     launch {
                         BoardService.deleteBoard(item.id)
+                    }
+                }
+
+                KeyCode.ENTER -> {
+                    if(selectionModel.selectedItem != model.allBoard) {
+                        model.additionalModalView.set(Presenter.editBoard)
                     }
                 }
 
