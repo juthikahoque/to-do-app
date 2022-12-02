@@ -3,6 +3,7 @@ package frontend.views
 import frontend.Model
 import frontend.app
 import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode
@@ -53,7 +54,22 @@ class ToolbarView(private val model: Model) : BorderPane() {
         children.addAll(sort, filter)
     }
 
-    private val buttons = HBox(createButton, inviteButton)
+    private val helpButton = Button().apply {
+        id = "help-button"
+        prefWidth = 30.0
+        prefHeight = 30.0
+        setOnAction {
+            model.additionalModalView.set(Presenter.helpMenu)
+        }
+    }
+
+    private val buttons = VBox(createButton, inviteButton).apply {
+        children.add(HBox(createButton, inviteButton))
+        val spacer = Pane().apply {
+            HBox.setHgrow(this, Priority.ALWAYS)
+        }
+        children.add(HBox(spacer, helpButton))
+    }
 
     init {
         model.search.bind(searchField.textProperty())

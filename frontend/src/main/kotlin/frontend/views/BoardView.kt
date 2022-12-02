@@ -352,5 +352,15 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
                 model.additionalModalView.set(Presenter.createItem)
             }
         }
+
+        //open help modal
+        app.addHotkey(KeyCodeCombination(KeyCode.F1)) {
+            if (model.additionalModalView.value == "") {
+                model.additionalModalView.set(Presenter.helpMenu)
+            }
+            else if (model.additionalModalView.value == Presenter.helpMenu){
+                model.additionalModalView.set("")
+            }
+        }
     }
 }
