@@ -8,6 +8,7 @@ import frontend.services.BoardService
 import frontend.services.ItemService
 import frontend.utils.Actions
 import frontend.utils.UndoRedoManager
+import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.control.*
 import javafx.scene.image.Image
@@ -325,5 +326,7 @@ class ItemModalView(private val model: Model, private val inputItem: Item?) : VB
         maxHeight = 450.0
         background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
         children.addAll(header, titleAndDateBox, dropdowns, descInput, attachmentGroup, buttons)
+
+        Platform.runLater { titleInput.requestFocus() }
     }
 }

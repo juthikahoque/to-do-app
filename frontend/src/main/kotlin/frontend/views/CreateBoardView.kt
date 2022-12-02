@@ -13,6 +13,7 @@ import frontend.services.AuthService
 import frontend.services.BoardService
 import frontend.utils.Actions
 import frontend.utils.UndoRedoManager
+import javafx.application.Platform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.javafx.JavaFx
@@ -79,5 +80,7 @@ class CreateBoardView(private val model: Model): VBox(), CoroutineScope {
         maxHeight = 150.0
         background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
         children.addAll(header, nameSection, buttons)
+
+        Platform.runLater { nameInput.requestFocus() }
     }
 }
