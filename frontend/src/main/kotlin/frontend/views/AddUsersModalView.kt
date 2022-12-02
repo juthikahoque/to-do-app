@@ -5,6 +5,7 @@ import frontend.services.BoardService
 import frontend.services.UserService
 import frontend.utils.Actions
 import frontend.utils.UndoRedoManager
+import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -127,5 +128,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         top = header
         bottom = buttons
         updateView()
+
+        Platform.runLater { nameInput.requestFocus() }
     }
 }
