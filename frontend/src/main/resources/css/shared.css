@@ -1,0 +1,275 @@
+.root {
+    accent_color: #ADD8E6;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Button                                                                      *
+ *                                                                             *
+ ******************************************************************************/
+
+.button, .button:default, .toggle-button {
+    -fx-background-color: accent_color;
+    -fx-background-radius: 4;
+    -fx-text-fill: black;
+}
+
+.button:hover, .button:default:hover, .toggle-button:hover {
+    -fx-background-radius: 4;
+    -fx-border-color: transparent;
+}
+
+.button:focused, .button:default:focused, .toggle-button:selected {
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-style: solid;
+    -fx-text-fill: accent_color;
+    -fx-border-color: accent_color;
+}
+
+.toggle-button:focused {
+    -fx-border-style: solid;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.toggle-button:selected:hover {
+    -fx-border-color: accent_color;
+}
+
+.toggle-button:selected:pressed {
+    -fx-border-style: solid;
+}
+
+#save {
+    accent_color: #90EE90;
+}
+
+#delete {
+    accent_color: #CD5C5C;
+}
+
+#labelToggle:selected  {
+    accent_color: #cdb2d4;
+    -fx-background-color: accent_color;
+}
+
+#low:selected {
+    accent_color: #2af7a5;
+    -fx-background-color: accent_color;
+    -fx-text-fill: #111;
+}
+
+#medium:selected {
+    accent_color: #f7942a;
+    -fx-background-color: accent_color;
+    -fx-text-fill: #111;
+}
+
+#high:selected {
+    accent_color: #f72a50;
+    -fx-background-color: accent_color;
+    -fx-text-fill: #111;
+}
+
+#create {
+    -fx-font-size: 16px;
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    accent_color: #90EE90;
+    -fx-text-fill: accent_color;
+}
+
+#logout {
+    -fx-font-size: 16px;
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    accent_color: #CD5C5C;
+    -fx-text-fill: accent_color;
+}
+
+#toggle,
+#toggle:pressed,
+#toggle:focused,
+#toggle:selected,
+#toggle:selected:hover,
+#toggle:selected:pressed,
+ #toggle:selected:pressed:hover {
+    -fx-border-color: transparent;
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+}
+
+#x-button {
+    -fx-graphic: url('/icons/ui_icons/x-button-light.png');
+}
+
+#edit-button {
+    -fx-graphic: url('/icons/ui_icons/edit-small.png');
+}
+
+
+/*******************************************************************************
+ *                                                                             *
+ * Choice/Combo Box                                                            *
+ *                                                                             *
+ ******************************************************************************/
+
+.choice-box, .combo-box-base {
+    border_color: accent_color;
+    border_hover_color: border_color;
+    border_focused_color: border_color;
+    border_pressed_color: border_color;
+
+    background_pressed_color: input_color;
+    combo_box_background_color: input_color;
+    choice_box_background_color: input_color;
+
+    combo_box_editable_button_hover_color: transparent;
+    combo_box_editable_focused_button_hover_color: combo_box_editable_button_hover_color;
+    combo_box_editable_focused_background_color: input_color;
+    combo_box_editable_focused_arrow_color: arrow_color;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Date Picker                                                                 *
+ *                                                                             *
+ ******************************************************************************/
+.date-picker {
+    today_border_color: accent_color;
+
+    day_cell_border_hover_color: transparent;
+    day_cell_background_days_from_other_months_color: input_color;
+}
+
+.date-picker-popup > * > .day-cell.previous-month,
+.date-picker-popup > * > .day-cell.next-month {
+    -fx-border-color: transparent;
+}
+
+.date-picker-popup > * > .spinner > .button:armed {
+    -fx-background-color: accent_color;
+}
+
+.date-picker-popup > * > .day-cell.previous-month:hover,
+.date-picker-popup > * > .day-cell.next-month:hover {
+    -fx-border-color: accent_color;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Views                                                                       *
+ *                                                                             *
+ ******************************************************************************/
+
+#borderPane {
+    -fx-background-color: border_pane_color;
+}
+
+#modal {
+    -fx-background-color: border_pane_color;
+    -fx-background-radius: 5;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Text Field                                                                  *
+ *                                                                             *
+ ******************************************************************************/
+
+
+.text-field, .text-field:hover, .text-area , .text-area:hover {
+   -fx-background-color: accent_color, input_color;
+}
+
+.text-input, .text-area {
+    graphic_color: accent_color;
+}
+
+#input {
+    -fx-padding: 0.4866667em 0.667em 0.4866667em 0.416667em;
+}
+
+#name {
+    -fx-text-fill: accent_color;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Check Box                                                                   *
+ *                                                                             *
+ ******************************************************************************/
+
+.check-box {
+    box_border_color: accent_color;
+    box_border_hover_color: accent_color;
+
+    indeterminate_mark_color: accent_color;
+    indeterminate_box_pressed_color: white;
+
+    focus_ring_color: accent_color;
+}
+
+.check-box:pressed > .box,
+.check-box:selected:pressed > .box,
+.check-box:indeterminate:pressed > .box {
+     -fx-background-color: accent_color;
+     -fx-border-color: accent_color;
+ }
+
+.check-box:focused:pressed > .box,
+.check-box:focused:selected:pressed,
+.check-box:focused:selected:pressed > .box,
+.check-box:focused:indeterminate:pressed > .box{
+    -fx-border-color: focus_ring_color, accent_color;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Side Bar                                                                    *
+ *                                                                             *
+ ******************************************************************************/
+
+#sidebar {
+    -fx-background: sidebar_color;
+    -fx-background-color: sidebar_color;
+    -fx-border-color: sidebar_color;
+}
+
+#boardView {
+    -fx-background: sidebar_color;
+    -fx-background-color: sidebar_color;
+    -fx-border-color: sidebar_color;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Boards                                                                      *
+ *                                                                             *
+ ******************************************************************************/
+
+ #currentBoard {
+    -fx-alignment: CENTER_LEFT;
+    -fx-border-radius: 4;
+
+    -fx-background-color: sidebar_color;
+    -fx-pref-width: 140.0;
+ }
+
+ #currentBoard .label {
+    -fx-font-size: 15px;
+    -fx-text-fill: white;
+ }
+
+#currentBoard:hover {
+    -fx-background-color: derive(sidebar_color, 50%);
+}
+
+#currentBoard:focused {
+    -fx-background-color: derive(sidebar_color, 60%);
+}
+
+#currentBoard:selected {
+    -fx-background-color: derive(sidebar_color, 20%);
+}
