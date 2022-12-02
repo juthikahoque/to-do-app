@@ -77,7 +77,7 @@
 }
 
 #create {
-    -fx-font-size: 20px;
+    -fx-font-size: 16px;
     -fx-background: rgb(52, 52, 54);
     -fx-background-color: rgb(52, 52, 54);
     accent_color: #90EE90;
@@ -85,14 +85,21 @@
 }
 
 #logout {
-    -fx-font-size: 20px;
+    -fx-font-size: 16px;
     -fx-background: rgb(52, 52, 54);
     -fx-background-color: rgb(52, 52, 54);
     accent_color: #CD5C5C;
     -fx-text-fill: accent_color;
 }
 
-#toggle {
+#toggle,
+#toggle:pressed,
+#toggle:focused,
+#toggle:selected,
+#toggle:selected:hover,
+#toggle:selected:pressed,
+ #toggle:selected:pressed:hover {
+    -fx-border-color: transparent;
     -fx-background: transparent;
     -fx-background-color: transparent;
 }
