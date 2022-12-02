@@ -1,6 +1,7 @@
 package frontend.views
 
 import frontend.Model
+import frontend.services.AuthService
 import frontend.services.BoardService
 import frontend.services.UserService
 import frontend.utils.Actions
@@ -15,8 +16,8 @@ import javafx.scene.text.Font
 import kotlinx.coroutines.runBlocking
 import models.User
 
-class AddUsersModalView(private val model: Model): BorderPane() {
-    private val listOfUsers = mutableSetOf<User>()
+class AddUsersModalView(private val model: Model) : BorderPane() {
+    private val listOfUsers = model.currentBoard.value.users.toMutableSet()
 
     private val header = Label("Add Users:").apply {
         padding = Insets(0.0, 0.0, 10.0, 0.0)
@@ -29,7 +30,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         font = Font(10.0)
     }
 
-    private val usersToAddLabel = Label("Users To Add:").apply {
+    private val usersToAddLabel = Label("Users with access:").apply {
         padding = Insets(10.0, 0.0, 5.0, 0.0)
         font = Font(14.0)
     }
@@ -51,11 +52,9 @@ class AddUsersModalView(private val model: Model): BorderPane() {
 
             if (users.isEmpty()) {
                 errorMessage.text = "An invalid email was provided."
-            } else if (model.currentBoard.value.users.contains(users[0])) {
-                errorMessage.text = "This user already has access to this board."
             } else if (listOfUsers.contains(users[0])) {
-                errorMessage.text = "This user is already set to be added."
-            }  else {
+                errorMessage.text = "This user already has access to this board."
+            } else {
                 errorMessage.text = ""
                 listOfUsers.add(users[0])
             }
@@ -72,25 +71,24 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         prefWidth = 260.0
     }
 
-    private val confirmButton = Button("Confirm").apply{
+    private val confirmButton = Button("Confirm").apply {
         id = "save"
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
             UndoRedoManager.handleAction(Actions.updateBoard, model.items, model.boards, null)
 
-            val userList = model.currentBoard.value.users.plus(listOfUsers).toMutableSet()
-            val board = model.currentBoard.value.copy(users = userList)
+            val board = model.currentBoard.value.copy(users = listOfUsers)
             val idx = model.boards.indexOf(model.currentBoard.value)
             model.boards[idx] = board
 
             runBlocking {
-                BoardService.updateBoard(model.currentBoard.value)
+                BoardService.updateBoard(board)
             }
             model.additionalModalView.set("")
         }
     }
 
-    private val cancelButton = Button("Cancel").apply{
+    private val cancelButton = Button("Cancel").apply {
         id = "cancel"
         background = Background(BackgroundFill(Color.INDIANRED, CornerRadii(2.5), null))
         setOnAction {
@@ -103,7 +101,7 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         HBox.setHgrow(this, Priority.ALWAYS)
     }
 
-    private val buttons = HBox(spacer, cancelButton, confirmButton).apply{
+    private val buttons = HBox(spacer, cancelButton, confirmButton).apply {
         spacing = 10.0
     }
 
@@ -113,7 +111,20 @@ class AddUsersModalView(private val model: Model): BorderPane() {
         addAndListUsersVbox.children.add(errorMessage)
         addAndListUsersVbox.children.add(usersToAddLabel)
         for (user in listOfUsers) {
-            addAndListUsersVbox.children.add(Label(user.name))
+            addAndListUsersVbox.children.add(
+                HBox( // user display row
+                    Label("${user.name} (${user.email})"),
+                    Button().apply {
+                        isVisible = user != AuthService.user
+                        id = "x-button"
+                        padding = Insets(0.0)
+                        setOnAction {
+                            listOfUsers.remove(user)
+                            updateView()
+                        }
+                    }
+                )
+            )
         }
         center = addAndListUsersVbox
     }
