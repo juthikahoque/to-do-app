@@ -68,7 +68,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
     private val moonImg = Image(Main::class.java.getResource("/icons/themes/moon.png")!!.toExternalForm())
     private val moonImgView = ImageView(moonImg)
 
-    private val themeMode = ToggleButton().apply {
+    private val themeMode = VBox(ToggleButton().apply {
         font = Font(15.0)
         id = "toggle"
         graphic = if(isLightMode) moonImgView else sunImgView
@@ -77,6 +77,8 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
             graphic = if(isLightMode) moonImgView else sunImgView
             app.changeThemeMode(if(isLightMode) "light" else "dark")
         }
+    }).apply {
+        alignment = Pos.CENTER
     }
 
     private var dragFromIndex = -1
@@ -93,6 +95,12 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
             }
         }
 
+        model.currentBoard.addListener { _, old, new ->
+            if(new != null && old != null && old.id == new.id && old.users.size != new.users.size) {
+                refresh()
+            }
+        }
+
         setCellFactory {
             object : ListCell<Board?>() {
                 override fun updateItem(item: Board?, empty: Boolean) {
@@ -101,11 +109,28 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
                     graphic = if (item != null) {
                         id = "currentBoard"
                         val pad = if (dragFromIndex != -1 && isSelected) 15.0 else 0.0
-                        Label(item.name).apply {
-                            textFill = Color.WHITE
-                            font = Font(15.0)
-                            padding = Insets(5.0, 0.0, 5.0, pad)
+
+                        if(item.users.size > 1) {
+                            val img = Image(Main::class.java.getResource("/icons/ui_icons/Group.png")!!.toExternalForm())
+                            val imgView = ImageView(img)
+                            val shared = VBox(imgView).apply {
+                                alignment = Pos.CENTER
+                            }
+                            HBox(shared, Label(item.name).apply {
+                                textFill = Color.WHITE
+                                font = Font(15.0)
+                            }).apply {
+                                spacing = 10.0
+                                padding = Insets(5.0, 0.0, 5.0, pad)
+                            }
+                        } else {
+                            Label(item.name).apply {
+                                textFill = Color.WHITE
+                                font = Font(15.0)
+                                padding = Insets(5.0, 0.0, 5.0, pad)
+                            }
                         }
+
                     } else {
                         id = ""
                         null
