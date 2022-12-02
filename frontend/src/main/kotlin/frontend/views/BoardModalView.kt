@@ -15,6 +15,7 @@ import frontend.services.BoardService
 import frontend.services.ItemService
 import frontend.utils.Actions
 import frontend.utils.UndoRedoManager
+import javafx.application.Platform
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import kotlinx.coroutines.CoroutineScope
@@ -131,5 +132,7 @@ class BoardModalView(private val model: Model, private val inputBoard: Board?) :
         maxWidth = 300.0
         maxHeight = 150.0
         background = Background(BackgroundFill(Color.WHITE, CornerRadii(5.0), Insets(0.0)))
+
+        Platform.runLater { nameInput.requestFocus() }
     }
 }
