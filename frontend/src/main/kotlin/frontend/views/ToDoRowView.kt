@@ -63,7 +63,7 @@ class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope
     private val ownerLabel = Label(item.owner.name)
 
     private val editButton = Button().apply{
-        id = "edit-button"
+        id = "edit-item"
         background = Background(BackgroundFill(Color.TRANSPARENT, null, null))
         setOnAction {
             model.currentItem.set(item)
