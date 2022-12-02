@@ -28,7 +28,7 @@ class HotkeysModalView(private val model: Model) : VBox() {
         "Ctrl+R" to "Refresh boards and items",
         "Ctrl+Down" to "Move selected item or board down",
         "Ctrl+Up" to "Move selected item or board up",
-        "H" to "Toggle this help menu"
+        "F1" to "Toggle this help menu"
     )
 
     private val heading = Label().apply {
