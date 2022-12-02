@@ -21,8 +21,22 @@ class ToolbarView(private val model: Model) : BorderPane() {
         HBox.setHgrow(this, Priority.NEVER)
     }
 
-    private var inviteButton = Button("Invite").apply {
-        minWidth = 75.0
+    private val createButton = Button().apply {
+        id = "create-button"
+        prefWidth = 40.0
+        prefHeight = 40.0
+        setOnAction {
+            model.additionalModalView.set(Presenter.createItem)
+        }
+        model.currentBoard.addListener { _, _, newValue -> isVisible = (newValue != model.allBoard) }
+
+    }
+
+
+    private var inviteButton = Button().apply {
+        id = "invite-button"
+        prefWidth = 40.0
+        prefHeight = 40.0
         setOnAction {
             model.additionalModalView.set(Presenter.addUser)
         }
@@ -38,6 +52,8 @@ class ToolbarView(private val model: Model) : BorderPane() {
         spacing = 15.0
         children.addAll(sort, filter)
     }
+
+    private val buttons = HBox(createButton, inviteButton)
 
     init {
         model.search.bind(searchField.textProperty())
@@ -55,7 +71,7 @@ class ToolbarView(private val model: Model) : BorderPane() {
         padding = Insets(10.0)
         HBox.setHgrow(this, Priority.ALWAYS)
 
-        right = inviteButton
+        right = buttons
 
         app.addHotkey(KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN)) {
             searchField.requestFocus()

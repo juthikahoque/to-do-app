@@ -58,7 +58,7 @@ object UndoRedoManager {
         )
     }
 
-    private fun handleUndo() {
+    fun handleUndo() {
         val boardStacks = stacks[model.currentBoard.value.id.toString()]
         if (boardStacks != null) {
             val undoStack = boardStacks[0]
@@ -77,7 +77,7 @@ object UndoRedoManager {
         }
     }
 
-    private fun handleRedo() {
+    fun handleRedo() {
         val boardStacks = stacks[model.currentBoard.value.id.toString()]
         if (boardStacks != null) {
             val redoStack = boardStacks[1]
