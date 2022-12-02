@@ -1,7 +1,6 @@
 package backend.services
 
 import models.*
-import java.io.File
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -314,13 +313,6 @@ object ItemService {
     }
 
     fun deleteAttachment(itemId: UUID, name: String) {
-        if (name == "%") { // delete all
-            File("data/$itemId").deleteRecursively()
-        } else {
-            val storedName = Base64.getUrlEncoder().encodeToString(name.toByteArray())
-            File("data/$itemId/$storedName").delete()
-        }
-
         deleteAttachment.setString(1, itemId.toString())
         deleteAttachment.setString(2, name)
 
