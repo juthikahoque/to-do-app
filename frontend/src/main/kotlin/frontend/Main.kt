@@ -90,6 +90,7 @@ class Main : Application() {
         scene.stylesheets.clear()
         val jMetro = JMetro(if (mode == "light") Style.LIGHT else Style.DARK)
         jMetro.scene = scene
+        scene.stylesheets.add(Main::class.java.getResource("/css/shared.css")!!.toExternalForm())
         scene.stylesheets.add(Main::class.java.getResource("/css/${mode}.css")!!.toExternalForm())
         stage.scene = scene
 
