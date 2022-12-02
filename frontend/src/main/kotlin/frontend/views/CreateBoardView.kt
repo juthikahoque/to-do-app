@@ -45,7 +45,7 @@ class CreateBoardView(private val model: Model): VBox(), CoroutineScope {
             }
             val board = Board(name, mutableSetOf(AuthService.user))
 
-            UndoRedoManager.handleAction(Actions.addBoard, model.items, model.boards, null)
+            UndoRedoManager.handleAction(Actions.ADD_BOARD, model.items, model.boards, null)
             model.boards.add(board)
             launch {
                 BoardService.addBoard(board)

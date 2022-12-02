@@ -76,7 +76,7 @@ class AddUsersModalView(private val model: Model) : BorderPane() {
         id = "save"
         background = Background(BackgroundFill(Color.LIGHTGREEN, CornerRadii(2.5), null))
         setOnAction {
-            UndoRedoManager.handleAction(Actions.updateBoard, model.items, model.boards, null)
+            UndoRedoManager.handleAction(Actions.UPDATE_BOARD, model.items, model.boards, null)
 
             val board = model.currentBoard.value.copy(users = listOfUsers)
             val idx = model.boards.indexOf(model.currentBoard.value)

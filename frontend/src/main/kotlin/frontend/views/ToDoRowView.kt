@@ -1,9 +1,7 @@
 package frontend.views
 
-import frontend.Main
 import frontend.Model
 import frontend.services.ItemService
-import frontend.utils.ActionMetaData
 import frontend.utils.Actions
 import frontend.utils.UndoRedoManager
 import javafx.geometry.Insets
@@ -11,8 +9,6 @@ import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 
-import javafx.scene.image.Image
-import javafx.scene.image.ImageView
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
@@ -31,7 +27,7 @@ class ToDoRowView(private val item: Item, model: Model) : VBox(), CoroutineScope
         isSelected = item.done
         setOnAction {
             UndoRedoManager.handleAction(
-                Actions.updateItem,
+                Actions.UPDATE_ITEM,
                 model.items,
                 model.boards,
                 null

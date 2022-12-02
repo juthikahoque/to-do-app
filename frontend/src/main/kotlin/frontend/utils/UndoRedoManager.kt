@@ -10,8 +10,6 @@ import javafx.scene.input.KeyCombination
 import kotlinx.coroutines.runBlocking
 import models.Board
 import models.Item
-import models.Label
-import models.User
 
 object UndoRedoManager {
     private val stacks = mutableMapOf<String, MutableList<MutableList<ApplicationSnapshot>>>()
@@ -27,27 +25,7 @@ object UndoRedoManager {
         }
     }
 
-    private fun makeDeepCopyOfItems(items: List<Item>): List<Item> {
-        return items.map { item ->
-            item.copy(
-                labels = item.labels.map { label -> label.copy() }.toMutableSet(),
-                attachments = item.attachments.map { attachment -> attachment.copy() }.toMutableSet()
-            )
-        }
-    }
-
-    private fun makeDeepCopyOfBoards(boards: List<Board>): List<Board> {
-        return boards.map { board ->
-            board.copy(
-                users = board.users.map { user: User -> user.copy() }.toMutableSet(),
-                labels = board.labels.map { label: Label -> label.copy() }.toMutableSet()
-            )
-        }
-    }
-
     fun handleAction(action: Actions, items: List<Item>, boards: List<Board>, actionMetaData: ActionMetaData?) {
-        val copiedItems = makeDeepCopyOfItems(items)
-        val copiedBoards = makeDeepCopyOfBoards(boards)
         if (stacks[model.currentBoard.value.id.toString()] == null) {
             stacks[model.currentBoard.value.id.toString()] = mutableListOf(
                 mutableListOf(),
@@ -57,7 +35,7 @@ object UndoRedoManager {
 
         // add to undo stack
         stacks[model.currentBoard.value.id.toString()]?.get(0)?.add(
-            ApplicationSnapshot(action, copiedItems, copiedBoards, actionMetaData)
+            ApplicationSnapshot(action, items.map { it }, boards.map { it }, actionMetaData)
         )
 
         // clear redo stack
@@ -65,16 +43,16 @@ object UndoRedoManager {
     }
 
     private fun addCurrentStateToRedoStack(state: ApplicationSnapshot) {
-        val copiedItems = makeDeepCopyOfItems(model.items)
-        val copiedBoards = makeDeepCopyOfBoards(model.boards)
+        val copiedItems = model.items.map { it }
+        val copiedBoards = model.boards.map { it }
         stacks[model.currentBoard.value.id.toString()]?.get(1)?.add(
             ApplicationSnapshot(state.action, copiedItems, copiedBoards, state.actionMetaData)
         )
     }
 
     private fun addCurrentStateToUndoStack(state: ApplicationSnapshot) {
-        val copiedItems = makeDeepCopyOfItems(model.items)
-        val copiedBoards = makeDeepCopyOfBoards(model.boards)
+        val copiedItems = model.items.map { it }
+        val copiedBoards = model.boards.map { it }
         stacks[model.currentBoard.value.id.toString()]?.get(0)?.add(
             ApplicationSnapshot(state.action, copiedItems, copiedBoards, state.actionMetaData)
         )
@@ -87,12 +65,12 @@ object UndoRedoManager {
             if (undoStack.isNotEmpty()) {
                 val previousState = undoStack.removeLast()
                 when (previousState.action) {
-                    Actions.addBoard -> undoAddBoard(previousState)
-                    Actions.updateBoard  -> undoUpdateBoard(previousState)
-                    Actions.addItem -> undoAddItem(previousState)
-                    Actions.updateItem -> undoUpdateItem(previousState)
-                    Actions.deleteItem -> undoDeleteItem(previousState)
-                    Actions.reorderItem -> undoItemReorder(previousState)
+                    Actions.ADD_BOARD -> undoAddBoard(previousState)
+                    Actions.UPDATE_BOARD  -> undoUpdateBoard(previousState)
+                    Actions.ADD_ITEM -> undoAddItem(previousState)
+                    Actions.UPDATE_ITEM -> undoUpdateItem(previousState)
+                    Actions.DELETE_ITEM -> undoDeleteItem(previousState)
+                    Actions.REORDER_ITEM -> undoItemReorder(previousState)
                     else -> println("Invalid action provided")
                 }
             }
@@ -106,12 +84,12 @@ object UndoRedoManager {
             if (redoStack.isNotEmpty()) {
                 val nextState = redoStack.removeLast()
                 when (nextState.action) {
-                    Actions.addBoard -> redoAddBoard(nextState)
-                    Actions.updateBoard -> redoUpdateBoard(nextState)
-                    Actions.addItem -> redoAddItem(nextState)
-                    Actions.updateItem -> redoUpdateItem(nextState)
-                    Actions.deleteItem -> redoDeleteItem(nextState)
-                    Actions.reorderItem -> redoItemReorder(nextState)
+                    Actions.ADD_BOARD -> redoAddBoard(nextState)
+                    Actions.UPDATE_BOARD -> redoUpdateBoard(nextState)
+                    Actions.ADD_ITEM -> redoAddItem(nextState)
+                    Actions.UPDATE_ITEM -> redoUpdateItem(nextState)
+                    Actions.DELETE_ITEM -> redoDeleteItem(nextState)
+                    Actions.REORDER_ITEM -> redoItemReorder(nextState)
                     else -> println("Invalid action provided")
                 }
             }

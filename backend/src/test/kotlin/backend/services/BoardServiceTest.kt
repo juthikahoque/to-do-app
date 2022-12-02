@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 lateinit var conn: Connection
 const val userId = "rIliX3UCwhY7qvdPeh0jJsQL1UR2" // test user from Firebase, id must be this
 val user = User(userId, "test", "test@email.com")
-val users = mutableSetOf(user)
+val users = setOf(user)
 
 internal class BoardServiceTest {
 

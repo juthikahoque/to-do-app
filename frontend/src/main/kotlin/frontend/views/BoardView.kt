@@ -156,7 +156,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
 
             if (from != to && from != -1) {
                 UndoRedoManager.handleAction(
-                    Actions.reorderItem,
+                    Actions.REORDER_ITEM,
                     model.items,
                     model.boards,
                     ActionMetaData(from, to)
@@ -208,7 +208,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
 
                 KeyCode.D -> { // mark as done
                     UndoRedoManager.handleAction(
-                        Actions.updateItem,
+                        Actions.UPDATE_ITEM,
                         model.items,
                         model.boards,
                         null
@@ -231,7 +231,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         val idx = itemList.selectionModel.selectedIndex
         if (idx + dir < itemList.items.size && idx + dir >= 0) {
             UndoRedoManager.handleAction(
-                Actions.reorderItem,
+                Actions.REORDER_ITEM,
                 model.items,
                 model.boards,
                 ActionMetaData(idx, idx + dir)
@@ -254,7 +254,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
             copiedItem = item
             if (cut) {
                 UndoRedoManager.handleAction(
-                    Actions.deleteItem,
+                    Actions.DELETE_ITEM,
                     model.items,
                     model.boards,
                     null
@@ -271,7 +271,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
         val item = copiedItem
         if (item != null && model.currentBoard.value != model.allBoard) {
             UndoRedoManager.handleAction(
-                Actions.addItem,
+                Actions.ADD_ITEM,
                 model.items,
                 model.boards,
                 null
@@ -288,7 +288,12 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
             }
 
             // update board labels if necessary
-            if (model.currentBoard.value.labels.addAll(item.labels)) {
+            val newLabels = item.labels.subtract(model.currentBoard.value.labels)
+            if (newLabels.isNotEmpty()) {
+                val updatedBoard = model.currentBoard.value.copy(
+                    labels = model.currentBoard.value.labels.plus(newLabels)
+                )
+                model.boards[model.boards.indexOf(model.currentBoard.value)] = updatedBoard
                 launch {
                     BoardService.updateBoard(model.currentBoard.value)
                 }
@@ -299,7 +304,7 @@ class BoardView(private val model: Model) : VBox(), CoroutineScope {
     private fun delete() {
         if (itemList.isFocused) {
             UndoRedoManager.handleAction(
-                Actions.deleteItem,
+                Actions.DELETE_ITEM,
                 model.items,
                 model.boards,
                 null

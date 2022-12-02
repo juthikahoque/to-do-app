@@ -354,8 +354,8 @@ object ItemService {
         userId: String,
         startDateTime: LocalDateTime?,
         endDateTime: LocalDateTime?,
-        labels: MutableSet<Label>,
-        priorities: MutableSet<Int>,
+        labels: Set<Label>,
+        priorities: Set<Int>,
         search: String?,
         actualSortBy: String?,
         actualOrderBy: String?,
@@ -434,7 +434,5 @@ object ItemService {
             """.trimIndent(), AppError.Unexpected
             )
         }
-
     }
-
 }
