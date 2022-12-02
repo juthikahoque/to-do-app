@@ -7,23 +7,13 @@ import frontend.services.AuthService
 import frontend.services.BoardService
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.control.Button
-import javafx.scene.control.Label
-import javafx.scene.control.ListCell
-import javafx.scene.control.ListView
+import javafx.scene.control.*
 import javafx.scene.image.Image
-import javafx.scene.control.ToggleButton
 import javafx.scene.image.ImageView
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
-import javafx.scene.layout.Background
-import javafx.scene.layout.BackgroundFill
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.VBox
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Pane
-import javafx.scene.layout.Priority
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
 import javafx.scene.shape.Circle
@@ -71,11 +61,11 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
     private val themeMode = ToggleButton().apply {
         font = Font(15.0)
         id = "toggle"
-        graphic = if(isLightMode) moonImgView else sunImgView
+        graphic = if (isLightMode) moonImgView else sunImgView
         setOnAction {
             isLightMode = !isLightMode
-            graphic = if(isLightMode) moonImgView else sunImgView
-            app.changeThemeMode(if(isLightMode) "light" else "dark")
+            graphic = if (isLightMode) moonImgView else sunImgView
+            app.changeThemeMode(if (isLightMode) "light" else "dark")
         }
     }
 
@@ -176,14 +166,20 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
         }
 
         setOnKeyPressed {
+            val deleteCode = if (System.getProperty("os.name").lowercase().contains("mac")) {
+                KeyCode.BACK_SPACE
+            } else {
+                KeyCode.DELETE
+            }
             when (it.code) { // delete item
-                KeyCode.DELETE -> {
+                deleteCode -> {
                     val item = selectionModel.selectedItem
                     model.boards.remove(item)
                     launch {
                         BoardService.deleteBoard(item.id)
                     }
                 }
+
                 else -> {}
             }
 
@@ -204,9 +200,10 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
                         }
                     }
                 }
+
                 KeyCode.DOWN -> { // re-order down
                     val idx = selectionModel.selectedIndex
-                    if (idx < items.size - 1) {
+                    if (idx < items.size - 1 && idx > 0) {
                         val old = items[idx]
                         items[idx] = items[idx + 1]
                         items[idx + 1] = old
@@ -218,6 +215,7 @@ class SidebarView(private val model: Model) : BorderPane(), CoroutineScope {
                         }
                     }
                 }
+
                 else -> {}
             }
         }

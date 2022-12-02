@@ -44,7 +44,7 @@ class Model : CoroutineScope {
             val list = BoardService.getBoards().toMutableList()
             if (list.isEmpty()) { // user has no board, add a personal
                 val personalBoard = Board(
-                    "Personal",
+                    "My Board",
                     mutableSetOf(AuthService.user)
                 )
                 BoardService.addBoard(personalBoard)
