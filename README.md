@@ -1,92 +1,85 @@
-# CS 346 Project
+# :pencil: 2+ Do
 
+We're building a versatile TODO for the tech-savvy! With features like _authentication_, <ins>_collaborative boards_</ins> that can be shared, and _light/dark themes_ we hope to be the all-in-one solution for your productivity needs.
 
+Team 112 consists of Aryaman, Juthika, Neel and ShiCheng
 
-## Getting started
+# Project Details
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+1. [Key Requirements](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/Releases)
+2. [Sprint Timeline](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%E2%8F%B0-Sprint-Timeline)
+3. [Architecture and Design Decisions (including mockups)](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%E2%9A%99%EF%B8%8F-Architecture-and-Design)
+4. [User interviews](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%8E%99-User-Interviews/Affinity-Diagram)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+# Usage Instructions
 
-## Add your files
+First, log in with Google!
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+Next, explore your boards:
 
-```
-cd existing_repo
-git remote add origin https://git.uwaterloo.ca/n7ismail/cs-346-project.git
-git branch -M main
-git push -uf origin main
-```
+* the **All** board will be a non-shareable and uneditable board with all of your TODO items across all of your boards
+* **My Board** is your personal board
+* You can create new boards at the **Create** button in the sidebar, and edit your boards by pressing the **pencil icon** next to each board's names
+* Add any **users** you'd like to share your board with by clicking the share icon in the top right and typing in their emails
 
-## Integrate with your tools
+Then, create TODO items:
 
-- [ ] [Set up project integrations](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/settings/integrations)
+* Press the + icon in the top right to create a new TODO item! Each TODO item has the following optional fields:
+  * a title,
+  * a due date,
+  * a priority (low, medium, high),
+  * labels (e.g. CS 346),
+  * assigned to (e.g. yourself, another user),
+  * file attachment,
+  * description
+* After creating a TODO, you can edit by, pressing the pencil icon at the right of each TODO item
+* You can filter, search and sort by different categories at the top left!
 
-## Collaborate with your team
+Finally, play around with the app!
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+* There are many keyboard shortcuts to make your life easier which you can find [here](https://gitlab.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/Keyboard-Shortcuts)
+* You can toggle light/dark themes by pressing the moon/sun icon in the sidebar and we'll save that preference for you when you logout!
 
-## Test and Deploy
+Enjoy your new way to stay organized by using 2+ Do!
 
-Use the built-in continuous integration in GitLab.
+# Meeting Minutes
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+We plan to meet, in person, every Wednesday. The minutes and other notes from our meetings can be found in the Wiki or via the following links:
 
-***
+- [Meeting Minutes: 21st September, 2022](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%97%93-Meeting-Minutes/21st-September-2022-at-10:30am)
+- [Meeting Minutes: 28th September, 2022](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%97%93-Meeting-Minutes/28th-September-2022-at-3:00pm)
+- [Meeting Minutes: 5th October, 2022](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%97%93-Meeting-Minutes/5th-October-2022-at-3:00-pm)
+- [Meeting Minutes: 19th October, 2022](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%97%93-Meeting-Minutes/19th-October-2022-at-2:30-pm)
+- [Meeting Minutes: 4th November, 2022](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%97%93-Meeting-Minutes/4th-November-2022-at-4:00-pm)
 
-# Editing this README
+# Acknowledgements
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+We acknowledge the usage of the following third-party libraries:
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+* JMetro (theming for JavaFX)
+* Firebase/Google Auth
+* Material Design Icons
 
 ## License
-For open source projects, say how it is licensed.
+MIT License
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Copyright (c) 2022 Neel Ismail
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
