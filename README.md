@@ -3,7 +3,6 @@
 We're building a versatile TODO for the tech-savvy! With features like _authentication_, <ins>_collaborative boards_</ins> that can be shared, and _light/dark themes_ we hope to be the all-in-one solution for your productivity needs.
 
 Team 112 consists of Aryaman, Juthika, Neel and ShiCheng
-
 # Project Details
 
 1. [Key Requirements](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/Releases)
@@ -12,6 +11,8 @@ Team 112 consists of Aryaman, Juthika, Neel and ShiCheng
 4. [User interviews](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%8E%99-User-Interviews/Affinity-Diagram)
 
 # Usage Instructions
+
+Read the following instructions or watch [this video for a more in-depth tutorial!](https://youtu.be/c8r6m0PbizQ) 
 
 First, log in with Google!
 
@@ -37,7 +38,7 @@ Then, create TODO items:
 
 Finally, play around with the app!
 
-* There are many keyboard shortcuts to make your life easier which you can find [here](https://gitlab.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/Keyboard-Shortcuts)
+* There are many keyboard shortcuts to make your life easier which you can find [the entire list of shortcuts here](https://gitlab.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/Keyboard-Shortcuts)
 * You can toggle light/dark themes by pressing the moon/sun icon in the sidebar and we'll save that preference for you when you logout!
 
 Enjoy your new way to stay organized by using 2+ Do!
@@ -51,6 +52,7 @@ We plan to meet, in person, every Wednesday. The minutes and other notes from ou
 - [Meeting Minutes: 5th October, 2022](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%97%93-Meeting-Minutes/5th-October-2022-at-3:00-pm)
 - [Meeting Minutes: 19th October, 2022](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%97%93-Meeting-Minutes/19th-October-2022-at-2:30-pm)
 - [Meeting Minutes: 4th November, 2022](https://git.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%97%93-Meeting-Minutes/4th-November-2022-at-4:00-pm)
+- [Meeting Minutes: 1st Decemeber, 2022](https://gitlab.uwaterloo.ca/n7ismail/cs-346-project/-/wikis/%F0%9F%97%93-Meeting-Minutes/1st-December-2022-at-4:00-pm)
 
 # Acknowledgements
 
